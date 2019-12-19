@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ed91e844c53d547d48bdcee21abce103
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
+      type: 2}
+  - eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 2}
+  - ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 2}
+  - mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 2}
+  executionOrder: 50
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
