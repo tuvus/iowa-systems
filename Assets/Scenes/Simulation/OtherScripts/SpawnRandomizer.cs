@@ -12,6 +12,7 @@ public class SpawnRandomizer : MonoBehaviour {
 		transform.position = new Vector3(0, 0, 0);
 		if (parent != null) {
 			transform.LookAt(parent.transform);
+			transform.Rotate(transform.right * 90);
 		}
 		//Debug.Log(range);
 		if (range == 0f) {

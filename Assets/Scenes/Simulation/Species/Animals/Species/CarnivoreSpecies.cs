@@ -76,8 +76,7 @@ public class CarnivoreSpecies : MonoBehaviour {
 			basicAnimal.age = Random.Range(0.1f, maxAge / 2);
 			basicAnimal.gameObject.AddComponent<SpawnRandomizer>();
 			newOrganism.AddComponent<CarnivoreScript>().noise = noise;
-            newOrganism.GetComponent<CarnivoreScript>().species = this;
-            basicAnimal.species = speciesName;
+			basicAnimal.species = speciesName;
 			basicAnimal.GetComponent<Rigidbody>().mass = mass;
 			basicAnimal.health = maxHealth;
 			basicAnimal.speed = speed;
@@ -109,8 +108,7 @@ public class CarnivoreSpecies : MonoBehaviour {
 		spawn.parent = _parent;
 		spawn.range = .8f;
 		newOrganism.AddComponent<CarnivoreScript>().noise = noise;
-        newOrganism.GetComponent<CarnivoreScript>().species = this;
-        basicAnimal.species = speciesName;
+		basicAnimal.species = speciesName;
 		basicAnimal.GetComponent<Rigidbody>().mass = mass;
 		basicAnimal.health = maxHealth;
 		basicAnimal.speed = speed;

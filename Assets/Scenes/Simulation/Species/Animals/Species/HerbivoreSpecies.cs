@@ -78,8 +78,7 @@ public class HerbivoreSpecies : MonoBehaviour {
 			newOrganism.AddComponent<HerbivoreScript>().noise = noise;
 			basicAnimal.species = speciesName;
 			basicAnimal.GetComponent<Rigidbody>().mass = mass;
-            newOrganism.GetComponent<HerbivoreScript>().species = this;
-            basicAnimal.health = maxHealth;
+			basicAnimal.health = maxHealth;
 			basicAnimal.speed = speed;
 			//Add if statments and add organs
 			if (GetComponent<AnimalSpeciesEars>() != null) {
@@ -105,12 +104,11 @@ public class HerbivoreSpecies : MonoBehaviour {
 		GameObject newOrganism = Instantiate(basicOrganism, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null);
 		newOrganism.GetComponent<Renderer>().material.color = speciesColor;
 		basicAnimal = newOrganism.GetComponent<BasicAnimalScript>();
-        SpawnRandomizer spawn = basicAnimal.gameObject.AddComponent<SpawnRandomizer>();
+		SpawnRandomizer spawn = basicAnimal.gameObject.AddComponent<SpawnRandomizer>();
 		spawn.parent = _parent;
 		spawn.range = .8f;
 		newOrganism.AddComponent<HerbivoreScript>().noise = noise;
-        newOrganism.GetComponent<HerbivoreScript>().species = this;
-        basicAnimal.species = speciesName;
+		basicAnimal.species = speciesName;
 		basicAnimal.GetComponent<Rigidbody>().mass = mass;
 		basicAnimal.health = maxHealth;
 		basicAnimal.speed = speed;

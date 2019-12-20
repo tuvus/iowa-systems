@@ -17,7 +17,7 @@ public class Leaves : MonoBehaviour {
 	public int leafCount;
 	public int leafCountMax;
 
-	public float leafFertilityBonus;
+	public float leafHealthBonus;
 
 
 	void Start () {
@@ -26,7 +26,7 @@ public class Leaves : MonoBehaviour {
 
 		leafAgeRequiremnt = leafAgeRequiremnt * Random.Range(0.8f, 1.2f);
 		leafGrowthRate = leafGrowthRate * Random.Range(0.8f, 1.2f);
-		leafFertilityBonus = leafFertilityBonus * Random.Range(0.8f, 1.2f);
+		leafHealthBonus = leafHealthBonus * Random.Range(0.8f, 1.2f);
 		leafCountMax = Mathf.RoundToInt (leafCountMax * Random.Range(0.8f, 1.2f));
 	}
 	void FixedUpdate() {
@@ -38,13 +38,11 @@ public class Leaves : MonoBehaviour {
 		}
 		if (plantScript.refreshed) {
 			if (plantScript.inSun) {
-				if (leafCount != 0) {
-					plantScript.fertility += leafFertilityBonus * leafCount;
-				}
+
 			}
-			if ((plantScript.age >= leafAgeRequiremnt) && (plantScript.storedGrowth >= leafGrowthRequirement) && (leafCount != leafCountMax)) {
-				plantScript.storedGrowth -= leafGrowthRate;
+			if ((plantScript.age >= leafAgeRequiremnt) && (leafCount != leafCountMax)) {
 				leafGrowth += leafGrowthRate / 2;
+				leafGrowthRate -= leafGrowthRate / 1000;
 				if (leafGrowth > leafGrowthMax) {
 					leafGrowth = leafGrowthMax;
 				}
@@ -56,6 +54,21 @@ public class Leaves : MonoBehaviour {
 					leafGrowth -= leafGrowCost;
 					plantFood.intFoodCount = leafCount;
 				}
+			}
+			if (leafGrowth >= leafGrowthMax) {
+				if (transform.parent.GetComponentInChildren<FlowerSeed>() != null && transform.parent.GetComponentInChildren<FlowerSeed>().flowerGrowth < transform.parent.GetComponentInChildren<FlowerSeed>().flowerGrowthMax) {
+					transform.parent.GetComponentInChildren<FlowerSeed>().flowerGrowth += leafGrowthRate;
+					leafGrowthRate -= leafGrowthRate / 1000;
+				} else if (transform.parent.GetComponentInChildren<FlowerFruit>() != null && transform.parent.GetComponentInChildren<FlowerFruit>().flowerGrowth < transform.parent.GetComponentInChildren<FlowerFruit>().flowerGrowthMax) {
+					transform.parent.GetComponentInChildren<FlowerFruit>().flowerGrowth += leafGrowthRate;
+					leafGrowthRate -= leafGrowthRate / 1000;
+				} else if (GetComponentInParent<VegetativePropagation>() != null && transform.parent.GetComponentInChildren<VegetativePropagation>().growth < transform.parent.GetComponentInChildren<VegetativePropagation>().growthMax) {
+					GetComponentInParent<VegetativePropagation>().growth += leafGrowthRate;
+					leafGrowthRate -= leafGrowthRate / 1000;
+				}
+			}
+			if (plantScript.health < plantScript.maxHealth) {
+				plantScript.health += leafHealthBonus * leafCount;
 			}
 		}
 	}

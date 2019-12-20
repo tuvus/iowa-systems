@@ -11,10 +11,11 @@ public class HerbivoreScript : MonoBehaviour {
 	public GameObject noise;
 
 	private PlantFood target;
-	public HerbivoreSpecies species;
+	private HerbivoreSpecies species;
 
 	void Start () {
 		basicAnimal = GetComponent<BasicAnimalScript>();
+		species = GameObject.Find(basicAnimal.species).GetComponent<HerbivoreSpecies>();
 		reproductive = GetComponentInChildren<ReproductiveSystemScript>();
 	}
 
@@ -40,7 +41,7 @@ public class HerbivoreScript : MonoBehaviour {
 			} else if (reproductive.reproduce())  {
 				//CheckIfAbleToReproduce
 				Debug.Log("AtemptingReproduction");
-			} else if (findMate()) {
+			} else if (FindMate()) {
 				//CheckIfAbleToFindMate
 				Debug.Log("FoundMate");
 			} else {
@@ -57,7 +58,7 @@ public class HerbivoreScript : MonoBehaviour {
 			}
 		}
 	}
-	public bool findMate() {
+	public bool FindMate() {
 		if (basicAnimal.age >= reproductive.reproductionAge && basicAnimal.mate == null) {
 			for (int i = 0; i < basicAnimal.nearbyObjects.Count; i++) {
 				GameObject mateToCheck = basicAnimal.nearbyObjects[i].gameObject;
@@ -114,7 +115,7 @@ public class HerbivoreScript : MonoBehaviour {
 					foodsInRange.Remove(null);
 				} else if (foodsInRange[i].GetComponent<PlantFoodScript>() != null) {
 					if (foodsInRange[i].GetComponent<PlantFoodScript>().checkFood()) {
-						basicAnimal.food += foodsInRange[i].GetComponent<PlantFoodScript>().eaten(GetComponentInChildren<MouthScript>().biteSize);
+						basicAnimal.food += foodsInRange[i].GetComponent<PlantFoodScript>().Eaten(GetComponentInChildren<MouthScript>().biteSize);
 						GameObject newNoise = Instantiate(noise, gameObject.transform);
 						newNoise.GetComponent<NoiseScript>().time = Random.Range(1.2f, 0.3f);
 						newNoise.GetComponent<NoiseScript>().range = Random.Range(foodsInRange[i].GetComponent<PlantFoodScript>().eatNoiseRange / 2, foodsInRange[i].GetComponent<PlantFoodScript>().eatNoiseRange + 2);

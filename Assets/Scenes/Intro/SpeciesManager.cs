@@ -38,7 +38,7 @@ public class SpeciesManager : MonoBehaviour {
 		GetComponent<SpeciesMotor>().enabled = true;
 		GetComponent<SpeciesMotor>().StartSimulation();
 	}
-    public void QuitGame() {
-        Application.Quit();
-    }
+	public void QuitGame() {
+		Application.Quit();
+	}
 }

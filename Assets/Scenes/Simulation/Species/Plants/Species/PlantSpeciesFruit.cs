@@ -7,15 +7,19 @@ public class PlantSpeciesFruit : MonoBehaviour {
 	public GameObject flower;
 	public GameObject fruit;
 
-	public float flowerGrowthRequirement;
+	public float flowerGrowthMax;
 	public float flowerGrowthRate;
-	public int flowerCountMax;
 
-	public float flowerFertilityBonus;
+	public float flowerAgeRequirement;
 
+	public float flowerGrowthRequirement;
 	public float fruitGrowthRequirement;
-	public float fruitGrowCost;
-	public int fruitGrowTimeMax;
+
+	public int flowerGrowStage;
+	public int distributionStage;
+	public int fruitGrowStage;
+
+	public int flowerCountMax;
 
 	public string foodType;
 	public float foodCount;
@@ -25,13 +29,20 @@ public class PlantSpeciesFruit : MonoBehaviour {
 	public void makeOrganism(GameObject _newOrganism) {
 		GameObject newFlower = Instantiate(flower, _newOrganism.transform);
 		FlowerFruit flowerFruit = newFlower.GetComponent<FlowerFruit>();
-		flowerFruit.flowerGrowthRequirement = flowerGrowthRequirement;
-		flowerFruit.flowerGrowthRate = flowerGrowthRate;
+		flowerFruit.fruit = this;
 		flowerFruit.flowerCountMax = flowerCountMax;
-		flowerFruit.flowerFertilityBonus = flowerFertilityBonus;
+		flowerFruit.flowerGrowthRate = flowerGrowthRate;
+
+		flowerFruit.flowerAgeRequirement = flowerAgeRequirement;
+
+		flowerFruit.flowerGrowthRequirement = flowerGrowthRequirement;
 		flowerFruit.fruitGrowthRequirement = fruitGrowthRequirement;
-		flowerFruit.fruitGrowCost = fruitGrowCost;
-		flowerFruit.fruitGrowTimeMax = fruitGrowTimeMax;
+
+		flowerFruit.flowerGrowStage = flowerGrowStage;
+		flowerFruit.distributionStage = distributionStage;
+		flowerFruit.fruitGrowStage = fruitGrowStage;
+
+		flowerFruit.flowerCountMax = flowerCountMax;
 
 		PlantFoodScript plantFood = newFlower.AddComponent<PlantFoodScript>();
 		plantFood.foodType = foodType;
@@ -39,7 +50,11 @@ public class PlantSpeciesFruit : MonoBehaviour {
 		plantFood.foodGain = foodGain;
 		plantFood.eatNoiseRange = eatNoiseRange;
 	}
-	public void makeFlower () {
+	public void MakeNewGrownOrganism(GameObject _newOrganism) {
+
+	}
+
+	public void MakeFruit (GameObject _parent) {
 		
 	}
 }

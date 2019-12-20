@@ -26,6 +26,7 @@ public class SpeciesMaker : MonoBehaviour {
 		for (int i = 0; i < speciesPresetHolder.childCount; i++) {
 			if (speciesPresetHolder.GetChild(i).name == species) {
 				selectedSpecies = speciesPresetHolder.GetChild(i).gameObject;
+				transform.GetChild(1).GetComponent<InputField>().text = transform.GetChild(0).GetComponent<Dropdown>().options[transform.GetChild(0).GetComponent<Dropdown>().value].text;
 			}
 		}
 	}

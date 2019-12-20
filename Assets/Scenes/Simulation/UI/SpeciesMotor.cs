@@ -5,6 +5,9 @@ using UnityEngine;
 public class SpeciesMotor : MonoBehaviour {
 
 	private GraphWindow graph;
+	[SerializeField]
+	private GameObject populaitonCountPrefab;
+	private GameObject populationCountParent;
 	private GameObject graphNode;
 	public int refreshTime;
 	public int maxRefreshTime;
@@ -16,6 +19,19 @@ public class SpeciesMotor : MonoBehaviour {
 		if (GameObject.Find("GraphWindow") != null) {
 			graph = GameObject.Find("GraphWindow").GetComponent<GraphWindow>();
 			graph.gameObject.SetActive(false);
+		}
+		if (GameObject.Find("PopulaitonUI") != null) {
+			populationCountParent = GameObject.Find("PopulaitonUI");
+			for (int i = 0; i < transform.childCount; i++) {
+				GameObject newCountPrefab = Instantiate(populaitonCountPrefab, populationCountParent.transform);
+				if (transform.GetChild(i).GetComponent<HerbivoreSpecies>() != null) {
+					newCountPrefab.GetComponent<SpeciesPopulaitonCount>().SetSpecies(transform.GetChild(i).GetComponent<HerbivoreSpecies>(), null, null, i);
+				} else if (transform.GetChild(i).GetComponent<CarnivoreSpecies>() != null) {
+					newCountPrefab.GetComponent<SpeciesPopulaitonCount>().SetSpecies(null, transform.GetChild(i).GetComponent<CarnivoreSpecies>(), null, i);
+				} else if (transform.GetChild(i).GetComponent<PlantSpeciesScript>() != null) {
+					newCountPrefab.GetComponent<SpeciesPopulaitonCount>().SetSpecies(null, null, transform.GetChild(i).GetComponent<PlantSpeciesScript>(), i);
+				}     
+			}
 		}
 
 		for (int i = 0; i < transform.childCount; i++) {

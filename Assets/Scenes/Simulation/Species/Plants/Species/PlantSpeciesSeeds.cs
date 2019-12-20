@@ -21,9 +21,10 @@ public class PlantSpeciesSeeds : MonoBehaviour {
 		seeds.seed = seed;
 	}
 	public void MakePlant (GameObject _plantToGrow, float growth) {
-		plantSpecies.SpawnSeedOrganism(_plantToGrow).gameObject.GetComponent<BasicPlantScript>().storedGrowth = growth;
+		plantSpecies.SpawnSeedOrganism(_plantToGrow).gameObject.GetComponent<BasicPlantScript>().health = growth;
 
 	}
+
 
 	public void Populate (int _populateCount, GameObject _earth) {
 		for (int i = 0; i < _populateCount; i++) {

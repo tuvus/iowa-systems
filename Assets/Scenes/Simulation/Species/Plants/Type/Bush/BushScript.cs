@@ -14,6 +14,6 @@ public class BushScript : MonoBehaviour {
 	}
 
 	void MakeFLower () {
-		GetComponent<BasicPlantScript>().plantSpecies.gameObject.GetComponent<PlantSpeciesFlowers>();
+		GetComponent<BasicPlantScript>().plantSpecies.gameObject.GetComponent<PlantSpeciesFlowerSeed>();
 	}
 }

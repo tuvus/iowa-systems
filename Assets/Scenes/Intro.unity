@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 1026722562}
+  m_Sun: {fileID: 0}
   m_IndirectSpecularColor: {r: 0.007691055, g: 0.0073815268, b: 0.0076237516, a: 1}
 --- !u!157 &3
 LightmapSettings:
@@ -328,80 +328,128 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 136104161}
---- !u!1 &154415399
+--- !u!1 &207674595
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 154415400}
-  - component: {fileID: 154415402}
-  - component: {fileID: 154415401}
+  - component: {fileID: 207674596}
+  - component: {fileID: 207674599}
+  - component: {fileID: 207674598}
+  - component: {fileID: 207674597}
   m_Layer: 5
-  m_Name: Text
+  m_Name: Quit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &154415400
+--- !u!224 &207674596
 RectTransform:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 154415399}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_GameObject: {fileID: 207674595}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 844919888}
-  m_RootOrder: 0
+  m_Children:
+  - {fileID: 572811381}
+  m_Father: {fileID: 1168070761}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &154415401
+--- !u!114 &207674597
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 154415399}
+  m_GameObject: {fileID: 207674595}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 207674598}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 745349116}
+        m_MethodName: QuitGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+--- !u!114 &207674598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 207674595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
-    m_Alignment: 4
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: Quit
---- !u!222 &154415402
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+--- !u!222 &207674599
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 154415399}
+  m_GameObject: {fileID: 207674595}
 --- !u!1 &268692953
 GameObject:
   m_ObjectHideFlags: 0
@@ -1062,9 +1110,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   roots: {fileID: 1486139910836972, guid: 5e04844609cf6495b9eab2474f523e5f, type: 2}
-  rootGrowthRate: 0.3
+  rootAgeRequirement: 0.21
+  rootGrowthRate: 0.026
   rootGrowthMax: 5.46
-  rootFertilityBonus: 0.22
+  rootHealthBonus: 0.0004
 --- !u!114 &456575638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1076,10 +1125,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 580515522c3d74722bf9fd4e21038bbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ageRequirement: 3.08
-  growthRate: 0.04
-  growthMax: 27.37
-  newPlantGrowthCost: 13.04
+  growthMax: 9.89
+  newPlantGrowthCost: 6.13
   maxTimeAfterReproduction: 128
 --- !u!114 &456575639
 MonoBehaviour:
@@ -1094,10 +1141,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blade: {fileID: 1729489761767784, guid: a18469be6fb404b46804608ee5e51204, type: 2}
   bladeAgeRequirement: 1.5
-  bladeGrowthRate: 0.07
+  bladeGrowthRate: 0.03
   bladeGrowthMax: 4.42
-  bladeFertilityBonus: 0.15
-  bladeFertilityCost: 0.09
+  bladeHealthBonus: 0.001
   foodType: Grass
   foodGain: 0.5
   eatNoiseRange: 2.03
@@ -1118,7 +1164,7 @@ MonoBehaviour:
   speciesColor: {r: 0.4191683, g: 0.4811321, b: 0, a: 0}
   plantCount: 10
   seedCount: 4
-  fertilityConsumption: 0.07
+  maxHealth: 15
 --- !u!1 &536602126
 GameObject:
   m_ObjectHideFlags: 0
@@ -1295,6 +1341,80 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 554956348}
+--- !u!1 &572811380
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 572811381}
+  - component: {fileID: 572811383}
+  - component: {fileID: 572811382}
+  m_Layer: 5
+  m_Name: Text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &572811381
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 572811380}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 207674596}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &572811382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 572811380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 14
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: Quit
+--- !u!222 &572811383
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 572811380}
 --- !u!1 &585825463
 GameObject:
   m_ObjectHideFlags: 0
@@ -2346,6 +2466,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ad22904dd8f24a109b9beaa7cc8aefd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  populaitonCountPrefab: {fileID: 1589352778045128, guid: 4ae62d2c6f3ac4b349f32dde56e6c8b1,
+    type: 2}
   refreshTime: 200
   maxRefreshTime: 200
 --- !u!1 &747077542
@@ -2492,9 +2614,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   roots: {fileID: 1486139910836972, guid: 5e04844609cf6495b9eab2474f523e5f, type: 2}
-  rootGrowthRate: 0.34
+  rootAgeRequirement: 0.04
+  rootGrowthRate: 0.016
   rootGrowthMax: 3.54
-  rootFertilityBonus: 0.12
+  rootHealthBonus: 0.0001
 --- !u!114 &809522556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2506,11 +2629,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 580515522c3d74722bf9fd4e21038bbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ageRequirement: 1.97
-  growthRate: 0.05
-  growthMax: 35.31
-  newPlantGrowthCost: 19.57
-  maxTimeAfterReproduction: 119
+  growthMax: 10.52
+  newPlantGrowthCost: 4.9
+  maxTimeAfterReproduction: 75
 --- !u!114 &809522557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2524,10 +2645,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blade: {fileID: 1729489761767784, guid: a18469be6fb404b46804608ee5e51204, type: 2}
   bladeAgeRequirement: 1.19
-  bladeGrowthRate: 0.06
+  bladeGrowthRate: 0.025
   bladeGrowthMax: 2.1
-  bladeFertilityBonus: 0.14
-  bladeFertilityCost: 0.04
+  bladeHealthBonus: 0.0004
   foodType: Grass
   foodGain: 0.27
   eatNoiseRange: 2.48
@@ -2548,129 +2668,7 @@ MonoBehaviour:
   speciesColor: {r: 0.110780396, g: 0.6037736, b: 0, a: 0}
   plantCount: 10
   seedCount: 4
-  fertilityConsumption: 0.05
---- !u!1 &844919887
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 844919888}
-  - component: {fileID: 844919891}
-  - component: {fileID: 844919890}
-  - component: {fileID: 844919889}
-  m_Layer: 5
-  m_Name: Button
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &844919888
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 844919887}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 154415400}
-  m_Father: {fileID: 1168070761}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 160, y: 30}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &844919889
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 844919887}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 844919890}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 745349116}
-        m_MethodName: QuitGame
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
---- !u!114 &844919890
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 844919887}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
-      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
---- !u!222 &844919891
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 844919887}
+  maxHealth: 7.84
 --- !u!1 &863328551
 GameObject:
   m_ObjectHideFlags: 0
@@ -2843,7 +2841,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 10
+  m_ScrollSensitivity: 4
   m_Viewport: {fileID: 1283312586}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 1504491617}
@@ -3371,14 +3369,14 @@ RectTransform:
   - {fileID: 403822615}
   - {fileID: 712550035}
   - {fileID: 2114477704}
-  - {fileID: 844919888}
+  - {fileID: 207674596}
   m_Father: {fileID: 1242764535}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 624, y: 748}
+  m_SizeDelta: {x: 260, y: 520}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1168070762
 MonoBehaviour:
@@ -5134,7 +5132,7 @@ MonoBehaviour:
   maxBirthTime: 47
   timeAfterReproduction: -93
   shortTimeAfterReproduction: 1.39
-  reproductionChance: 76.35
+  reproductionChance: 75.72
   reproductionAge: 0.6
   reproducionAmount: 12
   reproductionSuccessAmount: 42.9
@@ -5164,7 +5162,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 2}
-  sightRange: 4.15
+  sightRange: 5.72
 --- !u!114 &1627060937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5198,10 +5196,7 @@ MonoBehaviour:
   speciesColor: {r: 1, g: 0.7238284, b: 0.4292453, a: 0}
   organismCount: 10
   diet:
-  - Fruits
-  - Nuts
-  - Berrys
-  - Vegetables
+  - Grass
   predators: []
   mass: 2
   maxHealth: 3.61
@@ -5812,10 +5807,10 @@ RectTransform:
   m_Father: {fileID: 1242764535}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -600, y: -200}
+  m_SizeDelta: {x: 260, y: 525}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1776531799
 MonoBehaviour:
@@ -6309,7 +6304,7 @@ MonoBehaviour:
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 2}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 2}
-  speciesName: Deer
+  speciesName: Racoon
   namedSpecies: 
   speciesColor: {r: 0.1981132, g: 0.13925514, b: 0.07943218, a: 0}
   organismCount: 10
@@ -6485,11 +6480,11 @@ MonoBehaviour:
   leaves: {fileID: 1018734136728304, guid: 988cc6f07f3e14eb7b0537981f3e798b, type: 2}
   leafAgeRequiremnt: 1.35
   leafGrowthRequirement: 1.4
-  leafGrowthRate: 0.05
+  leafGrowthRate: 0.01
   leafGrowthMax: 10.17
   leafGrowCost: 1
   leafCountMax: 82
-  leafFertilityBonus: 0.01
+  leafHealthBonus: 0.0005
   foodType: Leaves
   foodGain: 0.42
   eatNoiseRange: 1.29
@@ -6505,9 +6500,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   roots: {fileID: 1486139910836972, guid: 5e04844609cf6495b9eab2474f523e5f, type: 2}
-  rootGrowthRate: 0.34
+  rootAgeRequirement: 0.14
+  rootGrowthRate: 0.02
   rootGrowthMax: 3.54
-  rootFertilityBonus: 0.12
+  rootHealthBonus: 0.0001
 --- !u!114 &1981093421
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6519,11 +6515,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 580515522c3d74722bf9fd4e21038bbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ageRequirement: 4.02
-  growthRate: 0.03
-  growthMax: 32.47
-  newPlantGrowthCost: 15.2
-  maxTimeAfterReproduction: 205
+  growthMax: 13.59
+  newPlantGrowthCost: 7.87
+  maxTimeAfterReproduction: 153
 --- !u!114 &1981093422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6541,7 +6535,7 @@ MonoBehaviour:
   speciesColor: {r: 0, g: 0.3018868, b: 0.009769872, a: 0}
   plantCount: 10
   seedCount: 4
-  fertilityConsumption: 0.08
+  maxHealth: 16.21
 --- !u!1 &2004894439
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,10 +11,11 @@ public class CarnivoreScript : MonoBehaviour {
 	public GameObject noise;
 
 	private PlantFood target;
-	public CarnivoreSpecies species;
+	private CarnivoreSpecies species;
 
 	void Start() {
 		basicAnimal = GetComponent<BasicAnimalScript>();
+		species = GameObject.Find(basicAnimal.species).GetComponent<CarnivoreSpecies>();
 		reproductive = GetComponentInChildren<ReproductiveSystemScript>();
 	}
 
@@ -48,9 +49,9 @@ public class CarnivoreScript : MonoBehaviour {
 				Debug.Log("FoundMate");
 			} else {
 				if (basicAnimal.touchingEarth) {
-                    //Explore
-                    transform.Rotate(new Vector3(Random.Range(-10, 10), Random.Range(-10, 10), Random.Range(-10, 10)));
-                    basicAnimal.move = true;
+					//Explore
+					transform.Rotate(new Vector3(Random.Range(-10, 10), Random.Range(-10, 10), Random.Range(-10, 10)));
+					basicAnimal.move = true;
 				}
 			}
 		}
@@ -122,7 +123,7 @@ public class CarnivoreScript : MonoBehaviour {
 				} else if (foodsInRange[i].GetComponent<PlantFoodScript>() != null) {
 					if (foodsInRange[i].GetComponent<PlantFoodScript>().checkFood()) {
 						Debug.Log("2");
-						basicAnimal.food += foodsInRange[i].GetComponent<PlantFoodScript>().eaten(GetComponentInChildren<MouthScript>().biteSize);
+						basicAnimal.food += foodsInRange[i].GetComponent<PlantFoodScript>().Eaten(GetComponentInChildren<MouthScript>().biteSize);
 						GameObject newNoise = Instantiate(noise, gameObject.transform);
 						newNoise.GetComponent<NoiseScript>().time = Random.Range(1.2f, 0.3f);
 						newNoise.GetComponent<NoiseScript>().range = Random.Range(foodsInRange[i].GetComponent<PlantFoodScript>().eatNoiseRange / 2, foodsInRange[i].GetComponent<PlantFoodScript>().eatNoiseRange + 2);
@@ -142,6 +143,6 @@ public class CarnivoreScript : MonoBehaviour {
 		return false;
 	}
 	public GameObject GetSpecies() {
-		return species.gameObject;
+		return gameObject;
 	}
 }

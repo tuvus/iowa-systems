@@ -13,7 +13,7 @@ public class PlantSpeciesLeaves : MonoBehaviour {
 	public float leafGrowCost;
 	public int leafCountMax;
 
-	public float leafFertilityBonus;
+	public float leafHealthBonus;
 
 	public string foodType;
 	public float foodGain;
@@ -23,19 +23,23 @@ public class PlantSpeciesLeaves : MonoBehaviour {
 		GameObject newLeaf = Instantiate(leaves, _newOrganism.transform);
 		Leaves leaf = newLeaf.GetComponent<Leaves>();
 
-		leaf.leafGrowthMax = leafGrowthMax;
 		leaf.leafAgeRequiremnt = leafAgeRequiremnt;
 		leaf.leafGrowthRequirement = leafGrowthRequirement;
 		leaf.leafGrowthRate = leafGrowthRate;
+		leaf.leafGrowthMax = leafGrowthMax;
 
 		leaf.leafGrowCost = leafGrowCost;
 		leaf.leafCountMax = leafCountMax;
 
-		leaf.leafFertilityBonus = leafFertilityBonus;
+		leaf.leafHealthBonus = leafHealthBonus;
 
 		PlantFoodScript plantFood = newLeaf.AddComponent<PlantFoodScript>();
 		plantFood.foodType = foodType;
 		plantFood.foodGain = foodGain;
 		plantFood.eatNoiseRange = eatNoiseRange;
 	}
+	public void MakeNewGrownOrganism(GameObject _newOrganism) {
+
+	}
+
 }

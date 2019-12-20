@@ -92,6 +92,7 @@ public class BasicAnimalScript : MonoBehaviour {
 				newDeadBody.transform.localScale = new Vector3(0.004f, 0.002f, 0.002f);
 			}
 			if (GetComponent<CarnivoreScript>()) {
+				GetComponent<CarnivoreScript>().GetSpecies().GetComponent<CarnivoreSpecies>().organismCount--;
 				GameObject newDeadBody = Instantiate(GetComponent<CarnivoreScript>().GetSpecies().GetComponent<CarnivoreSpecies>().deadAnimal, transform.position, transform.rotation, earth.transform);
 				newDeadBody.GetComponent<MeatFoodScript>().floatFoodCount = food + (maxFood / 2);
 				newDeadBody.GetComponent<MeatFoodScript>().foodType = species;

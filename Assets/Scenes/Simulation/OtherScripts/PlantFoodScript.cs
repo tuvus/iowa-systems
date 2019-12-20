@@ -17,14 +17,16 @@ public class PlantFoodScript : MonoBehaviour {
 		return false;
 	}
 
-	public float eaten (float _BiteSize) {
+	public float Eaten (float _BiteSize) {
 		if ((floatFoodCount != 0) || (intFoodCount != 0)) {
 			if (floatFoodCount > 0) {
 				if (floatFoodCount >= _BiteSize) {
 					floatFoodCount -= _BiteSize;
+					GetComponentInParent<BasicPlantScript>().health -= _BiteSize;
 					return (foodGain * _BiteSize);
 				} else if ((floatFoodCount < _BiteSize) && (floatFoodCount != 0)) {
 					floatFoodCount -= _BiteSize;
+					GetComponentInParent<BasicPlantScript>().health -= floatFoodCount;
 					return (foodGain * floatFoodCount);
 				}
 			}
@@ -32,10 +34,12 @@ public class PlantFoodScript : MonoBehaviour {
 				if (intFoodCount >= _BiteSize) {
 					intFoodCount -= Mathf.RoundToInt(_BiteSize);
 					intFoodCount -= Mathf.RoundToInt(_BiteSize);
+					GetComponentInParent<BasicPlantScript>().health -= _BiteSize;
 					return (foodGain * Mathf.RoundToInt(_BiteSize));
 				} else if ((intFoodCount < Mathf.RoundToInt(_BiteSize)) && (intFoodCount != 0)) {
 					intFoodCount -= Mathf.RoundToInt(_BiteSize);
 					intFoodCount -= Mathf.RoundToInt(_BiteSize);
+					GetComponentInParent<BasicPlantScript>().health -= intFoodCount / 2;
 					return (foodGain * intFoodCount);
 				}
 			}
