@@ -20,7 +20,7 @@ public class MeatFoodScript : MonoBehaviour {
 		}
 	}
 
-	public float eaten(float _BiteSize) {
+	public float Eaten(float _BiteSize) {
 		if ((floatFoodCount != 0)) {
 			if (floatFoodCount > 0) {
 				if (floatFoodCount >= _BiteSize) {

@@ -25,7 +25,7 @@ public class SpeciesPopulaitonCount : MonoBehaviour {
 			transform.GetChild(0).GetComponent<Text>().text = (plant.namedSpecies + "Populaiton:" + plant.plantCount);
 		}
 		index = _index;
-		GetComponent<RectTransform>().localPosition = new Vector2(-30, 45 - (32 * _index));
+		GetComponent<RectTransform>().localPosition = new Vector2(430, 365 - (32 * _index));
 	}
 
 	void LateUpdate () {

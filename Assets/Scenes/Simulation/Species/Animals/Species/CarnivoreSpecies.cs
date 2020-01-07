@@ -13,6 +13,7 @@ public class CarnivoreSpecies : MonoBehaviour {
 	private BasicAnimalScript basicAnimal;
 	public string speciesName;
 	public string namedSpecies;
+	public string animal;
 
 	public Color speciesColor;
 	//Population start stats
@@ -73,9 +74,11 @@ public class CarnivoreSpecies : MonoBehaviour {
 			GameObject newOrganism = Instantiate(basicOrganism, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null);
 			newOrganism.GetComponent<Renderer>().material.color = speciesColor;
 			basicAnimal = newOrganism.GetComponent<BasicAnimalScript>();
+			basicAnimal.animal = animal;
 			basicAnimal.age = Random.Range(0.1f, maxAge / 2);
 			basicAnimal.gameObject.AddComponent<SpawnRandomizer>();
 			newOrganism.AddComponent<CarnivoreScript>().noise = noise;
+			newOrganism.GetComponent<CarnivoreScript>().species = this;
 			basicAnimal.species = speciesName;
 			basicAnimal.GetComponent<Rigidbody>().mass = mass;
 			basicAnimal.health = maxHealth;
@@ -104,10 +107,12 @@ public class CarnivoreSpecies : MonoBehaviour {
 		GameObject newOrganism = Instantiate(basicOrganism, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null);
 		newOrganism.GetComponent<Renderer>().material.color = speciesColor;
 		basicAnimal = newOrganism.GetComponent<BasicAnimalScript>();
+		basicAnimal.animal = animal;
 		SpawnRandomizer spawn = basicAnimal.gameObject.AddComponent<SpawnRandomizer>();
 		spawn.parent = _parent;
 		spawn.range = .8f;
 		newOrganism.AddComponent<CarnivoreScript>().noise = noise;
+		newOrganism.GetComponent<CarnivoreScript>().species = this;
 		basicAnimal.species = speciesName;
 		basicAnimal.GetComponent<Rigidbody>().mass = mass;
 		basicAnimal.health = maxHealth;

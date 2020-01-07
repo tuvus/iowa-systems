@@ -46,7 +46,7 @@ public class PlantSpeciesScript : MonoBehaviour {
 			newPlant.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = speciesColor;
 			BasicPlantScript basicPlantScipt = newPlant.GetComponent<BasicPlantScript>();
 			basicPlantScipt.maxHealth = maxHealth;
-			basicPlantScipt.age = Random.Range(0.0f, 3.6f);
+			basicPlantScipt.age = Random.Range(0.0f, 6.6f);
 			newPlant.AddComponent<SpawnRandomizer>();
 			basicPlantScipt.plantSpecies = gameObject;
 			basicPlantScipt.species = speciesName;

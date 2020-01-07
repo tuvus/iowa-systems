@@ -11,23 +11,30 @@ public class HerbivoreScript : MonoBehaviour {
 	public GameObject noise;
 
 	private PlantFood target;
-	private HerbivoreSpecies species;
+	public HerbivoreSpecies species;
 
 	void Start () {
 		basicAnimal = GetComponent<BasicAnimalScript>();
-		species = GameObject.Find(basicAnimal.species).GetComponent<HerbivoreSpecies>();
 		reproductive = GetComponentInChildren<ReproductiveSystemScript>();
 	}
 
 	void FixedUpdate() {
 		basicAnimal.move = false;
 		if (basicAnimal.waitTime == 0f) {
-			if (FindPredator() != null) {
+			if (GetComponentInChildren<MouthScript>().eating && Eat()) {
+				//CheckIfCanEat and was already eating
+				Debug.Log("HaveEaten");
+				basicAnimal.waitTime = GetComponentInChildren<MouthScript>().eatTime;
+				if (basicAnimal.food >= basicAnimal.maxFood) {
+					GetComponentInChildren<MouthScript>().eating = false;
+				}
+			} else if (FindPredator() != null) {
 				//FindPredator
 				Debug.Log("PredatorFound");
 				transform.LookAt(FindPredator().transform.position);
 				transform.Rotate(-transform.up * -90);
 				basicAnimal.move = false;
+				GetComponentInChildren<MouthScript>().eating = false;
 			} else if (Eat()) {
 				//CheckIfCanEat
 				Debug.Log("HaveEaten");
@@ -38,12 +45,15 @@ public class HerbivoreScript : MonoBehaviour {
 				transform.Rotate(transform.up * -90);
 				Debug.Log("FoundFood");
 				basicAnimal.move = true;
+				GetComponentInChildren<MouthScript>().eating = false;
 			} else if (reproductive.reproduce())  {
 				//CheckIfAbleToReproduce
 				Debug.Log("AtemptingReproduction");
+				GetComponentInChildren<MouthScript>().eating = false;
 			} else if (FindMate()) {
 				//CheckIfAbleToFindMate
 				Debug.Log("FoundMate");
+				GetComponentInChildren<MouthScript>().eating = false;
 			} else {
 				if (basicAnimal.touchingEarth) {
 					//Explore
@@ -54,6 +64,7 @@ public class HerbivoreScript : MonoBehaviour {
 						//transform.Rotate(transform.right * Random.Range(-10, 10));
 					}*/
 					basicAnimal.move = true;
+					GetComponentInChildren<MouthScript>().eating = false;
 				}
 			}
 		}
@@ -85,7 +96,7 @@ public class HerbivoreScript : MonoBehaviour {
 			//Checking if the target is a predetor.
 			if (basicAnimal.nearbyObjects[i] != null) {
 				if (basicAnimal.nearbyObjects[i].GetComponent<BasicAnimalScript>() != null) {
-					if (species.predators.Contains(basicAnimal.nearbyObjects[i].gameObject.GetComponent<BasicAnimalScript>().species) == true) {
+					if (species.predators.Contains(basicAnimal.nearbyObjects[i].gameObject.GetComponent<BasicAnimalScript>().animal) == true) {
 						Debug.Log("Runn!");
 						//Run away
 						return basicAnimal.nearbyObjects[i].gameObject;
@@ -100,7 +111,7 @@ public class HerbivoreScript : MonoBehaviour {
 			if (basicAnimal.nearbyObjects[i] == null) {
 				basicAnimal.nearbyObjects.Remove(null);
 			} else if (basicAnimal.nearbyObjects[i].GetComponent<PlantFoodScript>() != null) {
-				if (basicAnimal.diet.Contains(basicAnimal.nearbyObjects[i].GetComponent<PlantFoodScript>().foodType)) {
+				if (basicAnimal.diet.Contains(basicAnimal.nearbyObjects[i].GetComponent<PlantFoodScript>().foodType) && basicAnimal.nearbyObjects[i].GetComponent<PlantFoodScript>().CheckFood()) {
 					return basicAnimal.nearbyObjects[i].GetComponent<PlantFoodScript>().gameObject;
 				}
 			}
@@ -114,13 +125,14 @@ public class HerbivoreScript : MonoBehaviour {
 				if (foodsInRange[i] == null) {
 					foodsInRange.Remove(null);
 				} else if (foodsInRange[i].GetComponent<PlantFoodScript>() != null) {
-					if (foodsInRange[i].GetComponent<PlantFoodScript>().checkFood()) {
+					if (foodsInRange[i].GetComponent<PlantFoodScript>().CheckFood()) {
 						basicAnimal.food += foodsInRange[i].GetComponent<PlantFoodScript>().Eaten(GetComponentInChildren<MouthScript>().biteSize);
 						GameObject newNoise = Instantiate(noise, gameObject.transform);
 						newNoise.GetComponent<NoiseScript>().time = Random.Range(1.2f, 0.3f);
 						newNoise.GetComponent<NoiseScript>().range = Random.Range(foodsInRange[i].GetComponent<PlantFoodScript>().eatNoiseRange / 2, foodsInRange[i].GetComponent<PlantFoodScript>().eatNoiseRange + 2);
 						newNoise.GetComponent<NoiseScript>().type = "eatNoise";
 						newNoise.transform.localPosition = new Vector3(0, 0, 0);
+						GetComponentInChildren<MouthScript>().eating = true;
 
 						return true;
 					}
@@ -128,8 +140,5 @@ public class HerbivoreScript : MonoBehaviour {
 			}
 		}
 		return false;
-	}
-	public GameObject GetSpecies() {
-		return species.gameObject;
 	}
 }

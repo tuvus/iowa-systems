@@ -26,17 +26,32 @@ public class MouthScript : MonoBehaviour {
 	}
 	
 	void OnTriggerEnter(Collider coll) {
-		if ((coll.gameObject.layer == 13) || (coll.gameObject.layer == 14)) {
+		if (coll.gameObject.layer == 13) {
 			if (basicAnimal.waitTime == 0) {
 				if (coll.gameObject.GetComponent<PlantFoodScript>() != null) {
 					if (basicAnimal.diet.Contains(coll.gameObject.GetComponent<PlantFoodScript>().foodType) == true) {
 						if (basicAnimal != null) {
 							if (herbivore != null) {
 								herbivore.foodsInRange.Add(coll.gameObject);
-							} else if (carnivore != null) {
+							}/* else if (omnivore != null) {
+						omnivore.foodsInRange.Add(coll.gameObject);
+					}
+					 */
+						}
+
+					}
+				}
+
+			}
+		} else if (coll.gameObject.layer == 14) {
+			if (basicAnimal.waitTime == 0) {
+				if (coll.gameObject.GetComponent<MeatFoodScript>() != null) {
+					if (basicAnimal.diet.Contains(coll.gameObject.GetComponent<MeatFoodScript>().foodType) == true) {
+						if (basicAnimal != null) {
+							if (carnivore != null) {
 								carnivore.foodsInRange.Add(coll.gameObject);
-							} /* else if (carnivore != null) {
-						carnivore.foodsInRange.Add(coll.gameObject);
+							} /* else if (omnivore != null) {
+						omnivore.foodsInRange.Add(coll.gameObject);
 					}
 					 */
 						}
@@ -46,10 +61,11 @@ public class MouthScript : MonoBehaviour {
 
 			}
 		}
+
 		if ((coll.gameObject.layer == 9)) {
 			if (carnivore) {
 				if (coll.gameObject.GetComponent<BasicAnimalScript>() != null) {
-					if (basicAnimal.diet.Contains(coll.gameObject.GetComponent<BasicAnimalScript>().species)) {
+					if (basicAnimal.diet.Contains(coll.gameObject.GetComponent<BasicAnimalScript>().animal)) {
 						if (carnivore != null) {
 							carnivore.foodsInRange.Add(coll.gameObject);
 						} /* else if (carnivore != null) {
@@ -62,7 +78,7 @@ public class MouthScript : MonoBehaviour {
 		}
 	}
 	void OnTriggerExit(Collider coll) {
-		if ((coll.gameObject.layer == 13) || (coll.gameObject.layer == 15)) {
+		if (coll.gameObject.layer == 13) {
 			if (coll.gameObject.GetComponent<PlantFoodScript>() != null) {
 				if (basicAnimal.diet.Contains(coll.gameObject.GetComponent<PlantFoodScript>().foodType) == true) {
 					if (basicAnimal != null) {
@@ -78,11 +94,28 @@ public class MouthScript : MonoBehaviour {
 
 				}
 			}
+		} else if (coll.gameObject.layer == 14) {
+			if (basicAnimal.waitTime == 0) {
+				if (coll.gameObject.GetComponent<MeatFoodScript>() != null) {
+					if (basicAnimal.diet.Contains(coll.gameObject.GetComponent<MeatFoodScript>().foodType) == true) {
+						if (basicAnimal != null) {
+							if (carnivore != null) {
+								carnivore.foodsInRange.Remove(coll.gameObject);
+							} /* else if (omnivore != null) {
+						omnivore.foodsInRange.Add(coll.gameObject);
+					}
+					 */
+						}
+
+					}
+				}
+
+			}
 		}
 		if ((coll.gameObject.layer == 9)) {
 			if (carnivore) {
 				if (coll.gameObject.GetComponent<BasicAnimalScript>() != null) {
-					if (basicAnimal.diet.Contains(coll.gameObject.GetComponent<BasicAnimalScript>().species)) {
+					if (basicAnimal.diet.Contains(coll.gameObject.GetComponent<BasicAnimalScript>().animal)) {
 						if (carnivore != null) {
 							carnivore.foodsInRange.Remove(coll.gameObject);
 						} /* else if (carnivore != null) {

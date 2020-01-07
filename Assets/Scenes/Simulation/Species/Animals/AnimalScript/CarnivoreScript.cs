@@ -11,11 +11,10 @@ public class CarnivoreScript : MonoBehaviour {
 	public GameObject noise;
 
 	private PlantFood target;
-	private CarnivoreSpecies species;
+	public CarnivoreSpecies species;
 
 	void Start() {
 		basicAnimal = GetComponent<BasicAnimalScript>();
-		species = GameObject.Find(basicAnimal.species).GetComponent<CarnivoreSpecies>();
 		reproductive = GetComponentInChildren<ReproductiveSystemScript>();
 	}
 
@@ -32,7 +31,7 @@ public class CarnivoreScript : MonoBehaviour {
 				basicAnimal.move = false;
 			} else if (Eat()) {
 				//CheckIfCanEat
-				Debug.Log("HaveEaten");
+				Debug.Log("HaveEaten(Carnivore)");
 				basicAnimal.move = false;
 				basicAnimal.waitTime = GetComponentInChildren<MouthScript>().eatTime;
 			} else if ((basicAnimal.food < basicAnimal.fullFood) && (FindFood() != null)) {
@@ -43,7 +42,7 @@ public class CarnivoreScript : MonoBehaviour {
 				basicAnimal.move = true;
 			} else if (reproductive.reproduce()) {
 				//CheckIfAbleToReproduce
-				Debug.Log("AtemptingReproduction");
+				Debug.Log("AtemptingReproduction(Carnivore)");
 			} else if (findMate()) {
 				//CheckIfAbleToFindMate
 				Debug.Log("FoundMate");
@@ -98,11 +97,20 @@ public class CarnivoreScript : MonoBehaviour {
 			if (basicAnimal.nearbyObjects[i] == null) {
 				basicAnimal.nearbyObjects.Remove(null);
 			} else if (basicAnimal.nearbyObjects[i].GetComponent<PlantFoodScript>() != null) {
-				if (basicAnimal.diet.Contains(basicAnimal.nearbyObjects[i].GetComponent<PlantFoodScript>().foodType)) {
+				if (basicAnimal.diet.Contains(basicAnimal.nearbyObjects[i].GetComponent<PlantFoodScript>().foodType) && basicAnimal.nearbyObjects[i].GetComponent<PlantFoodScript>().CheckFood()) {
 					return basicAnimal.nearbyObjects[i].GetComponent<PlantFoodScript>().gameObject;
 				}
+			} else if (basicAnimal.nearbyObjects[i].GetComponent<MeatFoodScript>() != null) {
+				if (basicAnimal.diet.Contains(basicAnimal.nearbyObjects[i].GetComponent<MeatFoodScript>().foodType)) {
+					return basicAnimal.nearbyObjects[i].gameObject;
+				}
+			}
+		}
+		for (int i = 0; i < basicAnimal.nearbyObjects.Count; i++) {
+			if (basicAnimal.nearbyObjects[i] == null) {
+				basicAnimal.nearbyObjects.Remove(null);
 			} else if (basicAnimal.nearbyObjects[i].GetComponent<BasicAnimalScript>() != null) {
-				if (basicAnimal.diet.Contains(basicAnimal.nearbyObjects[i].GetComponent<BasicAnimalScript>().species)) {
+				if (basicAnimal.diet.Contains(basicAnimal.nearbyObjects[i].GetComponent<BasicAnimalScript>().animal)) {
 					return basicAnimal.nearbyObjects[i].gameObject;
 				}
 			}
@@ -121,7 +129,7 @@ public class CarnivoreScript : MonoBehaviour {
 				if (foodsInRange[i] == null) {
 					foodsInRange.RemoveAt(i);
 				} else if (foodsInRange[i].GetComponent<PlantFoodScript>() != null) {
-					if (foodsInRange[i].GetComponent<PlantFoodScript>().checkFood()) {
+					if (foodsInRange[i].GetComponent<PlantFoodScript>().CheckFood()) {
 						Debug.Log("2");
 						basicAnimal.food += foodsInRange[i].GetComponent<PlantFoodScript>().Eaten(GetComponentInChildren<MouthScript>().biteSize);
 						GameObject newNoise = Instantiate(noise, gameObject.transform);
@@ -132,8 +140,18 @@ public class CarnivoreScript : MonoBehaviour {
 
 						return true;
 					}
+				} else if (foodsInRange[i].GetComponent<MeatFoodScript>() != null) {
+					Debug.Log("2");
+					basicAnimal.food += foodsInRange[i].GetComponent<MeatFoodScript>().Eaten(GetComponentInChildren<MouthScript>().biteSize);
+					GameObject newNoise = Instantiate(noise, gameObject.transform);
+					newNoise.GetComponent<NoiseScript>().time = Random.Range(1.2f, 0.3f);
+					newNoise.GetComponent<NoiseScript>().range = Random.Range(foodsInRange[i].GetComponent<MeatFoodScript>().eatNoiseRange / 2, foodsInRange[i].GetComponent<MeatFoodScript>().eatNoiseRange + 2);
+					newNoise.GetComponent<NoiseScript>().type = "eatNoise";
+					newNoise.transform.localPosition = new Vector3(0, 0, 0);
+
+					return true;
 				} else if (foodsInRange[i].GetComponent<BasicAnimalScript>() != null) {
-					if (basicAnimal.diet.Contains(foodsInRange[i].GetComponent<BasicAnimalScript>().species)) {  
+					if (basicAnimal.diet.Contains(foodsInRange[i].GetComponent<BasicAnimalScript>().animal)) {  
 						Bite(foodsInRange[i]);
 						basicAnimal.waitTime = 0.3f;
 					}
@@ -141,8 +159,5 @@ public class CarnivoreScript : MonoBehaviour {
 			}
 		}
 		return false;
-	}
-	public GameObject GetSpecies() {
-		return gameObject;
 	}
 }

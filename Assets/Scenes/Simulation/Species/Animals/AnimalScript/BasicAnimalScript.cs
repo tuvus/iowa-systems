@@ -8,6 +8,7 @@ public class BasicAnimalScript : MonoBehaviour {
 	private Rigidbody rb;
 	//This Animal's Stats
 	public string species;
+	public string animal;
 	public float speed;
 	public float maxAge;
 	public float maxWantedSleep;
@@ -47,7 +48,6 @@ public class BasicAnimalScript : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
-
 		for (int i = 0; i < nearbyObjects.Count; i++) {
 			if (nearbyObjects[i] == null) {
 				nearbyObjects.Remove(null);
@@ -55,7 +55,7 @@ public class BasicAnimalScript : MonoBehaviour {
 		}
 		rb.velocity = new Vector3(0, 0, 0);
 
-		age += 0.0001f;
+		age += 0.00001f;
 		if (age >= maxAge) {
 			age = maxAge;
 			health = 0;
@@ -85,17 +85,17 @@ public class BasicAnimalScript : MonoBehaviour {
 
 			}
 			if (GetComponent<HerbivoreScript>()) {
-				GetComponent<HerbivoreScript>().GetSpecies().GetComponent<HerbivoreSpecies>().organismCount--;
-				GameObject newDeadBody = Instantiate(GetComponent<HerbivoreScript>().GetSpecies().GetComponent<HerbivoreSpecies>().deadAnimal, transform.position, transform.rotation, earth.transform);
+				GetComponent<HerbivoreScript>().species.organismCount--;
+				GameObject newDeadBody = Instantiate(GetComponent<HerbivoreScript>().species.deadAnimal, transform.position, transform.rotation, earth.transform);
 				newDeadBody.GetComponent<MeatFoodScript>().floatFoodCount = food + (maxFood / 2);
-				newDeadBody.GetComponent<MeatFoodScript>().foodType = species;
+				newDeadBody.GetComponent<MeatFoodScript>().foodType = animal;
 				newDeadBody.transform.localScale = new Vector3(0.004f, 0.002f, 0.002f);
 			}
 			if (GetComponent<CarnivoreScript>()) {
-				GetComponent<CarnivoreScript>().GetSpecies().GetComponent<CarnivoreSpecies>().organismCount--;
-				GameObject newDeadBody = Instantiate(GetComponent<CarnivoreScript>().GetSpecies().GetComponent<CarnivoreSpecies>().deadAnimal, transform.position, transform.rotation, earth.transform);
+				GetComponent<CarnivoreScript>().species.organismCount--;
+				GameObject newDeadBody = Instantiate(GetComponent<CarnivoreScript>().species.deadAnimal, transform.position, transform.rotation, earth.transform);
 				newDeadBody.GetComponent<MeatFoodScript>().floatFoodCount = food + (maxFood / 2);
-				newDeadBody.GetComponent<MeatFoodScript>().foodType = species;
+				newDeadBody.GetComponent<MeatFoodScript>().foodType = animal;
 				newDeadBody.transform.localScale = new Vector3(0.004f, 0.002f, 0.002f);
 			}
 		}
@@ -112,7 +112,7 @@ public class BasicAnimalScript : MonoBehaviour {
 		if (food > maxFood) {
 			food = maxFood;
 		} else if (food > 0) {
-			food -= bodyFoodConsumption * 0.01f;
+			food -= bodyFoodConsumption * 0.001f;
 		} else if (food <= 0) {
 			food = 0;
 			health -= 0.1f;

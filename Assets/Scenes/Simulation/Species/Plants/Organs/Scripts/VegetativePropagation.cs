@@ -6,6 +6,7 @@ public class VegetativePropagation : MonoBehaviour {
 
 	private BasicPlantScript plantScript;
 
+	public float reproductionAge;
 	public float growth;
 	public float growthMax;
 	public float newPlantGrowthCost;
@@ -14,26 +15,29 @@ public class VegetativePropagation : MonoBehaviour {
 
 	void Start() {
 		plantScript = GetComponentInParent<BasicPlantScript>();
-		newPlantGrowthCost = newPlantGrowthCost * Random.Range(0.8f, 1.2f);
+		newPlantGrowthCost = newPlantGrowthCost * Random.Range(0.8f, 1.4f);
+		reproductionAge = reproductionAge * Random.Range(0.8f, 1.2f);
 	}
 	void FixedUpdate() {
-		if (timeAfterReproduction > 0) {
-			timeAfterReproduction--;
-		}
-		if (plantScript.refreshed == true) {
-			if (growth >= newPlantGrowthCost) {
-				for (int i = 0; i < plantScript.organismCount; i++) {
-					Reproduce();
+		if (GetComponent<BasicPlantScript>().age >= reproductionAge) {
+			if (timeAfterReproduction > 0) {
+				timeAfterReproduction--;
+			}
+			if (plantScript.refreshed == true) {
+				if (growth >= newPlantGrowthCost) {
+					for (int i = 0; i < plantScript.organismCount; i++) {
+						Reproduce();
+					}
+				}
+				if (growth > growthMax) {
+					growth = growthMax;
 				}
 			}
-			if (growth > growthMax) {
-				growth = growthMax;
-			}
-		}
-		if (plantScript.organismCount >= 2) {
-			if (Random.Range (0, 100 / plantScript.organismCount) <= 4) {
-				plantScript.organismCount--;
-				plantScript.plantSpecies.GetComponent<PlantSpeciesScript>().SpawnVegOrganism(gameObject);
+			if (plantScript.organismCount >= 2) {
+				if (Random.Range(0, 100 / plantScript.organismCount) <= 2) {
+					plantScript.organismCount--;
+					plantScript.plantSpecies.GetComponent<PlantSpeciesScript>().SpawnVegOrganism(gameObject);
+				}
 			}
 		}
 	}
@@ -42,7 +46,7 @@ public class VegetativePropagation : MonoBehaviour {
 		int plantsReproduced = 0;
 		for (int i = 0; i < plantScript.organismCount; i++) {
 			if (growth >= newPlantGrowthCost) {
-				if (Random.Range(0, 10) == 0) {
+				if (Random.Range(0, 40) == 0) {
 					plantsReproduced++;
 					plantScript.organismCount++;
 					growth -= newPlantGrowthCost;

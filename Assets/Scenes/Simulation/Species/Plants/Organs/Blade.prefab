@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4072395345995514}
   - component: {fileID: 114357185669340680}
   - component: {fileID: 135416844134621154}
-  m_Layer: 15
+  m_Layer: 13
   m_Name: Blade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52,12 +52,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b12c14442031b4e9daab95b2bfedd788, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bladeGrowthRequirement: 0
+  bladeAgeRequirement: 0
   bladeGrowthRate: 0
   bladeGrowthMax: 0
   bladeGrowth: 0
-  bladeFertilityBonus: 0
-  bladeFertilityCost: 0
+  bladeHealthBonus: 0
 --- !u!135 &135416844134621154
 SphereCollider:
   m_ObjectHideFlags: 1

@@ -10,7 +10,7 @@ public class PlantFoodScript : MonoBehaviour {
 	public float foodGain;
 	public float eatNoiseRange;
 
-	public bool checkFood () {
+	public bool CheckFood () {
 		if ((floatFoodCount != 0) || (intFoodCount != 0)) {
 			return true;
 		}
@@ -43,9 +43,6 @@ public class PlantFoodScript : MonoBehaviour {
 					return (foodGain * intFoodCount);
 				}
 			}
-		}
-		if (intFoodCount <= 0 && floatFoodCount <= 0) {
-			Destroy(gameObject);
 		}
 		return (0);
 	}

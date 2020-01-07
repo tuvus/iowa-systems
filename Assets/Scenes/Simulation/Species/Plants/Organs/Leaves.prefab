@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4890047738538322}
   - component: {fileID: 114795454092934142}
   - component: {fileID: 135022794173876210}
-  m_Layer: 15
+  m_Layer: 13
   m_Name: Leaves
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53,14 +53,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   leafGrowth: 0
+  leafAgeRequiremnt: 0
   leafGrowthRequirement: 0
   leafGrowthRate: 0
   leafGrowthMax: 0
   leafGrowCost: 0
   leafCount: 0
   leafCountMax: 0
-  leafFertilityBonus: 0
-  leafFertilityCost: 0
+  leafHealthBonus: 0
 --- !u!135 &135022794173876210
 SphereCollider:
   m_ObjectHideFlags: 1

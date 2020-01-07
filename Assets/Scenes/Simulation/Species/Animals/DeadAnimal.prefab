@@ -111,5 +111,5 @@ MonoBehaviour:
   foodType: Meat
   floatFoodCount: 0
   deterationTime: 100
-  foodGain: 0
-  eatNoiseRange: 0
+  foodGain: 0.34
+  eatNoiseRange: 1.61
