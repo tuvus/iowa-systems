@@ -11,9 +11,6 @@ public class BerryScript : MonoBehaviour {
 		SetPosition();
 	}
 	
-	void Update () {
-		
-	}
 	void SetPosition() {
 		transform.Rotate(new Vector3(Random.Range(-360, 360), Random.Range(-360, 360), Random.Range(-360, 360)));
 		transform.Translate(transform.forward * growRange, Space.World);

@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimalSpeciesEyes : MonoBehaviour {
+public class AnimalSpeciesEyes : BasicAnimalSpeciesOrganScript {
 
 	public GameObject eyes;
 
 	public float sightRange;
+	public EyesScript.EyeTypes eyeType;
 
-	public void makeOrganism(GameObject _newOrganism) {
-		GameObject newEyes = Instantiate(eyes, _newOrganism.transform);
+	public override void MakeOrganism(GameObject _newOrganism) {
+		GameObject newEyes = speciesScript.InstantiateNewOrgan(eyes,_newOrganism);
 		EyesScript eyesScript = newEyes.GetComponent<EyesScript>();
-
-		eyesScript.sightRange = sightRange;
+		eyesScript.sightRange = sightRange * Random.Range(.6f,1.4f);
+		eyesScript.speciesEyes = this;
+		eyesScript.SetupBasicOrgan(this);
 	}
 }

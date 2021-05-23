@@ -2,20 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlantSpeciesVegetativePropagation : MonoBehaviour {
+public class PlantSpeciesVegetativePropagation : BasicPlantSpeciesOrganScript {
 
 	public float growthMax;
 	public float newPlantGrowthCost;
-	public int maxTimeAfterReproduction;
+	public int newPlantGrowChance;
 
-	public void makeOrganism(GameObject _newOrganism) {
-		VegetativePropagation propagation = _newOrganism.AddComponent<VegetativePropagation>();
+	public override void MakeOrganism(GameObject _newOrganism) {
+		VegetativePropagationOrgan propagation = _newOrganism.AddComponent<VegetativePropagationOrgan>();
+		propagation.SetupBasicOrgan(this);
+		propagation.plantSpeciesVegetativePropagation = this;
 		propagation.growthMax = growthMax;
 		propagation.newPlantGrowthCost = newPlantGrowthCost;
-		propagation.maxTimeAfterReproduction = maxTimeAfterReproduction;
-
-	}
-	public void MakeNewGrownOrganism(GameObject _newOrganism) {
-
+		propagation.newPlantGrowChance = newPlantGrowChance;
 	}
 }

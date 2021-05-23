@@ -2,48 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimalSpeciesReproductiveSystem : MonoBehaviour {
+public class AnimalSpeciesReproductiveSystem : BasicAnimalSpeciesOrganScript {
 
-	public GameObject reproductiveSystem;
+	public GameObject reproductiveSystemPrefab;
 
-	public int maxBirthTime;
-	public int timeAfterReproduction;
-	public float shortTimeAfterReproduction;
-	public float reproductionChance;
+	public float birthTime;
+	public float reproductionDelay;
 	public float reproductionAge;
 	public int reproducionAmount;
-	public float reproductionSuccessAmount;
+	public float birthSuccessPercent;
 
-	void Start() {
-		if (timeAfterReproduction > -1) {
-			Debug.LogError("timeAfterReproduction Must be less than or equal to -1", this);
+	public override void MakeOrganism(GameObject _newOrganism) {
+		GameObject newReproductiveSystem = speciesScript.InstantiateNewOrgan(reproductiveSystemPrefab, _newOrganism);
+		ReproductiveSystem reproductiveSystemScript = newReproductiveSystem.GetComponent<ReproductiveSystem>();
+		reproductiveSystemScript.animalSpeciesReproductive = this;
+		reproductiveSystemScript.SetupBasicOrgan(this);
+		if (Random.Range(0,2) == 0) {
+			FemaleReproductiveSystem femaleReproductive = newReproductiveSystem.AddComponent<FemaleReproductiveSystem>();
+			femaleReproductive.reproductive = reproductiveSystemScript;
+			reproductiveSystemScript.femaleReproductiveSystem = femaleReproductive;
+			femaleReproductive.SetupBasicOrgan(this);
+        } else {
+			MaleReproductiveSystem maleReproductive = newReproductiveSystem.AddComponent<MaleReproductiveSystem>();
+			maleReproductive.reproductive = reproductiveSystemScript;
+			reproductiveSystemScript.maleReproductiveSystem = maleReproductive;
+			maleReproductive.SetupBasicOrgan(this);
 		}
 	}
 
-	public void makeOrganism(GameObject _newOrganism) {
-		GameObject newReproductiveSystem = Instantiate(reproductiveSystem, _newOrganism.transform);
-		ReproductiveSystemScript reproductiveSystemScript = newReproductiveSystem.GetComponent<ReproductiveSystemScript>();
-		reproductiveSystemScript.animalSpeciesReproductive = this;
-		reproductiveSystemScript.reproductionAge = reproductionAge;
-		reproductiveSystemScript.reproductionChance = reproductionChance;
-		reproductiveSystemScript.reproducionAmount = reproducionAmount;
-		reproductiveSystemScript.maxBirthTime = maxBirthTime;
-		reproductiveSystemScript.timeAfterReproduction = timeAfterReproduction;
-		reproductiveSystemScript.reproductionSuccessAmount = reproductionSuccessAmount;
-		reproductiveSystemScript.shortTimeAfterReproduction = shortTimeAfterReproduction;
-	}
-
-	public void makeChildOrganism (int _amount, GameObject _parent) {
+	public void MakeChildOrganism (int _amount, GameObject _parent) {
 		for (int i = 0; i < _amount; i++) {
-			if (GetComponent<HerbivoreSpecies>()) {
-				GetComponent<HerbivoreSpecies>().spawnOrganism(_parent);
-			}
-			if (GetComponent<CarnivoreSpecies>()) {
-				GetComponent<CarnivoreSpecies>().spawnOrganism(_parent);
-			}
-			if (GetComponent<OmnivoreSpecies>()) {
-				
-			}
+			animalSpecies.SpawnSpecificOrganism(_parent);
 		}
 	}
 }

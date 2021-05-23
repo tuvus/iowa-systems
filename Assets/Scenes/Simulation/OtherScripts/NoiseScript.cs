@@ -15,7 +15,7 @@ public class NoiseScript : MonoBehaviour {
 		if (time < 0) {
 			Destroy(gameObject);
 		} else {
-			time -= Time.deltaTime;
+			time -= Time.fixedDeltaTime;
 		}
 	}
 }

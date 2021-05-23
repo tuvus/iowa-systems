@@ -28,7 +28,7 @@ public class PlantSpeciesFruit : MonoBehaviour {
 
 	public void makeOrganism(GameObject _newOrganism) {
 		GameObject newFlower = Instantiate(flower, _newOrganism.transform);
-		FlowerFruit flowerFruit = newFlower.GetComponent<FlowerFruit>();
+/*		FlowerFruit flowerFruit = newFlower.GetComponent<FlowerFruit>();
 		flowerFruit.fruit = this;
 		flowerFruit.flowerCountMax = flowerCountMax;
 		flowerFruit.flowerGrowthRate = flowerGrowthRate;
@@ -42,11 +42,10 @@ public class PlantSpeciesFruit : MonoBehaviour {
 		flowerFruit.distributionStage = distributionStage;
 		flowerFruit.fruitGrowStage = fruitGrowStage;
 
-		flowerFruit.flowerCountMax = flowerCountMax;
+		flowerFruit.flowerCountMax = flowerCountMax;*/
 
 		PlantFoodScript plantFood = newFlower.AddComponent<PlantFoodScript>();
 		plantFood.foodType = foodType;
-		plantFood.floatFoodCount = foodCount;
 		plantFood.foodGain = foodGain;
 		plantFood.eatNoiseRange = eatNoiseRange;
 	}

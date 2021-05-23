@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimalSpeciesEars : MonoBehaviour {
+public class AnimalSpeciesEars : BasicAnimalSpeciesOrganScript {
 
 	public GameObject ears;
 
 	public float hearRange;
 
-	public void makeOrganism(GameObject _newOrganism) {
-		GameObject newEars = Instantiate(ears, _newOrganism.transform);
+	public override void MakeOrganism(GameObject _newOrganism) {
+		GameObject newEars = speciesScript.InstantiateNewOrgan(ears,_newOrganism);
 		EarsScript earsScript = newEars.GetComponent<EarsScript>();
 		earsScript.hearRange = hearRange;
+		earsScript.SetupBasicOrgan(this);
 	}
 }

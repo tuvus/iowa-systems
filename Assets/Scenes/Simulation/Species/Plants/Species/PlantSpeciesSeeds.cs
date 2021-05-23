@@ -2,39 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlantSpeciesSeeds : MonoBehaviour {
+public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
 	public GameObject seed;
 
-	private PlantSpeciesScript plantSpecies;
+	public int seedCount;
 	public float humidityRequirement;
 	public float tempetureRequirement;
 	public float seedDispertionRange;
+	public float timeRequirement;
+	public float timeMaximum;
 
-	void Start() {
-		plantSpecies = GetComponent<PlantSpeciesScript>();
-	}
+	public float awnMaxGrowth;
+	public int awnMaxAmount;
+	public float awnMaxSeedAmount;
 
-	public void makeOrganism(GameObject _newOrganism) {
-		Seeds seeds = _newOrganism.AddComponent<Seeds>();
-		seeds.humidityRequirement = humidityRequirement;
-		seeds.seedDispertionRange = seedDispertionRange;
-		seeds.seed = seed;
+	public override void MakeOrganism(GameObject _newOrganism) {
+		SeedOrgan seeds = _newOrganism.AddComponent<SeedOrgan>();
+		seeds.speciesSeeds = this;
+		seeds.SetupBasicOrgan(this);
 	}
 	public void MakePlant (GameObject _plantToGrow, float growth) {
-		plantSpecies.SpawnSeedOrganism(_plantToGrow).gameObject.GetComponent<BasicPlantScript>().health = growth;
-
+		PlantScript newPlant = plantSpecies.SpawnOrganismFromSeed(_plantToGrow);
 	}
 
-
-	public void Populate (int _populateCount, GameObject _earth) {
-		for (int i = 0; i < _populateCount; i++) {
-			GameObject newSeed = Instantiate(seed, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null);
-			newSeed.transform.parent = _earth.transform;
-			Seed seedScript = newSeed.GetComponent<Seed>();
-			seedScript.humidityRequirement = humidityRequirement;
-			seedScript.species = gameObject;
-			seedScript.earth = _earth;
-			seedScript.tempetureRequirement = tempetureRequirement;
+	public void Populate (EarthScript _earth) {
+		for (int i = 0; i < seedCount; i++) {
+			Seed seedScript = plantSpecies.SpawnRandomSeed(seed);
+			seedScript.SetupSeed(humidityRequirement * Random.Range(.8f, 1.2f), tempetureRequirement * Random.Range(.8f, 1.2f), timeRequirement * Random.Range(.8f, 10),timeMaximum * Random.Range(.4f,1.2f),this);
 		}
+	}
+
+	public void SpreadSeed(PlantScript _parent) {
+		Seed newSeed = plantSpecies.SpawnSeed(_parent.gameObject, seed, seedDispertionRange);
+		newSeed.SetupSeed(humidityRequirement * Random.Range(.8f, 1.2f), tempetureRequirement * Random.Range(.8f, 1.2f), timeRequirement * Random.Range(.8f,10), timeMaximum * Random.Range(.4f, 1.2f), this);
+		newSeed.speciesSeeds = this;
 	}
 }

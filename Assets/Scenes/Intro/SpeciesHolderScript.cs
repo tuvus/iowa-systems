@@ -5,25 +5,36 @@ using UnityEngine.UI;
 
 public class SpeciesHolderScript : MonoBehaviour {
 
+    private void Start() {
+		Refresh();
+    }
 
-	public void DeleteSpecies() {
+    public void DeleteSpecies() {
 		Destroy(gameObject);
 	}
 
-	public void StartSimulation() {
+	public void SelectSpecies() {
+		SpeciesManager.Instance.SelectSpecies(this);
+    }
+
+	public void Refresh () {
+		BasicSpeciesScript speciesScript = GetComponent<BasicSpeciesScript>();
+		GetColorImage().color = speciesScript.speciesColor;
+		GetNameText().text = speciesScript.speciesDisplayName + " Pop(" + speciesScript.organismCount + ")";
+    }
+
+	public void StartSimulation(EarthScript _earth, SunScript _sun) {
 		Destroy(GetComponent<Button>());
 		Destroy(GetComponent<Image>());
 
-		if (GetComponent<PlantSpeciesScript>() != null) {
-			GetComponent<PlantSpeciesScript>().StartSimulation();
-		}
-		if (GetComponent<CarnivoreSpecies>() != null) {
-			GetComponent<CarnivoreSpecies>().StartSimulation();
-		}
-		if (GetComponent<HerbivoreSpecies>() != null) {
-			GetComponent<HerbivoreSpecies>().StartSimulation();
-		}
+		GetComponent<BasicSpeciesScript>().StartBasicSimulation(_earth, _sun);
 		Destroy(this);
 	}
-		
+	
+	public Image GetColorImage() {
+		return transform.GetComponent<Image>();
+    }
+	public Text GetNameText() {
+		return transform.GetChild(1).GetComponent<Text>();
+	}
 }

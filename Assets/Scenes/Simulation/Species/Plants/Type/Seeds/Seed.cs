@@ -4,25 +4,36 @@ using UnityEngine;
 
 public class Seed : MonoBehaviour {
 
-	public GameObject species;
-	public GameObject earth;
+	public PlantSpeciesScript species;
+	public PlantSpeciesSeeds speciesSeeds;
 
 	public float humidityRequirement;
 	public float tempetureRequirement;
+	public float timeRequirement;
+	public float maxTime;
 
-	void Start() {
-		humidityRequirement = humidityRequirement * Random.Range(.8f, 1.2f);
-		transform.localScale = (new Vector3(0.001f, 0.001f, 0.001f));
-		transform.parent = earth.transform;
+	public void SetupSeed(float _humidity, float _tempature, float _timeRequirement, float _maxTime, PlantSpeciesSeeds _speciesSeeds) {
+		humidityRequirement = _humidity;
+		tempetureRequirement = _tempature;
+		timeRequirement = _timeRequirement;
+		speciesSeeds = _speciesSeeds;
+		maxTime = _maxTime;
 	}
 
 	void FixedUpdate() {
-		if (humidityRequirement <= earth.GetComponent<EarthScript>().humidity && tempetureRequirement <= earth.GetComponent<EarthScript>().tempeture) {
-			if (Random.Range(0, 3) == 0) {
-				species.GetComponent<PlantSpeciesSeeds>().MakePlant(gameObject, Random.Range(2.3f, 4.6f));
-				//Multiply this by humidit
+		if (timeRequirement <= 0) {
+			if (humidityRequirement <= species.GetEarthScript().GetComponent<EarthScript>().humidity && tempetureRequirement <= species.GetEarthScript().GetComponent<EarthScript>().tempeture) {
+				speciesSeeds.MakePlant(gameObject, Random.Range(2.3f, 4.6f));
+				//Multiply this by humidity
 				Destroy(gameObject);
 			}
+		}
+		if (timeRequirement < -maxTime) {
+			print("SeedTimedOut");
+			species.SeedDeath();
+			Destroy(gameObject);
+		} else {
+			timeRequirement -= Time.fixedDeltaTime;
 		}
 	}
 }

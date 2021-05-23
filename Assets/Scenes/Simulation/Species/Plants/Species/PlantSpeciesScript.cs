@@ -2,145 +2,111 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlantSpeciesScript : MonoBehaviour {
-	
-	private GameObject earth;
-	private SpeciesMotor history;
-	[SerializeField]
+public class PlantSpeciesScript : BasicSpeciesScript {
 	public GameObject plantType;
-	public string speciesName;
-	public string namedSpecies;
-	public Color speciesColor;
-	//Population start stats
-	public int plantCount;
+
 	public int seedCount;
-	private List<int> populationOverTime = new List<int>();
 
-	//Plant Stats
-	public float maxHealth;
+	public float maxGrowth;
 
-	private BasicPlantScript basicPlant;
+	internal override void StartSimulation() {
+	}
 
-	public void StartSimulation() {
-		populationOverTime.Add(plantCount);
+	internal override void StartSpecificSimulation() {
+		populationOverTime.Add(organismCount);
 		gameObject.name = speciesName;
-		earth = GameObject.Find("Earth");
 		history = GetComponentInParent<SpeciesMotor>();
 
 		Populate();
 	}
-	private void FixedUpdate() {
-		if (history != null) {
-			if (history.refreshTime == 0) {
-				populationOverTime.Add(plantCount);
-			}
+
+	public override void Populate() {
+		int organismsToSpawn = organismCount;
+		organismCount = 0;
+		for (int i = 0; i < organismsToSpawn; i++) {
+			SpawnSpecificRandomOrganism();
 		}
-	}
-	public List<int> ReturnPopulationList() {
-		return populationOverTime;
+		if (GetComponent<PlantSpeciesSeeds>() != null) {
+			GetComponent<PlantSpeciesSeeds>().Populate(earth);
+		}
 	}
 
-	public void Populate() {
-		for (int i = 0; i < plantCount; i++) {
-			GameObject newPlant = Instantiate(plantType, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null);
-			newPlant.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = speciesColor;
-			BasicPlantScript basicPlantScipt = newPlant.GetComponent<BasicPlantScript>();
-			basicPlantScipt.maxHealth = maxHealth;
-			basicPlantScipt.age = Random.Range(0.0f, 3.6f);
-			newPlant.AddComponent<SpawnRandomizer>();
-			basicPlantScipt.plantSpecies = gameObject;
-			basicPlantScipt.species = speciesName;
-			//basicPlant.fertilityConsumption = fertilityConsumption;
-			if (GetComponent<PlantSpeciesBlade>() != null) {
-				GetComponent<PlantSpeciesBlade>().makeOrganism(newPlant);
-			}
-			if (GetComponent<PlantSpeciesFlowerSeed>() != null) {
-				GetComponent<PlantSpeciesFlowerSeed>().makeOrganism(newPlant);
-			}
-			if (GetComponent<PlantSpeciesFruit>() != null) {
-				GetComponent<PlantSpeciesFruit>().makeOrganism(newPlant);
-			}
-			if (GetComponent<PlantSpeciesLeaves>() != null) {
-				GetComponent<PlantSpeciesLeaves>().makeOrganism(newPlant);
-			}
-			if (GetComponent<PlantSpeciesRoots>() != null) {
-				GetComponent<PlantSpeciesRoots>().makeOrganism(newPlant);
-			}
-			if (GetComponent<PlantSpeciesSeeds>() != null) {
-				GetComponent<PlantSpeciesSeeds>().makeOrganism(newPlant);
-			}
-			if (GetComponent<PlantSpeciesVegetativePropagation>() != null) {
-				GetComponent<PlantSpeciesVegetativePropagation>().makeOrganism(newPlant);
-			}
-		}
-		if (GetComponent<PlantSpeciesSeeds>() != null) {
-			GetComponent<PlantSpeciesSeeds>().Populate(seedCount, earth);
+    public override void SpawnSpecificRandomOrganism() {
+		GameObject newPlant = SpawnRandomOrganism(plantType).gameObject;
+		PlantScript plantScipt = newPlant.GetComponent<PlantScript>();
+		plantScipt.maxGrowth = maxGrowth;
+		plantScipt.Grow(Random.Range(0.1f, maxGrowth),1);
+		plantScipt.species = this;
+		plantScipt.SetUpOrganism(this);
+		foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
+			organ.MakeOrganism(newPlant);
 		}
 	}
-	public GameObject SpawnSeedOrganism (GameObject _seed) {
-		plantCount += 1;
-		GameObject newPlant = Instantiate(plantType, _seed.transform.position, new Quaternion(0, 0, 0, 1), null);
-		newPlant.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = speciesColor;
-		BasicPlantScript basicPlantScipt = newPlant.GetComponent<BasicPlantScript>();
-		basicPlantScipt.maxHealth = maxHealth;
-		basicPlantScipt.plantSpecies = gameObject;
-		basicPlantScipt.species = speciesName;
-		if (GetComponent<PlantSpeciesBlade>() != null) {
-			GetComponent<PlantSpeciesBlade>().MakeNewGrownOrganism(_seed);
+
+    public PlantScript SpawnOrganismFromSeed (GameObject _seed) {
+		GameObject newOrganism = Instantiate(plantType, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null);
+		newOrganism.transform.SetParent(earth.GetOrganismsTransform());
+		newOrganism.GetComponent<Renderer>().material.color = speciesColor;
+		newOrganism.GetComponent<Renderer>().enabled = User.Instance.GetRenderWorldUserPref();
+		BasicOrganismScript basicOrganism = newOrganism.GetComponent<BasicOrganismScript>();
+		newOrganism.transform.position = _seed.transform.position;
+		//new SpawnRandomizer().SpawnFromParent(newOrganism.transform, _seed, 0, earth);
+		basicOrganism.species = this;
+		organismCount++;
+		seedCount--;
+		PlantScript plantScipt = newOrganism.GetComponent<PlantScript>();
+		plantScipt.maxGrowth = maxGrowth;
+		plantScipt.species = this;
+		plantScipt.growth = 0.1f;
+		plantScipt.health = plantScipt.growth;
+		plantScipt.SetUpOrganism(this);
+		foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
+			organ.MakeOrganism(newOrganism);
 		}
-		if (GetComponent<PlantSpeciesFlowerSeed>() != null) {
-			GetComponent<PlantSpeciesFlowerSeed>().MakeNewGrownOrganism(_seed);
-		}
-		if (GetComponent<PlantSpeciesFruit>() != null) {
-			GetComponent<PlantSpeciesFruit>().MakeNewGrownOrganism(_seed);
-		}
-		if (GetComponent<PlantSpeciesLeaves>() != null) {
-			GetComponent<PlantSpeciesLeaves>().MakeNewGrownOrganism(_seed);
-		}
-		if (GetComponent<PlantSpeciesRoots>() != null) {
-			GetComponent<PlantSpeciesRoots>().MakeNewGrownOrganism(_seed);
-		}
-		if (GetComponent<PlantSpeciesSeeds>() != null) {
-			GetComponent<PlantSpeciesSeeds>().makeOrganism(_seed);
-		}
-		if (GetComponent<PlantSpeciesVegetativePropagation>() != null) {
-			GetComponent<PlantSpeciesVegetativePropagation>().makeOrganism(_seed);
+		return plantScipt;
+	}
+
+	public Seed SpawnRandomSeed(GameObject _seed) {
+		GameObject newSeed = InstantiateNewSeed(_seed).gameObject;
+		new SpawnRandomizer().SpawnRandom(newSeed.transform, earth);
+		Seed seedScript = newSeed.GetComponent<Seed>();
+		seedScript.species = this;
+		seedCount++;
+		return seedScript;
+	}
+
+	public Seed SpawnSeed(GameObject _parent, GameObject _seed, float range) {
+		GameObject newSeed = InstantiateNewSeed(_seed).gameObject;
+		new SpawnRandomizer().SpawnFromParent(newSeed.transform, _parent, range, earth);
+		newSeed.transform.SetParent(earth.GetOrganismsTransform());
+		Seed seedScript = newSeed.GetComponent<Seed>();
+		seedScript.species = this;
+		seedCount++;
+		return seedScript;
+	}
+
+	public GameObject InstantiateNewSeed(GameObject _seed) {
+		GameObject newSeed = Instantiate(_seed, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null);
+		newSeed.transform.SetParent(earth.GetOrganismsTransform());
+
+		newSeed.GetComponent<Renderer>().material.color = speciesColor;
+		newSeed.GetComponent<Renderer>().enabled = User.Instance.GetRenderWorldUserPref();
+		return newSeed;
+	}
+
+	public override GameObject SpawnSpecificOrganism(GameObject _parent) {
+		GameObject newPlant = SpawnRandomOrganism(plantType).gameObject;
+		PlantScript plantScipt = newPlant.GetComponent<PlantScript>();
+		plantScipt.maxGrowth = maxGrowth;
+		plantScipt.species = this;
+		plantScipt.SetUpOrganism(this);
+		foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
+			organ.MakeOrganism(newPlant);
 		}
 		return newPlant;
 	}
-	public GameObject SpawnVegOrganism(GameObject _parent) {
-		Debug.Log("SpawnParent" + _parent);
-		plantCount += 1;
-		GameObject newPlant = Instantiate(plantType, _parent.transform.position, new Quaternion(0, 0, 0, 1), null);
-		newPlant.transform.GetChild(0).gameObject.GetComponent<Renderer>().material.color = speciesColor;
-		SpawnRandomizer spawn = newPlant.gameObject.AddComponent<SpawnRandomizer>();
-		spawn.parent = _parent;
-		spawn.range = 1.5f;
-		BasicPlantScript basicPlantScipt = newPlant.GetComponent<BasicPlantScript>();
-		basicPlantScipt.maxHealth = maxHealth;
-		basicPlantScipt.plantSpecies = gameObject;
-		basicPlantScipt.species = speciesName;
-		if (GetComponent<PlantSpeciesBlade>() != null) {
-			GetComponent<PlantSpeciesBlade>().makeOrganism(newPlant);
-		}
-		if (GetComponent<PlantSpeciesFlowerSeed>() != null) {
-			GetComponent<PlantSpeciesFlowerSeed>().makeOrganism(newPlant);
-		}
-		if (GetComponent<PlantSpeciesFruit>() != null) {
-			GetComponent<PlantSpeciesFruit>().makeOrganism(newPlant);
-		}
-		if (GetComponent<PlantSpeciesLeaves>() != null) {
-			GetComponent<PlantSpeciesLeaves>().makeOrganism(newPlant);
-		}
-		if (GetComponent<PlantSpeciesRoots>() != null) {
-			GetComponent<PlantSpeciesRoots>().makeOrganism(newPlant);
-		}
-		if (GetComponent<PlantSpeciesSeeds>() != null) {
-			GetComponent<PlantSpeciesSeeds>().makeOrganism(newPlant);
-		}
-		if (GetComponent<PlantSpeciesVegetativePropagation>() != null) {
-			GetComponent<PlantSpeciesVegetativePropagation>().makeOrganism(newPlant);
-		}
-		return newPlant;
+
+	public void SeedDeath() {
+		seedCount--;
 	}
 }
