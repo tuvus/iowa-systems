@@ -6,8 +6,9 @@ The simulation is not very accurate yet.
 Go to "Simulating Iowa's Praries" below to see what problems the simulation has.
 
 #### Opening the Simulation
-When running the application, unity will show a popup for the initial settings of the application. 
-The rendering quality can be changed later but the screen resolution will require a restart to change.
+To run the IowaSystemsWindows version run Systems.exe.
+
+To run the IowaSystemsWebGL version go to https://tuvus.github.io/iowa-systems-demo/.
 
 #### Quick Simulation
 To set up a basic simulation involving foxes, rabbits and grass launch the application follow these steps.
