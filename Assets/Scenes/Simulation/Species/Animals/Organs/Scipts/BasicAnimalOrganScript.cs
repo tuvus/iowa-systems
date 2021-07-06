@@ -11,5 +11,8 @@ public abstract class BasicAnimalOrganScript : BasicOrganScript {
         basicAnimalSpeciesOrganScript = (BasicAnimalSpeciesOrganScript)_basicSpeciesOrganScript;
         basicAnimalScript = basicOrganismScript.GetComponent<BasicAnimalScript>();
         behaviorScript = basicOrganismScript.GetComponent<BasicBehaviorScript>();
+        basicAnimalScript.AddOrgan(this);
     }
+
+    public abstract void UpdateOrgan();
 }

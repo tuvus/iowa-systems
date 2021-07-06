@@ -20,18 +20,20 @@ public class SpeciesHolderScript : MonoBehaviour {
 	public void Refresh () {
 		BasicSpeciesScript speciesScript = GetComponent<BasicSpeciesScript>();
 		GetColorImage().color = speciesScript.speciesColor;
-		GetNameText().text = speciesScript.speciesDisplayName + " Pop(" + speciesScript.organismCount + ")";
+		if (GetComponent<PlantSpeciesSeeds>() != null) {
+			GetNameText().text = speciesScript.speciesDisplayName + " Pop(" + speciesScript.startingPopulation + ")(" + GetComponent<PlantSpeciesSeeds>().startingSeedCount + ")";
+			return;
+        }
+		GetNameText().text = speciesScript.speciesDisplayName + " Pop(" + speciesScript.startingPopulation + ")";
     }
 
-	public void StartSimulation(EarthScript _earth, SunScript _sun) {
+    public void Destroy() {
 		Destroy(GetComponent<Button>());
 		Destroy(GetComponent<Image>());
-
-		GetComponent<BasicSpeciesScript>().StartBasicSimulation(_earth, _sun);
 		Destroy(this);
-	}
-	
-	public Image GetColorImage() {
+    }
+
+    public Image GetColorImage() {
 		return transform.GetComponent<Image>();
     }
 	public Text GetNameText() {

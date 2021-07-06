@@ -8,12 +8,13 @@ public class PlantSpeciesVegetativePropagation : BasicPlantSpeciesOrganScript {
 	public float newPlantGrowthCost;
 	public int newPlantGrowChance;
 
-	public override void MakeOrganism(GameObject _newOrganism) {
-		VegetativePropagationOrgan propagation = _newOrganism.AddComponent<VegetativePropagationOrgan>();
-		propagation.SetupBasicOrgan(this);
-		propagation.plantSpeciesVegetativePropagation = this;
-		propagation.growthMax = growthMax;
-		propagation.newPlantGrowthCost = newPlantGrowthCost;
-		propagation.newPlantGrowChance = newPlantGrowChance;
+	public override void MakeOrganism(BasicOrganismScript _newOrganism) {
+		return;
+		//VegetativePropagationOrgan propagation = _newOrganism.AddComponent<VegetativePropagationOrgan>();
+		//propagation.SetupBasicOrgan(this);
+		//propagation.plantSpeciesVegetativePropagation = this;
+		//propagation.growthMax = growthMax;
+		//propagation.newPlantGrowthCost = newPlantGrowthCost;
+		//propagation.newPlantGrowChance = newPlantGrowChance;
 	}
 }

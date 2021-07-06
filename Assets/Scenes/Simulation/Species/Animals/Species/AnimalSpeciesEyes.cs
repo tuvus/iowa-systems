@@ -9,7 +9,7 @@ public class AnimalSpeciesEyes : BasicAnimalSpeciesOrganScript {
 	public float sightRange;
 	public EyesScript.EyeTypes eyeType;
 
-	public override void MakeOrganism(GameObject _newOrganism) {
+	public override void MakeOrganism(BasicOrganismScript _newOrganism) {
 		GameObject newEyes = speciesScript.InstantiateNewOrgan(eyes,_newOrganism);
 		EyesScript eyesScript = newEyes.GetComponent<EyesScript>();
 		eyesScript.sightRange = sightRange * Random.Range(.6f,1.4f);

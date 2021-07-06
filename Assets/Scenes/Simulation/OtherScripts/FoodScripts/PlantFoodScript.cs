@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlantFoodScript : BasicFoodScript {
-    public override float Eaten(float _BiteSize) {
+    public override float Eat(float _BiteSize) {
         return _BiteSize - GetPlantScript().TakeHealth(_BiteSize);
     }
 
@@ -11,11 +11,10 @@ public class PlantFoodScript : BasicFoodScript {
         if (GetPlantScript().health > 0)
             return true;
         return false;
-            }
+    }
 
-    internal override void TakeDamage(float _damage) {
-        GetPlantScript().health -= _damage;
-	}
+    public override void UpdateFood() {
+    }
 
     public PlantScript GetPlantScript() {
         return GetComponentInParent<PlantScript>();

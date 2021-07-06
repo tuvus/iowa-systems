@@ -8,9 +8,8 @@ public class AnimalSpeciesEars : BasicAnimalSpeciesOrganScript {
 
 	public float hearRange;
 
-	public override void MakeOrganism(GameObject _newOrganism) {
-		GameObject newEars = speciesScript.InstantiateNewOrgan(ears,_newOrganism);
-		EarsScript earsScript = newEars.GetComponent<EarsScript>();
+	public override void MakeOrganism(BasicOrganismScript _newOrganism) {
+		EarsScript earsScript = speciesScript.InstantiateNewOrgan(ears,_newOrganism).GetComponent<EarsScript>();
 		earsScript.hearRange = hearRange;
 		earsScript.SetupBasicOrgan(this);
 	}

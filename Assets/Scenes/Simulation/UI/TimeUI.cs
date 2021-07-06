@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class TimeUI : MonoBehaviour {
-    private int[] timeScaleArray = new int[] { 0, 1, 2, 5, 10, 15, 20, 25 };
+    private readonly int[] timeScaleArray = new int[] { 0, 1, 2, 5, 10, 15, 20, 25 };
     private int timeScale;
 
     public void IncreaceTimeStep () {

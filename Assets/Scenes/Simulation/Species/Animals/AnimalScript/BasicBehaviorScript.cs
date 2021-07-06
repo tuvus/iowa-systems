@@ -5,13 +5,16 @@ using UnityEngine;
 public abstract class BasicBehaviorScript : MonoBehaviour {
 	public BasicAnimalSpecies animalSpecies;
 	
-	public BasicAnimalScript basicAnimal;
+	internal BasicAnimalScript basicAnimal;
 	public ReproductiveSystem reproductive;
-	public List<GameObject> foodsInRange = new List<GameObject>();
 
 	public void SetUpBehaviorScript () {
 		basicAnimal = GetComponent<BasicAnimalScript>();
+		basicAnimal.behavior = this;
     }
+
+	public abstract void UpdateBehavior();
+
 
 	public BasicAnimalScript GetBasicAnimal() {
 		return basicAnimal;
@@ -19,48 +22,56 @@ public abstract class BasicBehaviorScript : MonoBehaviour {
 
 	public bool FindMate() {
 		if (basicAnimal.age >= reproductive.reproductionAge && basicAnimal.mate == null) {
-			for (int i = 0; i < basicAnimal.nearbyObjects.Count; i++) {
-				if (basicAnimal.nearbyObjects[i].gameObject != null && basicAnimal.nearbyObjects[i].GetComponent<BasicAnimalScript>() != null) {
-					BasicAnimalScript mateToCheck = basicAnimal.nearbyObjects[i].GetComponent<BasicAnimalScript>();
-					if (reproductive.CheckMate(mateToCheck)) {
-						basicAnimal.mate = mateToCheck;
-						mateToCheck.mate = basicAnimal;
-						return true;
-					}
-				}
-			}
+            foreach (var potentialMate in basicAnimal.GetEyes().GetAnimalsInRange(animalSpecies.GetPotentialMates(reproductive.GetSex()))) {
+				if (reproductive.CheckMate(potentialMate)) {
+					basicAnimal.mate = potentialMate;
+					potentialMate.mate = basicAnimal;
+					return true;
+                }
+            }
 		}
 		return false;
 	}
 
-
-	public GameObject FindPredator() {
-		for (int i = 0; i < basicAnimal.nearbyObjects.Count; i++) {
-			if (basicAnimal.nearbyObjects[i] != null && basicAnimal.nearbyObjects[i].GetComponent<BasicAnimalScript>() != null) {
-				if (animalSpecies.IsPredator(basicAnimal,basicAnimal.nearbyObjects[i].GetComponent<BasicAnimalScript>())) {
-					return basicAnimal.nearbyObjects[i].gameObject;
-				}
-			}
-		}
+	public BasicAnimalScript FindPredator() {
+        foreach (var predator in basicAnimal.GetEyes().GetAnimalsInRange(animalSpecies.predators)) {
+			return predator;
+        }
 		return null;
 	}
 
-	public GameObject FindFood() {
-		GameObject foundFood = null;
-		for (int i = 0; i < basicAnimal.nearbyObjects.Count; i++) {
-			if (basicAnimal.nearbyObjects[i] == null) {
-				continue;
-			}
-			if (FoodDesire(basicAnimal.nearbyObjects[i]) <= 0)
-				continue;
-			if (foundFood == null || (FoodDesire(foundFood) < FoodDesire(basicAnimal.nearbyObjects[i]))) {
-				foundFood = basicAnimal.nearbyObjects[i];
+	public Eddible FindFoodInMouthRange() {
+		Eddible foundFood = null;
+		int foundFoodRank = 0;
+        foreach (var eddible in basicAnimal.GetFoodsInRange()) {
+			int checkOrganismFoodRank = RankFood(eddible.gameObject);
+			if (checkOrganismFoodRank > foundFoodRank) {
+				foundFood = eddible;
+				foundFoodRank = checkOrganismFoodRank;
+            }
+        }
+		return foundFood;
+	}
+
+	public Eddible FindFoodInSightRange() {
+		Eddible foundFood = null;
+		int foundFoodRank = 0;
+		float foodDistance = -1;
+		foreach (var eddible in basicAnimal.GetEyes().GetEddiblesInRange(animalSpecies.eddibleFood)) {
+			int checkOrganismFoodRank = RankFood(eddible.gameObject);
+			if (checkOrganismFoodRank > foundFoodRank) {
+				float eddibleDistance = Vector3.Distance(basicAnimal.position, eddible.GetPosition());
+				if (foodDistance < 0 || foodDistance > eddibleDistance) {
+					foundFood = eddible;
+					foundFoodRank = checkOrganismFoodRank;
+					foodDistance = eddibleDistance;
+				}
 			}
 		}
 		return foundFood;
 	}
 
-	public int FoodDesire(GameObject _food) {
+	public int RankFood(GameObject _food) {
 		if (!animalSpecies.GetDiet().IsEddible(_food))
 			return -1;
 		if (_food.GetComponent<MeatFoodScript>() != null && _food.GetComponent<MeatFoodScript>().HasFood()) {
@@ -74,59 +85,33 @@ public abstract class BasicBehaviorScript : MonoBehaviour {
 
     }
 
-
-	public void Bite(GameObject _organismToBite) {
-		Debug.Log("Bite: " + _organismToBite);
-		_organismToBite.GetComponent<BasicAnimalScript>().Eaten(GetComponentInChildren<MouthScript>().biteSize, basicAnimal);
-	}
-
-	public bool Eat() {
-		if (basicAnimal.waitTime == 0f && !basicAnimal.Full()) {
-			for (int i = 0; i < foodsInRange.Count; i++) {
-				if (foodsInRange[i] == null) {
-					foodsInRange.RemoveAt(i);
-				} else if (foodsInRange[i].GetComponent<PlantScript>() != null && foodsInRange[i].GetComponent<PlantScript>().CheckFood() > 0) {
-					PlantScript plantScript = foodsInRange[i].GetComponent<PlantScript>();
-					basicAnimal.food += plantScript.Eat(GetComponentInChildren<MouthScript>().biteSize);
-					GameObject newNoise = Instantiate(animalSpecies.noise, gameObject.transform);
-					newNoise.GetComponent<NoiseScript>().time = Random.Range(1.2f, 0.3f);
-					newNoise.GetComponent<NoiseScript>().range = Random.Range(GetComponentInChildren<MouthScript>().biteSize, GetComponentInChildren<MouthScript>().biteSize * 3);
-					newNoise.GetComponent<NoiseScript>().type = "eatNoise";
-					newNoise.transform.localPosition = new Vector3(0, 0, 0);
-					basicAnimal.waitTime = 0.3f;
-					return true;
-				} else if (foodsInRange[i].GetComponent<MeatFoodScript>() != null && foodsInRange[i].GetComponent<MeatFoodScript>().HasFood()) {
-					if (animalSpecies.GetDiet().IsEddible(foodsInRange[i].GetComponent<MeatFoodScript>())) {
-						MeatFoodScript meatScript = foodsInRange[i].GetComponent<MeatFoodScript>();
-						basicAnimal.food += meatScript.Eaten(GetComponentInChildren<MouthScript>().biteSize);
-						GameObject newNoise = Instantiate(animalSpecies.noise, gameObject.transform);
-						newNoise.GetComponent<NoiseScript>().time = Random.Range(1.2f, 0.3f);
-						newNoise.GetComponent<NoiseScript>().range = Random.Range(GetComponentInChildren<MouthScript>().biteSize, GetComponentInChildren<MouthScript>().biteSize * 3);
-						newNoise.GetComponent<NoiseScript>().type = "eatNoise";
-						newNoise.transform.localPosition = new Vector3(0, 0, 0);
-						basicAnimal.waitTime = 0.3f;
-						return true;
-					}
-				} else if (foodsInRange[i].GetComponent<BasicAnimalScript>() != null) {
-					if (animalSpecies.GetDiet().IsEddible(foodsInRange[i].GetComponent<BasicAnimalScript>())) {
-						Bite(foodsInRange[i]);
-						basicAnimal.waitTime = 0.3f;
-					}
-				}
-			}
+	internal bool RunFromPredator() {
+		BasicAnimalScript predator = FindPredator();
+		if (predator != null) {
+			basicAnimal.RunFromOrganism(predator);
+			return true;
 		}
 		return false;
 	}
 
-	public void Explore() {
-		float random = Random.Range(0,10f);
-		transform.Rotate(new Vector3(Random.Range(-random, random), Random.Range(-random, random), Random.Range(-random, random)));
-		basicAnimal.moving = true;
+	internal bool GoToFood() {
+		if (!basicAnimal.Hungry())
+			return false;
+
+		Eddible foodInRange = FindFoodInSightRange();
+		if (foodInRange != null) {
+			basicAnimal.GoToPoint(foodInRange.transform.position);
+			return true;
+		}
+		return false;
 	}
 
-	public void FollowMate() {
-		transform.LookAt(basicAnimal.mate.transform.position);
-		transform.Rotate(transform.up * -90);
-		basicAnimal.moving = true;
-	}
+	/// <summary>
+	/// For Debuging purposes
+	/// </summary>
+	internal void PrintState(string text, int printLevel) {
+		int printlevelRequirement = 2;
+		if (printLevel > printlevelRequirement)
+			Debug.Log(animalSpecies.speciesDisplayName + ":" + text);
+    }
 }

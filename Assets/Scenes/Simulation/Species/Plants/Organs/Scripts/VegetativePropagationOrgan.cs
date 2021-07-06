@@ -13,7 +13,7 @@ public class VegetativePropagationOrgan : BasicPlantOrganScript {
 	public int newPlantGrowChance;
 
 	internal override void SetUpSpecificOrgan() {
-		plantScript = GetComponentInParent<PlantScript>();
+		plantScript = basicOrganismScript.GetComponent<PlantScript>();
 		newPlantGrowthCost = newPlantGrowthCost * Random.Range(0.8f, 1.2f);
 	}
 	void FixedUpdate() {
@@ -32,7 +32,7 @@ public class VegetativePropagationOrgan : BasicPlantOrganScript {
 		if (plantScript.organismCount >= 2) {
 			if (Random.Range(0, 100 / plantScript.organismCount) <= 4) {
 				plantScript.organismCount--;
-				plantScript.GetPlantSpecies().SpawnSpecificOrganism(gameObject);
+				plantScript.plantSpecies.SpawnSpecificOrganism(basicOrganismScript);
 			}
 		}
 	}
@@ -42,7 +42,7 @@ public class VegetativePropagationOrgan : BasicPlantOrganScript {
 			if (Random.Range(0, 100) <= newPlantGrowChance) {
 
 			} else {
-				plantScript.GetPlantSpecies().organismCount++;
+				//plantScript.GetPlantSpecies().organismCount++;
 				plantScript.organismCount++;
 				growth -= newPlantGrowthCost;
 			}

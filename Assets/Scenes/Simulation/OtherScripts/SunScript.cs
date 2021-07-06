@@ -14,7 +14,7 @@ public class SunScript : MonoBehaviour {
 		GetComponentInChildren<LensFlare>().enabled = _settings.sun;
 		GetComponentInChildren<Light>().enabled = _settings.shadows;
 		if (_settings.shadows == false) {
-			RenderSettings.ambientLight = new Color(32, 32, 32, 0);
+			RenderSettings.ambientLight = new Color(20, 20, 20, 0);
         } else {
 			RenderSettings.ambientLight = new Color(6, 6, 6, 0);
 		}

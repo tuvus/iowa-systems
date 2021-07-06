@@ -13,11 +13,7 @@ public class FemaleReproductiveSystem : BasicAnimalOrganScript {
 		timeAfterReproduction = reproductive.animalSpeciesReproductive.reproductionDelay * Random.Range(0.0f, .2f);
 	}
 
-	void FixedUpdate() {
-		UpdateReproduction();
-	}
-
-	void UpdateReproduction() {
+	public override void UpdateOrgan() {
 		if (timeUntilBirth > 0) {
 			timeUntilBirth -= Time.fixedDeltaTime * .2f;
 			if (timeUntilBirth <= 0) {

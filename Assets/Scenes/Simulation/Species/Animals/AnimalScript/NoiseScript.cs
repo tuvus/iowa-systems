@@ -8,7 +8,7 @@ public class NoiseScript : MonoBehaviour {
 	public string type;
 	public float time;
 	void Start() {
-		GetComponent<SphereCollider>().radius = range;
+
 	}
 
 	void Update () {

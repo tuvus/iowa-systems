@@ -35,7 +35,7 @@ public class GraphWindow : MonoBehaviour {
 	public void AddNewDot(int timePosition, int populationPosition, Color _color, BasicSpeciesScript _species) {
 		SetPopulationMax(populationPosition);
 
-		GameObject circle = CreateCircle(_color, GetVericalCollum(timePosition),populationPosition, _species);
+		CreateCircle(_color, GetVericalCollum(timePosition),populationPosition, _species);
 	}
 
 	GameObject CreateCircle( Color _color, GameObject _verticalCollum, int _populationCount, BasicSpeciesScript _species) {
@@ -53,8 +53,6 @@ public class GraphWindow : MonoBehaviour {
 	}
 
 	float FindCirclePosition(int _population) {
-		float population = _population;
-
 		return (graphContainer.sizeDelta.y - distanceFromTop - distanceFromBottom + 30) * ((float)_population / (float)yMaximum) + distanceFromBottom;
     }
 

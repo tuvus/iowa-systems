@@ -3,26 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlantSpeciesScript : BasicSpeciesScript {
-	public GameObject plantType;
-
-	public int seedCount;
+	public GameObject plantPrefab;
 
 	public float maxGrowth;
 
-	internal override void StartSimulation() {
+	internal List<PlantScript> plants = new List<PlantScript>();
+
+
+    #region StartSimulation
+    internal override void SetupSpecificSimulation() {
+    }
+
+    internal override void StartSimulation() {
 	}
 
 	internal override void StartSpecificSimulation() {
-		populationOverTime.Add(organismCount);
 		gameObject.name = speciesName;
 		history = GetComponentInParent<SpeciesMotor>();
 
 		Populate();
 	}
+    #endregion
 
-	public override void Populate() {
-		int organismsToSpawn = organismCount;
-		organismCount = 0;
+    #region SpawnOrganisms
+    public override void Populate() {
+		int organismsToSpawn = startingPopulation;
 		for (int i = 0; i < organismsToSpawn; i++) {
 			SpawnSpecificRandomOrganism();
 		}
@@ -32,81 +37,86 @@ public class PlantSpeciesScript : BasicSpeciesScript {
 	}
 
     public override void SpawnSpecificRandomOrganism() {
-		GameObject newPlant = SpawnRandomOrganism(plantType).gameObject;
-		PlantScript plantScipt = newPlant.GetComponent<PlantScript>();
-		plantScipt.maxGrowth = maxGrowth;
-		plantScipt.Grow(Random.Range(0.1f, maxGrowth),1);
-		plantScipt.species = this;
-		plantScipt.SetUpOrganism(this);
+		PlantScript plantScript = SpawnOrganism(plantPrefab).GetComponent<PlantScript>();
+		SetupRandomOrganism(plantScript);
+		plantScript.plantSpecies = this;
+		plantScript.SetUpOrganism(this,null);
+		plantScript.Grow(Random.Range(plantScript.maxGrowth / 2, plantScript.maxGrowth * 2),1);
+		AddOrganism(plantScript);
 		foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
-			organ.MakeOrganism(newPlant);
+			organ.MakeOrganism(plantScript);
 		}
 	}
 
-    public PlantScript SpawnOrganismFromSeed (GameObject _seed) {
-		GameObject newOrganism = Instantiate(plantType, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null);
-		newOrganism.transform.SetParent(earth.GetOrganismsTransform());
-		newOrganism.GetComponent<Renderer>().material.color = speciesColor;
-		newOrganism.GetComponent<Renderer>().enabled = User.Instance.GetRenderWorldUserPref();
-		BasicOrganismScript basicOrganism = newOrganism.GetComponent<BasicOrganismScript>();
-		newOrganism.transform.position = _seed.transform.position;
-		//new SpawnRandomizer().SpawnFromParent(newOrganism.transform, _seed, 0, earth);
-		basicOrganism.species = this;
-		organismCount++;
-		seedCount--;
-		PlantScript plantScipt = newOrganism.GetComponent<PlantScript>();
-		plantScipt.maxGrowth = maxGrowth;
-		plantScipt.species = this;
-		plantScipt.growth = 0.1f;
-		plantScipt.health = plantScipt.growth;
-		plantScipt.SetUpOrganism(this);
-		foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
-			organ.MakeOrganism(newOrganism);
-		}
-		return plantScipt;
-	}
-
-	public Seed SpawnRandomSeed(GameObject _seed) {
-		GameObject newSeed = InstantiateNewSeed(_seed).gameObject;
-		new SpawnRandomizer().SpawnRandom(newSeed.transform, earth);
-		Seed seedScript = newSeed.GetComponent<Seed>();
-		seedScript.species = this;
-		seedCount++;
+	public Seed SpawnRandomSeed(GameObject seed) {
+		Seed seedScript = SpawnOrganism(seed).GetComponent<Seed>();
+		SetupRandomOrganism(seedScript);
+		seedScript.SetUpOrganism(this, null);
+		GetSpeciesSeeds().AddSeed(seedScript);
 		return seedScript;
 	}
 
-	public Seed SpawnSeed(GameObject _parent, GameObject _seed, float range) {
-		GameObject newSeed = InstantiateNewSeed(_seed).gameObject;
-		new SpawnRandomizer().SpawnFromParent(newSeed.transform, _parent, range, earth);
-		newSeed.transform.SetParent(earth.GetOrganismsTransform());
-		Seed seedScript = newSeed.GetComponent<Seed>();
-		seedScript.species = this;
-		seedCount++;
+
+	public Seed SpawnSeed(PlantScript parent, GameObject seed, float range) {
+		Seed seedScript = SpawnOrganism(seed).GetComponent<Seed>();
+		SetupChildOrganism(seedScript, parent, range);
+		seedScript.SetUpOrganism(this, parent);
+		GetEarthScript().OnEndFrame += seedScript.OnAddSeed;
 		return seedScript;
 	}
 
-	public GameObject InstantiateNewSeed(GameObject _seed) {
-		GameObject newSeed = Instantiate(_seed, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null);
-		newSeed.transform.SetParent(earth.GetOrganismsTransform());
-
-		newSeed.GetComponent<Renderer>().material.color = speciesColor;
-		newSeed.GetComponent<Renderer>().enabled = User.Instance.GetRenderWorldUserPref();
-		return newSeed;
+	public PlantScript SpawnOrganismFromSeed (Seed seed) {
+		PlantScript plantScript = SpawnOrganism(plantPrefab).GetComponent<PlantScript>();
+		SetupChildOrganism(plantScript, seed);
+		plantScript.plantSpecies = this;
+		plantScript.SetUpOrganism(this,seed.plantParent);
+		SetUpOrgans(plantScript);
+		GetEarthScript().OnEndFrame += plantScript.OnAddOrganism;
+		return plantScript;
 	}
 
-	public override GameObject SpawnSpecificOrganism(GameObject _parent) {
-		GameObject newPlant = SpawnRandomOrganism(plantType).gameObject;
-		PlantScript plantScipt = newPlant.GetComponent<PlantScript>();
-		plantScipt.maxGrowth = maxGrowth;
-		plantScipt.species = this;
-		plantScipt.SetUpOrganism(this);
+	public override BasicOrganismScript SpawnSpecificOrganism(BasicOrganismScript _parent) {
+		PlantScript plantScript = SpawnOrganism(plantPrefab).GetComponent<PlantScript>();
+		plantScript.plantSpecies = this;
+		plantScript.SetUpOrganism(this, _parent);
+		SetUpOrgans(plantScript);
+		GetEarthScript().OnEndFrame += plantScript.OnAddOrganism;
+		return plantScript;
+	}
+
+	void SetUpOrgans(PlantScript plantScript) {
 		foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
-			organ.MakeOrganism(newPlant);
+			organ.MakeOrganism(plantScript);
 		}
-		return newPlant;
 	}
+    #endregion
 
-	public void SeedDeath() {
-		seedCount--;
+    #region PlantListControls
+    internal override void AddSpecificOrganism(BasicOrganismScript newOrganism) {
+		if (newOrganism.GetComponent<PlantScript>() != null) {
+			plants.Add(newOrganism.GetComponent<PlantScript>());
+			return;
+        }
+		if (GetSpeciesSeeds() != null && newOrganism.GetComponent<Seed>() != null) {
+			GetSpeciesSeeds().seeds.Add(newOrganism.GetComponent<Seed>());
+			return;
+        }
+
 	}
+	
+	internal override void SpecificOrganismDeath(BasicOrganismScript deadOrganism) {
+		if (deadOrganism.GetComponent<PlantScript>() != null) {
+			plants.Remove(deadOrganism.GetComponent<PlantScript>());
+			return;
+		}
+		if (GetSpeciesSeeds() != null && deadOrganism.GetComponent<Seed>() != null) {
+			GetSpeciesSeeds().seeds.Remove(deadOrganism.GetComponent<Seed>());
+			return;
+		}
+	}
+    #endregion
+
+	public PlantSpeciesSeeds GetSpeciesSeeds() {
+		return GetComponent<PlantSpeciesSeeds>();
+    }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlantScript : BasicOrganismScript {
+	public PlantSpeciesScript plantSpecies;
+	PlantScript plantParent;
 	//Plants Stats
 	public string type;
 	public float health;
@@ -10,20 +12,35 @@ public class PlantScript : BasicOrganismScript {
 	public float maxGrowth;
 	public int organismCount;
 
-	public override void SetUpSpecificOrganism() {
-		maxGrowth = maxGrowth * Random.Range(0.8f, 1.2f);
-		growth = Random.Range(0.1f, maxGrowth);
-		health = growth;
+	public override void SetUpSpecificOrganism(BasicOrganismScript parent) {
+		position = GetOrganismMotor().GetModelTransform().position;
+		GetEddible().postion = position;
+		if (parent != null) {
+			plantParent = parent.GetComponent<PlantScript>();
+			maxGrowth = plantParent.maxGrowth * Random.Range(0.95f, 1.05f);
+			growth = maxGrowth / 100;
+			health = growth / 3;
+			return;
+        }
+		maxGrowth = plantSpecies.maxGrowth * Random.Range(0.8f, 1.2f);
+		growth = maxGrowth / 100;
+		health = growth / 3;
 	}
 
-	void FixedUpdate() {
+	#region PlantUpdate
+	public override void RefreshOrganism() {
+	}
+
+	public override void UpdateOrganism() {
 		Grow(Time.fixedDeltaTime, CalculateSun());
 	}
+    #endregion
 
-	public void Grow(float _time, float _sun) {
+    #region PlantControls
+    public void Grow(float _time, float _sun) {
 		age += _time;
-		float newGrowth = _time * _sun / 10;
-		if (health < newGrowth) {
+		float newGrowth = _time * _sun / 15;
+		if (health < growth / 3) {
 			newGrowth = AddHealth(newGrowth);
 		}
 		newGrowth = AddGrowth(newGrowth);
@@ -33,12 +50,12 @@ public class PlantScript : BasicOrganismScript {
 
 	public float AddHealth(float _value) {
 		float extraGrowth = 0;
-		health += _value;
-		if (health > maxGrowth) {
-			extraGrowth = health - maxGrowth;
-			health = maxGrowth;
+		health += _value / 3;
+		if (health > maxGrowth / 3) {
+			extraGrowth = health - maxGrowth / 3;
+			health = maxGrowth / 3;
 		}
-		return extraGrowth;
+		return extraGrowth * 3;
 	}
 
 	public float AddGrowth(float _value) {
@@ -64,17 +81,15 @@ public class PlantScript : BasicOrganismScript {
         }
 		return _health;
     }
-
-	public float CalculateSun () {
-		return species.GetEarthScript().FindSunValue(transform.position);
-	}
-
-	public PlantSpeciesScript GetPlantSpecies() {
-		return (PlantSpeciesScript)species;
-	}
-
-    internal override void OrganismDied() {
+    
+	internal override void OrganismDied() {
     }
+    #endregion
+
+    #region GetMethods
+    public float CalculateSun () {
+		return species.GetEarthScript().GetSunValue(transform.position);
+	}
 
     public SeedOrgan GetSeedOrgan() {
 		return GetComponentInChildren<SeedOrgan>();
@@ -84,7 +99,14 @@ public class PlantScript : BasicOrganismScript {
 		return 10;
     }
 
-	public float CheckFood() {
-		return health;
+	public bool HasFood() {
+		if (health > maxGrowth / 3 / 10)
+			return true;
+		return false;
     }
+
+    public override string GetFoodType() {
+		return species.GetFoodType();
+    }
+    #endregion
 }

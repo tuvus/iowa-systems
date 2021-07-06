@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class BasicSpeciesOrganScript : MonoBehaviour {
-    [SerializeField]internal BasicSpeciesScript speciesScript;
-    public abstract void MakeOrganism(GameObject _newOrganism);
+    internal BasicSpeciesScript speciesScript;
+    public abstract void MakeOrganism(BasicOrganismScript _newOrganism);
 
     public void SetBasicSpeciesScript(BasicSpeciesScript _species) {
         speciesScript = _species;

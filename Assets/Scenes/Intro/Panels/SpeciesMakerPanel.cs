@@ -41,10 +41,10 @@ public class SpeciesMakerPanel : MonoBehaviour {
 				selectedSpecies = targetSpecies.gameObject;
 				color = targetSpecies.speciesColor;
 				SetSlidersToColor(color);
-				GetSpeciesPopulationCountSlider().value = targetSpecies.organismCount;
+				GetSpeciesPopulationCountSlider().value = targetSpecies.startingPopulation;
 				RefreshOrganismCount();
 				if (targetSpecies.GetComponent<PlantSpeciesSeeds>() != null) {
-					GetSpeciesSeedCountSlider().value = targetSpecies.GetComponent<PlantSpeciesSeeds>().seedCount;
+					GetSpeciesSeedCountSlider().value = targetSpecies.GetComponent<PlantSpeciesSeeds>().startingSeedCount;
 					DisplaySeedSpeceis(true);
 				} else {
 					DisplaySeedSpeceis(false);
@@ -67,10 +67,10 @@ public class SpeciesMakerPanel : MonoBehaviour {
 		}
 		GetSpieciesDropDown().interactable = false;
 		ResetFieldInputName();
-		GetSpeciesPopulationCountSlider().value = species.organismCount;
+		GetSpeciesPopulationCountSlider().value = species.startingPopulation;
 		RefreshOrganismCount();
 		if (species.GetComponent<PlantSpeciesSeeds>() != null) {
-			GetSpeciesSeedCountSlider().value = species.GetComponent<PlantSpeciesSeeds>().seedCount;
+			GetSpeciesSeedCountSlider().value = species.GetComponent<PlantSpeciesSeeds>().startingSeedCount;
 			DisplaySeedSpeceis(true);
         } else {
 			DisplaySeedSpeceis(false);
@@ -84,10 +84,10 @@ public class SpeciesMakerPanel : MonoBehaviour {
 		if (editingSpecies) {
 			BasicSpeciesScript speciesScript = selectedSpecies.GetComponent<BasicSpeciesScript>();
 			speciesScript.speciesDisplayName = GetSpieciesNameInputField().text;
-			speciesScript.organismCount = Mathf.RoundToInt(GetSpeciesPopulationCountSlider().value);
+			speciesScript.startingPopulation = Mathf.RoundToInt(GetSpeciesPopulationCountSlider().value);
 			speciesScript.speciesColor = color;
 			if (speciesScript.GetComponent<PlantSpeciesSeeds>() != null)
-				speciesScript.GetComponent<PlantSpeciesSeeds>().seedCount = (int)GetSpeciesSeedCountSlider().value;
+				speciesScript.GetComponent<PlantSpeciesSeeds>().startingSeedCount = (int)GetSpeciesSeedCountSlider().value;
 
 			selectedSpecies.GetComponent<SpeciesHolderScript>().Refresh();
 		} else {
@@ -95,10 +95,10 @@ public class SpeciesMakerPanel : MonoBehaviour {
 
 			BasicSpeciesScript speciesScript = newSpecies.GetComponent<BasicSpeciesScript>();
 			speciesScript.speciesDisplayName = GetSpieciesNameInputField().text;
-			speciesScript.organismCount = Mathf.RoundToInt(GetSpeciesPopulationCountSlider().value);
+			speciesScript.startingPopulation = Mathf.RoundToInt(GetSpeciesPopulationCountSlider().value);
 			speciesScript.speciesColor = color;
 			if (speciesScript.GetComponent<PlantSpeciesSeeds>() != null)
-				speciesScript.GetComponent<PlantSpeciesSeeds>().seedCount = (int)GetSpeciesSeedCountSlider().value;
+				speciesScript.GetComponent<PlantSpeciesSeeds>().startingSeedCount = (int)GetSpeciesSeedCountSlider().value;
 
 			selectedSpecies.GetComponent<SpeciesHolderScript>().Refresh();
 		}

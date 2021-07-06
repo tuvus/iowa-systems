@@ -1957,7 +1957,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31d3c368a233f4a52b77ee5a9561ab2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
   birthTime: 130
@@ -1977,9 +1976,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.5
+  eatRange: 0
   eatTime: 0.95
 --- !u!114 &446744795
 MonoBehaviour:
@@ -1993,7 +1992,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 8.07
   eyeType: 0
@@ -2009,7 +2007,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 3.66
 --- !u!114 &446744797
@@ -2027,7 +2024,8 @@ MonoBehaviour:
   speciesName: Elk
   speciesDisplayName: Elk
   speciesColor: {r: 0.31132078, g: 0.1581312, b: 0, a: 1}
-  organismCount: 10
+  startingPopulation: 0
+  organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
@@ -2037,6 +2035,11 @@ MonoBehaviour:
   speed: 2
   maxFood: 21.7
   maxAge: 26
+  animals: []
+  availableMaleMates: []
+  availableFemaleMates: []
+  eddibleFood: []
+  predators: []
 --- !u!114 &446744798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2088,7 +2091,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 580515522c3d74722bf9fd4e21038bbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   growthMax: 9.89
   newPlantGrowthCost: 6.13
   newPlantGrowChance: 20
@@ -2107,9 +2109,10 @@ MonoBehaviour:
   speciesName: TallGrass
   speciesDisplayName: TallGrass
   speciesColor: {r: 0.62352943, g: 0.6392157, b: 0, a: 1}
-  organismCount: 26
-  plantType: {fileID: 1449010634114082, guid: 0dfa93e504d7446ad8c2c33189419f51, type: 3}
-  seedCount: 0
+  startingPopulation: 24
+  organisms: []
+  plantPrefab: {fileID: 1449010634114082, guid: 0dfa93e504d7446ad8c2c33189419f51,
+    type: 3}
   maxGrowth: 15
 --- !u!114 &456575642
 MonoBehaviour:
@@ -2123,17 +2126,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350de5468c2b46f1821fb5cb6d36ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
-  seed: {fileID: 1362928467765342, guid: 496275388225b461aa42374e0a4afb22, type: 3}
-  seedCount: 12
+  seedPrefab: {fileID: 1362928467765342, guid: 496275388225b461aa42374e0a4afb22, type: 3}
+  foodType: 
+  startingSeedCount: 12
   humidityRequirement: 64
   tempetureRequirement: 50
-  seedDispertionRange: 12
-  timeRequirement: 82
-  timeMaximum: 60
-  awnMaxGrowth: 10
+  seedDispertionRange: 40
+  timeRequirement: 18
+  timeMaximum: 36
+  awnMaxGrowth: 24
   awnMaxAmount: 1
-  awnMaxSeedAmount: 9
+  awnMaxSeedAmount: 6
 --- !u!1 &496184813
 GameObject:
   m_ObjectHideFlags: 0
@@ -3145,7 +3148,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1627060942}
+      objectReference: {fileID: 0}
     - target: {fileID: 114473300618344846, guid: 4d4a09e89fadd41e19ce31891e00a6e9,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -3447,7 +3450,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31d3c368a233f4a52b77ee5a9561ab2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
   birthTime: 120
@@ -3467,9 +3469,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.57
+  eatRange: 0
   eatTime: 0.38
 --- !u!114 &667267388
 MonoBehaviour:
@@ -3483,7 +3485,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 10.29
   eyeType: 0
@@ -3499,7 +3500,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 6.64
 --- !u!114 &667267390
@@ -3517,7 +3517,8 @@ MonoBehaviour:
   speciesName: Wolf
   speciesDisplayName: Wolf
   speciesColor: {r: 0.26415092, g: 0.22125883, b: 0.20808114, a: 1}
-  organismCount: 8
+  startingPopulation: 0
+  organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
@@ -3527,6 +3528,11 @@ MonoBehaviour:
   speed: 2.4
   maxFood: 21.5
   maxAge: 6
+  animals: []
+  availableMaleMates: []
+  availableFemaleMates: []
+  eddibleFood: []
+  predators: []
 --- !u!114 &667267391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4610,7 +4616,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 580515522c3d74722bf9fd4e21038bbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   growthMax: 10.52
   newPlantGrowthCost: 4.9
   newPlantGrowChance: 20
@@ -4629,10 +4634,11 @@ MonoBehaviour:
   speciesName: Grass
   speciesDisplayName: Grass
   speciesColor: {r: 0.13960083, g: 0.754717, b: 0, a: 1}
-  organismCount: 45
-  plantType: {fileID: 1449010634114082, guid: 0dfa93e504d7446ad8c2c33189419f51, type: 3}
-  seedCount: 0
-  maxGrowth: 13
+  startingPopulation: 40
+  organisms: []
+  plantPrefab: {fileID: 1449010634114082, guid: 0dfa93e504d7446ad8c2c33189419f51,
+    type: 3}
+  maxGrowth: 10
 --- !u!114 &809522560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4645,15 +4651,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350de5468c2b46f1821fb5cb6d36ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
-  seed: {fileID: 1362928467765342, guid: 496275388225b461aa42374e0a4afb22, type: 3}
-  seedCount: 26
+  seedPrefab: {fileID: 1362928467765342, guid: 496275388225b461aa42374e0a4afb22, type: 3}
+  foodType: 
+  startingSeedCount: 40
   humidityRequirement: 52
   tempetureRequirement: 45
-  seedDispertionRange: 9
-  timeRequirement: 73
-  timeMaximum: 50
-  awnMaxGrowth: 12
+  seedDispertionRange: 30
+  timeRequirement: 12
+  timeMaximum: 24
+  awnMaxGrowth: 18
   awnMaxAmount: 1
   awnMaxSeedAmount: 6
 --- !u!1 &835355319
@@ -4817,7 +4823,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 924915883}
   m_HandleRect: {fileID: 924915882}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -9324,12 +9330,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31d3c368a233f4a52b77ee5a9561ab2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
-  birthTime: 90
-  reproductionDelay: 150
-  reproductionAge: 1.5
+  birthTime: 70
+  reproductionDelay: 20
+  reproductionAge: 1
   reproducionAmount: 5
   birthSuccessPercent: 60
 --- !u!114 &1600016794
@@ -9344,9 +9349,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.29
+  eatRange: 15
   eatTime: 0.32
 --- !u!114 &1600016795
 MonoBehaviour:
@@ -9360,9 +9365,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
-  sightRange: 36.29
+  sightRange: 50
   eyeType: 0
 --- !u!114 &1600016796
 MonoBehaviour:
@@ -9376,7 +9380,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 6.64
 --- !u!114 &1600016797
@@ -9394,16 +9397,22 @@ MonoBehaviour:
   speciesName: Fox
   speciesDisplayName: Fox
   speciesColor: {r: 0.8490566, g: 0, b: 0, a: 1}
-  organismCount: 14
+  startingPopulation: 12
+  organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   bodySize: 3
-  maxHealth: 7.3
-  speed: 2.4
-  maxFood: 24.71
+  maxHealth: 3
+  speed: 14
+  maxFood: 10
   maxAge: 7
+  animals: []
+  availableMaleMates: []
+  availableFemaleMates: []
+  eddibleFood: []
+  predators: []
 --- !u!114 &1600016798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9442,11 +9451,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31d3c368a233f4a52b77ee5a9561ab2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
-  birthTime: 70
-  reproductionDelay: 50
+  birthTime: 50
+  reproductionDelay: 10
   reproductionAge: 0.5
   reproducionAmount: 8
   birthSuccessPercent: 30
@@ -9462,9 +9470,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.1
+  eatRange: 4
   eatTime: 0.25
 --- !u!114 &1627060936
 MonoBehaviour:
@@ -9478,9 +9486,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
-  sightRange: 15.72
+  sightRange: 30
   eyeType: 1
 --- !u!114 &1627060937
 MonoBehaviour:
@@ -9494,7 +9501,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 14.36
 --- !u!114 &1627060938
@@ -9512,16 +9518,22 @@ MonoBehaviour:
   speciesName: CottontailRabbit
   speciesDisplayName: Cottontail
   speciesColor: {r: 0.754717, g: 0.48981506, b: 0.20220716, a: 1}
-  organismCount: 38
+  startingPopulation: 34
+  organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   bodySize: 1
-  maxHealth: 3
-  speed: 2.2
+  maxHealth: 1
+  speed: 13
   maxFood: 8
-  maxAge: 2
+  maxAge: 4
+  animals: []
+  availableMaleMates: []
+  availableFemaleMates: []
+  eddibleFood: []
+  predators: []
 --- !u!114 &1627060939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9537,18 +9549,6 @@ MonoBehaviour:
   diet:
   - Grass
   - TallGrass
---- !u!114 &1627060942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1627060932}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4f7cbf78b1b143c982cf2267b3bbdd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1629009799
 GameObject:
   m_ObjectHideFlags: 0
@@ -9951,7 +9951,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31d3c368a233f4a52b77ee5a9561ab2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
   birthTime: 145
@@ -9971,9 +9970,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.34
+  eatRange: 0
   eatTime: 0.35
 --- !u!114 &1754343637
 MonoBehaviour:
@@ -9987,7 +9986,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 10.37
   eyeType: 0
@@ -10003,7 +10001,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 7.36
 --- !u!114 &1754343639
@@ -10021,7 +10018,8 @@ MonoBehaviour:
   speciesName: Deer
   speciesDisplayName: Deer
   speciesColor: {r: 0.4811321, g: 0.24438457, b: 0, a: 1}
-  organismCount: 12
+  startingPopulation: 0
+  organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
@@ -10031,6 +10029,11 @@ MonoBehaviour:
   speed: 2
   maxFood: 27.2
   maxAge: 14
+  animals: []
+  availableMaleMates: []
+  availableFemaleMates: []
+  eddibleFood: []
+  predators: []
 --- !u!114 &1754343640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10760,7 +10763,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31d3c368a233f4a52b77ee5a9561ab2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
   birthTime: 50
@@ -10780,9 +10782,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.1
+  eatRange: 0
   eatTime: 0.39
 --- !u!114 &1924411858
 MonoBehaviour:
@@ -10796,7 +10798,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 6.41
   eyeType: 0
@@ -10812,7 +10813,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 7.5
 --- !u!114 &1924411860
@@ -10830,7 +10830,8 @@ MonoBehaviour:
   speciesName: Racoon
   speciesDisplayName: Racoon
   speciesColor: {r: 0.1981132, g: 0.13925514, b: 0.07943218, a: 1}
-  organismCount: 0
+  startingPopulation: 0
+  organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
@@ -10840,6 +10841,11 @@ MonoBehaviour:
   speed: 0.15
   maxFood: 13.1
   maxAge: 16
+  animals: []
+  availableMaleMates: []
+  availableFemaleMates: []
+  eddibleFood: []
+  predators: []
 --- !u!114 &1924411861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11099,7 +11105,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 580515522c3d74722bf9fd4e21038bbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   growthMax: 13.59
   newPlantGrowthCost: 7.87
   newPlantGrowChance: 20
@@ -11118,9 +11123,9 @@ MonoBehaviour:
   speciesName: Bush
   speciesDisplayName: Bush
   speciesColor: {r: 0, g: 0.3018868, b: 0.009769872, a: 1}
-  organismCount: 0
-  plantType: {fileID: 1449010634114082, guid: 0dfa93e504d7446ad8c2c33189419f51, type: 3}
-  seedCount: 0
+  startingPopulation: 0
+  organisms: []
+  plantPrefab: {fileID: 0}
   maxGrowth: 16
 --- !u!1 &1994337417
 GameObject:
@@ -11702,7 +11707,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31d3c368a233f4a52b77ee5a9561ab2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
   birthTime: 180
@@ -11722,9 +11726,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.7
+  eatRange: 0
   eatTime: 1.2
 --- !u!114 &2143928216
 MonoBehaviour:
@@ -11738,7 +11742,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 8
   eyeType: 0
@@ -11754,7 +11757,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speciesScript: {fileID: 0}
   ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 3
 --- !u!114 &2143928218
@@ -11772,7 +11774,8 @@ MonoBehaviour:
   speciesName: Bison
   speciesDisplayName: Bison
   speciesColor: {r: 0.24528301, g: 0.12409181, b: 0, a: 1}
-  organismCount: 8
+  startingPopulation: 0
+  organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
@@ -11782,6 +11785,11 @@ MonoBehaviour:
   speed: 1.8
   maxFood: 29.3
   maxAge: 25
+  animals: []
+  availableMaleMates: []
+  availableFemaleMates: []
+  eddibleFood: []
+  predators: []
 --- !u!114 &2143928219
 MonoBehaviour:
   m_ObjectHideFlags: 0

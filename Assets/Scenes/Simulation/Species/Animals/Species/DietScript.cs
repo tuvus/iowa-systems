@@ -15,21 +15,22 @@ public class DietScript : MonoBehaviour {
         return false;
     }
 
-    public bool IsEddible(BasicOrganismScript _organism) {
-        if (diet.Contains(_organism.species.speciesName)) {
+    public bool IsEddible(BasicSpeciesScript _species) {
+        if (diet.Contains(_species.GetFoodType())) {
             return true;
         }
         return false;
     }
 
-    public bool IsEddible(PlantFoodScript _plantFood) {
-        if (diet.Contains(_plantFood.foodType)) {
+    public bool IsEddible(BasicOrganismScript _organism) {
+        if (diet.Contains(_organism.GetFoodType())) {
             return true;
         }
         return false;
     }
-    public bool IsEddible(MeatFoodScript _meatFood) {
-        if (diet.Contains(_meatFood.foodType)) {
+
+    public bool IsEddible(BasicFoodScript food) {
+        if (diet.Contains(food.GetFoodType())) {
             return true;
         }
         return false;

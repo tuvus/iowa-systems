@@ -2,50 +2,88 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EyesScript : BasicAnimalOrganScript {
+public class 
+	EyesScript : BasicAnimalOrganScript {
 	public AnimalSpeciesEyes speciesEyes;
+
+	public List<Transform> eyes = new List<Transform>();
+
 	public enum EyeTypes {
 		Foward = 0,
 		Side = 1,
     }
 
-
 	public float sightRange;
 
 	internal override void SetUpSpecificOrgan() {
+		basicAnimalScript.SetEyes(this);
 		SetUpEyes();
-	}
-
-	void FixedUpdate() {
-	}
-	void OnTriggerEnter(Collider trigg) {
-		if (trigg.gameObject.layer != 8 && trigg.gameObject.layer != 10) {
-			basicAnimalScript.nearbyObjects.Add(trigg.gameObject);
-		}
-	}
-	void OnTriggerExit(Collider trigg) {
-		if (trigg.gameObject.layer != 8 && trigg.gameObject.layer != 10) {
-			basicAnimalScript.nearbyObjects.Remove(trigg.gameObject);
-		}
 	}
 
 	public void SetUpEyes() {
 		if (speciesEyes.eyeType == EyeTypes.Foward) {
-			SphereCollider eye = gameObject.AddComponent<SphereCollider>();
-			eye.isTrigger = true;
-			eye.radius = sightRange / 2;
-			eye.center = new Vector3(sightRange / 2, 0, 0);
+			Transform newEye = new GameObject("Eyes").transform;
+			newEye.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
+			newEye.localScale = Vector3.one;
+			newEye.localEulerAngles = Vector3.zero; 
+			newEye.localPosition = new Vector3(0, 0, sightRange / 2);
+			eyes.Add(newEye);
 			return;
 		}
 		if (speciesEyes.eyeType == EyeTypes.Side) {
-			SphereCollider leftEye = gameObject.AddComponent<SphereCollider>();
-			SphereCollider rightEye = gameObject.AddComponent<SphereCollider>();
-			leftEye.isTrigger = true;
-			rightEye.isTrigger = true;
-			leftEye.radius = sightRange / 2;
-			leftEye.center = new Vector3(0, sightRange / 1.2f, 0);
-			rightEye.radius = sightRange / 2;
-			rightEye.center = new Vector3(0, -sightRange / 1.2f, 0);
+			Transform newLeftEye = new GameObject("LeftEye").transform;
+			newLeftEye.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
+			newLeftEye.localScale = Vector3.one;
+			newLeftEye.localEulerAngles = Vector3.zero; 
+			newLeftEye.localPosition = new Vector3(-sightRange / 2, 0, 0);
+			eyes.Add(newLeftEye);
+
+
+			Transform newRightEye = new GameObject("RightEye").transform;
+			newRightEye.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
+			newRightEye.localScale = Vector3.one;
+			newRightEye.localEulerAngles = Vector3.zero; 
+			newRightEye.localPosition = new Vector3(sightRange / 2, 0, 0);
+			eyes.Add(newRightEye);
 		}
 	}
+
+    public override void UpdateOrgan() {
+    }
+
+    public List<BasicOrganismScript> GetOrganismsInRange(List<BasicOrganismScript> organisms) {
+		List<BasicOrganismScript> organismsInRange = new List<BasicOrganismScript>();
+		foreach (var organism in organisms) {
+			if (WithinRange(organism.GetOrganismMotor().GetModelTransform().position, sightRange))
+				organismsInRange.Add(organism);
+		}
+		return organismsInRange;
+	}
+
+	public List<BasicAnimalScript> GetAnimalsInRange(List<BasicAnimalScript> animals) {
+		List<BasicAnimalScript> animalsInRange = new List<BasicAnimalScript>();
+		foreach (var animal in animals) {
+			if (WithinRange(animal.position, sightRange))
+				animalsInRange.Add(animal);
+		}
+		return animalsInRange;
+	}
+
+	public List<Eddible> GetEddiblesInRange(List<Eddible> eddibles) {
+		List<Eddible> eddiblesInRange = new List<Eddible>();
+		foreach (var eddibe in eddibles) {
+			if (WithinRange(eddibe.GetPosition(), sightRange))
+				eddiblesInRange.Add(eddibe);
+		}
+		return eddiblesInRange;
+	}
+
+	bool WithinRange(Vector3 position, float _range) {
+         foreach (var eye in eyes) {
+  			if (Vector3.Distance(position, eye.position) <= _range / 2)
+				return true;
+        }
+		return false;
+    }
+
 }

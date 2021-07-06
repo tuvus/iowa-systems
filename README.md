@@ -23,7 +23,9 @@ Seting up the Simulation
 There are multiple buttons that allow customization of the simulation. 
 Once you are done setting up the simulation click the "RunSimulation" button.
 
-The list in the middle shows what species and how many organisms will be spawned in the simulation.
+The list in the middle shows what species and how many organisms will be spawned in the simulation. 
+The first number in parenthesis shows the initial population of the species.
+The seccond number in parenthesis will apear in every species that has seeds and will show the starting seed populaion.
 
 To edit a species click on it, this will open a variant of the AddSpeciesPanel. 
 To delete an individual species click the red "X" button beside it.
@@ -58,8 +60,7 @@ This will open up a new panel.
 ---
 Earth Size:
 
-As the size of the Earth increaces, the simulation speed will generally increace.
-If you set the size of the Earth to the lowest, animals will interact with eachoter more often and will slow the simulation down.
+The size of the Earth does not greatly affect the preformance of the simulaiton.
 
 The recommended earth size is 2000.
 
@@ -78,13 +79,18 @@ The settings will be changeable in the simulation as well.
 Using the Simulation
 --------------------
 The top right corner displays each of the species colors and how many organisms are alive. 
-It does not count seeds while displaying plant species.
+Plant Species that have seeds show the number of seeds that they have in parenthesis beside the ogranism number.
 
 #### Manipulating the Simulation Camera
 These keys on your keyboard can be pressed to look around the 3D Earth.
-* The W, A, S, D keys controll the camera's movement around the Earth.
-* The Q, E keys controll the camera's rotation.
+* The W, A, S, D or the Arrow keys to controll the camera's movement around the Earth.
+* The Q, E or pageup, pagedown keys controll the camera's rotation.
 * Scrolling in or out will zoom the camera relative to the Earth.
+
+To move the camera using only the mouse click the buttons in the bottom right corner.
+* The Bottom-Left, Center and Bottom-Right arrow buttons controll the camera's movent.
+* The Top-Left and TopRight arrow buttons controll the camera's Rotation.
+* Clicking and dragging the circle on the slider above the arrow buttons will controll zooming the camera.
 
 #### Controlling the Simulation Speed
 To change the simulation speed you can either click the three buttons in the top left corner or use their hotkeys.
@@ -134,13 +140,13 @@ Meaning they don't compete for reasources and will scale infinitely.
 ---
 Seeds:
 
-Seeds are spawned by a separet variable at start that can be edited. 
+Seeds are spawned by a seperate variable at start that can be edited. 
 The humidity on the earth is randomly changed each frame. 
 Seeds will germinate after a certain time and above a certain humidity.
 
 If a seed fails to germinate within a certain time, it will die off.
 
-Seeds are dispersed relative to their parents using random values and a species dispersal variable.
+Seeds are dispersed relative to their parents using random values and a dispersal range variable.
 
 ---
 Growth and SunRotationEffect:
@@ -171,16 +177,13 @@ When animals die they spawn a corpse that will diteriorate after some time.
 
 Here is a list of behaviors that the animals can display in the order of their priority:
 * Check if there is a predators nearby the animal, if so run away.
-* Check if the animal can eat food. (The food must be right infront of the animal)
+* Check if the animal can eat food. (The food must be right in front of the animal)
 * Check if the animal is hungry, if so and there is a source food nearby go to the food source.
 * Check if the animal has a mate, if so attempt at reproduction. (Distance to mate is not a factor yet)
 * Check if there is an eligible mate nearby, if so set them as mate. (There is not yet any compitition for mating, first come first served basically)
 * Check if the animal is hungry, if so explore. If not and the animal has a mate and is ready to reproduce move to the mate. Otherwise sit still.
 
-Note: Animals will not move if they are not actively touching the ground, instead they will slowly fall back down. 
-Hopefully this will be reduced later on to minimize the studdering effect of the animals.
-
-Also Note: Animals have a small wait time after eating or biting.
+Note: Animals have a small wait time after eating or biting.
 
 ---
 
@@ -191,7 +194,7 @@ The movement speed of the animal being bitten is reduced after each bite.
 This makes it so that after the first bite the animal is much easier to catch and will surely get bitten again.
 How many bites it takes to kill an animal depends on the prey's health and the predator's bite size.
 
-Animals will prioritise the corpses of their prey over living prey in order to reduce overhunting.
+Animals will prioritise the corpses of their prey over living prey in order to reduce overhunting. They will also target closer food sources rather than farther away ones.
 
 ---
 Reproduction:
@@ -211,16 +214,16 @@ Animals have a maxFood value and cannot store food above that value.
 
 Animals will not eat food infront of them if they are over 90% of their stored food capacity.
 
-The fullFood variable determines whether or not the animal will activily search for food. 
-The fullFood stat varies for each individual organism, calculated by a 20% deviation from half of the maximum food the animal can eat.
+The fullFood variable determines whether or not the animal will activily search for food.
+The fullFood stat varies for each individual organism, calculated from a random number between 60 and 80 percent of the max food that they can eat.
 
 ---
 
 Awareness:
 
 Animals search their area using their eyes to see predators and prey. 
-Bunnies have two eye colliders on either side and have a lower sight range while foxes only have one eye collider and a higher sight range.
+Bunnies have two eyes on either side and have a lower sight range while foxes only have one eye but have a higher sight range.
 
-Note: Hearing is implamented however it does not yet have a big effect on the simulation.
+Note: Hearing is not implamented yet although there are some inactive scripts in the build.
 
 ---

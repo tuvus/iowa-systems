@@ -12,7 +12,7 @@ public class AnimalSpeciesReproductiveSystem : BasicAnimalSpeciesOrganScript {
 	public int reproducionAmount;
 	public float birthSuccessPercent;
 
-	public override void MakeOrganism(GameObject _newOrganism) {
+	public override void MakeOrganism(BasicOrganismScript _newOrganism) {
 		GameObject newReproductiveSystem = speciesScript.InstantiateNewOrgan(reproductiveSystemPrefab, _newOrganism);
 		ReproductiveSystem reproductiveSystemScript = newReproductiveSystem.GetComponent<ReproductiveSystem>();
 		reproductiveSystemScript.animalSpeciesReproductive = this;
@@ -30,7 +30,7 @@ public class AnimalSpeciesReproductiveSystem : BasicAnimalSpeciesOrganScript {
 		}
 	}
 
-	public void MakeChildOrganism (int _amount, GameObject _parent) {
+	public void MakeChildOrganism (int _amount, BasicOrganismScript _parent) {
 		for (int i = 0; i < _amount; i++) {
 			animalSpecies.SpawnSpecificOrganism(_parent);
 		}

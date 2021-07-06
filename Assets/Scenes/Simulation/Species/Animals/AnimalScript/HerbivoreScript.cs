@@ -4,45 +4,48 @@ using UnityEngine;
 
 public class HerbivoreScript : BasicBehaviorScript {
 
-	public HerbivoreSpecies species;
+	public HerbivoreSpecies herbivoreSpecies;
 
-	void FixedUpdate() {
-		basicAnimal.moving = false;
-		if (basicAnimal.waitTime == 0f) {
-			if (FindPredator() != null) {
-				Debug.Log("PredatorFound");
-				transform.LookAt(FindPredator().transform.position);
-				transform.Rotate(-transform.up * -90);
-				basicAnimal.moving = false;
+	public override void UpdateBehavior() {
+		basicAnimal.SetMoving(false);
+		if (basicAnimal.waitTime > 0f) {
+			return;
+		}
+
+		if (RunFromPredator()) {
+			PrintState("PredatorFound", 2);
+			return;
+		}
+		if (basicAnimal.Eat()) {
+			PrintState("Eating", 2);
+			return;
+		}
+		if (GoToFood()) {
+			PrintState("GoingtoFood", 1);
+			return;
+		}
+		if (reproductive.AttemptReproduction()) {
+			PrintState("AttemptReproduction", 2);
+			return;
+		}
+		if (FindMate()) {
+			PrintState("FoundMate", 2);
+			return;
+		}
+		if (!basicAnimal.Hungry()) {
+			if (reproductive.ReadyToAttemptReproduction()) {
+				basicAnimal.FollowOrganism(basicAnimal.mate);
+				PrintState("FollingMate", 1);
 				return;
 			}
-			if (Eat()) {
-				return;
-			}
-			if (basicAnimal.Hungry() && FindFood() != null) {
-				transform.LookAt(FindFood().transform.position);
-				transform.Rotate(transform.up * -90);
-				basicAnimal.moving = true;
-				return;
-			}
-			if (reproductive.AttemptReproduction()) {
-				Debug.Log("AtemptingReproduction");
-				return;
-			}
-			if (FindMate()) {
-				Debug.Log("FoundMate");
-				return;
-			}
-			if (basicAnimal.touchingEarth) {
-				if (!basicAnimal.Hungry()) {
-					if (reproductive.ReadyToAttemptReproduction()) {
-						FollowMate();
-						return;
-					}
-				}
-				Explore();
+			if (basicAnimal.mate != null) {
+				PrintState("SittingStill", 1);
+				basicAnimal.SetMoving(false);
 				return;
 			}
 		}
+		basicAnimal.Explore();
+		PrintState("Exploring", 1);
+		return;
 	}
 }

@@ -11,9 +11,12 @@ public class ReproductiveSystem : BasicAnimalOrganScript {
 	public float reproductionAge;
 
 	internal override void SetUpSpecificOrgan() {
-		reproductionAge = reproductionAge * Random.Range(0.2f, 1f);
+		reproductionAge = animalSpeciesReproductive.reproductionAge * Random.Range(0.8f, 1.2f);
 		behaviorScript.reproductive = this;
 	}
+
+    public override void UpdateOrgan() {
+    }
 
 	public bool AttemptReproduction() {
 		if (maleReproductiveSystem != null && maleReproductiveSystem.Concieve()) {
@@ -43,7 +46,8 @@ public class ReproductiveSystem : BasicAnimalOrganScript {
 				birthAmmount--;
 			}
 		}
-		animalSpeciesReproductive.MakeChildOrganism(birthAmmount, transform.parent.gameObject);
+		basicAnimalScript.behavior.PrintState("Birth:" + birthAmmount, 3);
+		animalSpeciesReproductive.MakeChildOrganism(birthAmmount, basicOrganismScript);
 	}
 
 	/// <summary>

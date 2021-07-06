@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 public class SimulationSettingsPanel : MonoBehaviour {
     SimulationScript simulation;
-    private int[] earthSizeArray = new int[] { 100, 150, 200, 250, 300, 400, 500, 800, 1000, 1200, 1500, 2000, 2500, 3000, 5000, 7500, 10000, 25000, 50000, 100000 };
+    private int[] earthSizeArray = new int[] { 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 3000, 4000, 5000, 7500, 10000 };
     private int[] graphRefreshRateArray = new int[] { 5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 80, 100, 120, 160, 240 };
 
     void Start() {
         simulation = SimulationScript.Instance;
         GetEarthSizeSlider().maxValue = earthSizeArray.Length - 1;
-        GetEarthSizeSlider().value = 11;
+        GetEarthSizeSlider().value = 6;
         GetGraphRefreshSlider().maxValue = graphRefreshRateArray.Length - 1;
         GetGraphRefreshSlider().value = 4;
         OnChangeEarthSizeChange();
