@@ -15,7 +15,8 @@ public class Seed : BasicOrganismScript {
 	public float maxTime;
 
     #region SeedSetup
-    public void SetupSeed(float _humidity, float _tempature, float _timeRequirement, float _maxTime) {
+    public void SetupSeed(float _humidity, float _tempature, float _timeRequirement, float _maxTime, PlantSpeciesSeeds plantSpeciesSeeds) {
+		speciesSeeds = plantSpeciesSeeds;
 		humidityRequirement = _humidity;
 		tempetureRequirement = _tempature;
 		timeRequirement = _timeRequirement;
@@ -26,7 +27,6 @@ public class Seed : BasicOrganismScript {
 
     public override void SetUpSpecificOrganism(BasicOrganismScript parent) {
 		plantSpecies = species.GetComponent<PlantSpeciesScript>();
-		speciesSeeds = plantSpecies.GetSpeciesSeeds();
 		if (parent != null) {
 			plantParent = parent.GetComponent<PlantScript>();
 		}
@@ -45,16 +45,14 @@ public class Seed : BasicOrganismScript {
     public override void UpdateOrganism() {
 		if (age > timeRequirement) {
 			if (humidityRequirement <= species.GetEarthScript().humidity && tempetureRequirement <= species.GetEarthScript().tempeture) {
-				//print("SeedGrown");
 				speciesSeeds.MakePlant(this, Random.Range(0.3f, 1.6f));
-				//Multiply this by humidity
 				KillSeed();
 			}
 		}
 		if (age > maxTime) {
 			KillSeed();
 		} else {
-			age += Time.fixedDeltaTime * 0.01f;
+			age += GetEarthScript().simulationDeltaTime * 0.01f;
 		}
 	}
     #endregion

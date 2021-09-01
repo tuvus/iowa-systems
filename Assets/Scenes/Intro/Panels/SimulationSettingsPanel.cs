@@ -10,10 +10,11 @@ public class SimulationSettingsPanel : MonoBehaviour {
 
     void Start() {
         simulation = SimulationScript.Instance;
+        GetSimulationSpeedInputField().text = simulation.simulationSpeed.ToString();
         GetEarthSizeSlider().maxValue = earthSizeArray.Length - 1;
         GetEarthSizeSlider().value = 6;
         GetGraphRefreshSlider().maxValue = graphRefreshRateArray.Length - 1;
-        GetGraphRefreshSlider().value = 4;
+        GetGraphRefreshSlider().value = 7;
         OnChangeEarthSizeChange();
         OnChangeGraphRefreshChange();
     }
@@ -29,6 +30,10 @@ public class SimulationSettingsPanel : MonoBehaviour {
         } else {
             GetMainPanelController().DisplayPanel(true);
         }
+    }
+
+    public void OnSimulationSpeedChange() {
+        simulation.simulationSpeed = int.Parse(GetSimulationSpeedInputField().text);
     }
 
     public void OnChangeEarthSizeChange () {
@@ -50,24 +55,27 @@ public class SimulationSettingsPanel : MonoBehaviour {
     }
 
     #region PanelComponents
+    InputField GetSimulationSpeedInputField() {
+        return transform.GetChild(1).GetChild(1).GetComponent<InputField>();
+    }
     Text GetEarthSizeText() {
-        return transform.GetChild(1).GetChild(0).GetComponent<Text>();
-    }
-
-    Slider GetEarthSizeSlider() {
-        return transform.GetChild(1).GetChild(1).GetComponent<Slider>();
-    }
-
-    Text GetGraphRefreshText() {
         return transform.GetChild(2).GetChild(0).GetComponent<Text>();
     }
 
-    Slider GetGraphRefreshSlider() {
+    Slider GetEarthSizeSlider() {
         return transform.GetChild(2).GetChild(1).GetComponent<Slider>();
     }
 
+    Text GetGraphRefreshText() {
+        return transform.GetChild(3).GetChild(0).GetComponent<Text>();
+    }
+
+    Slider GetGraphRefreshSlider() {
+        return transform.GetChild(3).GetChild(1).GetComponent<Slider>();
+    }
+
     Toggle GetSunRotationEffectToggle() {
-        return transform.GetChild(3).GetChild(1).GetComponent<Toggle>();
+        return transform.GetChild(4).GetChild(1).GetComponent<Toggle>();
     }
 
     #endregion

@@ -26,6 +26,7 @@ public class UserSettingsPanel : MonoBehaviour {
             GetRenderShadowsToggle().isOn = User.Instance.GetRenderShadowsUserPref();
             GetRenderSunToggle().isOn = User.Instance.GetRenderSunUserPref();
             GetRenderSyboxToggle().isOn = User.Instance.GetRenderSkyboxUserPref();
+            GetFramesPerSeccondInputField().text = User.Instance.GetFramesPerSeccondUserPref().ToString();
         } else {
             PlayerPrefs.Save();
             User.Instance.OnChangedSettings();
@@ -68,6 +69,11 @@ public class UserSettingsPanel : MonoBehaviour {
         QualitySettings.SetQualityLevel(GetQualityLevelDropdown().value);
     }
 
+    public void UpdateDesiredFramesPerSeccondUserPref() {
+        PlayerPrefs.SetInt("FramesPerSeccond", int.Parse(GetFramesPerSeccondInputField().text));
+    }
+
+
     #region PanelComponents
     public Toggle GetRenderWorldToggle() {
         return transform.GetChild(1).GetChild(1).GetComponent<Toggle>();
@@ -87,6 +93,10 @@ public class UserSettingsPanel : MonoBehaviour {
 
     public Dropdown GetQualityLevelDropdown() {
         return transform.GetChild(5).GetChild(1).GetComponent<Dropdown>();
+    }
+
+    public InputField GetFramesPerSeccondInputField() {
+        return transform.GetChild(6).GetChild(1).GetComponent<InputField>();
     }
     #endregion
 

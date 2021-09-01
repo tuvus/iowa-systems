@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
 public abstract class BasicAnimalSpecies : BasicSpeciesScript {
@@ -13,6 +15,7 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
 	public float maxHealth;
 	public float speed;
 	//Organs
+	public float fullFood;
 	public float maxFood;
 	//Reproduction and age
 	public int maxAge;
@@ -24,10 +27,12 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
 	[SerializeField] internal List<BasicAnimalScript> predators = new List<BasicAnimalScript>();
 
     internal override void SetupSpecificSimulation() {
-        earth.OnCreateNewOrganism += AddOtherOrganism;
+		gameObject.AddComponent<AnimalJobController>().SetUpJobController(this);
+		earth.OnCreateNewOrganism += AddOtherOrganism;
         earth.OnDestroyNewOrganism += RemoveOtherOrganism;
 		earth.OnCreateNewFood += AddOtherFood;
 		earth.OnDestroyNewFood += RemoveOtherFood;
+		fullFood = maxFood * .7f;
     }
 
     internal override void StartSimulation() {
@@ -73,15 +78,57 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
 
     #endregion
 
-    #region AnimalControls
-    public MeatFoodScript SpawnDeadAnimal(GameObject _animal) {
+
+	#region AnimalControls
+    public override void UpdateOrganismsBehavior() {
+        for (int i = 0; i < animals.Count; i++) {
+			AnimalActions animalAction = GetAnimalJobController().animalActions[i];
+			//print(animalAction.actionType);
+			BasicAnimalScript animalTarget = null;
+			Eddible eddibleTarget = null;
+            switch (animalAction.actionType) {
+                case AnimalActions.ActionType.Idle:
+                    break;
+                case AnimalActions.ActionType.RunFromPredator:
+					if (animalAction.index == -1)
+						Debug.LogError("animalAction.index was not set");
+					animalTarget = predators[animalAction.index];
+					break;
+                case AnimalActions.ActionType.EatFood:
+					eddibleTarget = eddibleFood[animalAction.index];
+					break;
+                case AnimalActions.ActionType.GoToFood:
+					eddibleTarget = eddibleFood[animalAction.index];
+					break;
+                case AnimalActions.ActionType.AttemptReproduction:
+                    break;
+                case AnimalActions.ActionType.AttemptToMate:
+					if (animals[i].behavior.reproductive.GetSex()) {
+						animalTarget = availableFemaleMates[animalAction.index];
+					} else {
+						animalTarget = availableMaleMates[animalAction.index];
+					}
+					break;
+                case AnimalActions.ActionType.Explore:
+                    break;
+            }
+            animals[i].UpdateAnimalBehavior(animalAction.actionType,animalTarget,eddibleTarget);
+        }
+    }
+
+	public override void UpdateOrganisms() {
+		for (int i = 0; i < animals.Count; i++) {
+			animals[i].UpdateOrganism();
+		}
+	}
+	public MeatFoodScript SpawnDeadAnimal(GameObject _animal) {
 		MeatFoodScript newDeadBody = Instantiate(deadAnimal, _animal.transform.position, _animal.transform.rotation, null).GetComponent<MeatFoodScript>();
 		newDeadBody.transform.SetParent(earth.GetOrganismsTransform());
 		return newDeadBody;
 	}
 
 	public float GetFoodConsumption() {
-		return .2f + .05f * bodySize;
+		return .1f + (.05f * bodySize);
 	}
     #endregion
 
@@ -89,7 +136,7 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
     internal override void AddSpecificOrganism(BasicOrganismScript newOrganism) {
 		animals.Add((BasicAnimalScript)newOrganism);
     }
-
+	
     internal override void SpecificOrganismDeath(BasicOrganismScript deadOrganism) {
 		animals.Remove((BasicAnimalScript)deadOrganism);
 	}
@@ -160,9 +207,31 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
 			eddibleFood.Remove(information.foodScript.GetEddible());
         }
     }
+
+
     #endregion
 
     #region GetMethods
+	public List<BasicAnimalScript> GetAnimals() {
+		return animals;
+    }
+
+	public List<BasicAnimalScript> GetAvailableMaleMates() {
+		return availableMaleMates;
+	}
+
+	public List<BasicAnimalScript> GetAvailableFemaleMates() {
+		return availableFemaleMates;
+	}
+
+	public List<Eddible> GetEddibleFood() {
+		return eddibleFood;
+	}
+
+	public List<BasicAnimalScript> GetPredators() {
+		return predators;
+	}
+
     public bool IsPredator(BasicSpeciesScript _preySpecies, BasicAnimalSpecies _predatorSpecies) {
 		if (_predatorSpecies.GetDiet().IsEddible(_preySpecies))
 			return true;
@@ -172,5 +241,25 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
     public DietScript GetDiet() {
 		return GetComponent<DietScript>();
 	}
+
+	public float GetSightRange() {
+		return GetComponent<AnimalSpeciesEyes>().sightRange;
+    }
+
+	public float GetEatRange() {
+		return GetComponent<AnimalSpeciesMouth>().eatRange;
+    }
+
+	public float GetSmellRange() {
+		return GetComponent<AnimalSpeciesNose>().smellRange;
+    }
+
+	public float GetReproductiveAge() {
+		return GetComponent<AnimalSpeciesReproductiveSystem>().reproductionAge;
+    }
+
+	public AnimalJobController GetAnimalJobController() {
+		return GetBasicJobController().GetComponent<AnimalJobController>();
+    }
     #endregion
 }

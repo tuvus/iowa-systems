@@ -46,7 +46,7 @@ public class ReproductiveSystem : BasicAnimalOrganScript {
 				birthAmmount--;
 			}
 		}
-		basicAnimalScript.behavior.PrintState("Birth:" + birthAmmount, 3);
+		User.Instance.PrintState("Birth:" + birthAmmount,animalSpeciesReproductive.animalSpecies.speciesDisplayName, 3);
 		animalSpeciesReproductive.MakeChildOrganism(birthAmmount, basicOrganismScript);
 	}
 

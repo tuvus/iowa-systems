@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlantScript : BasicOrganismScript {
 	public PlantSpeciesScript plantSpecies;
 	PlantScript plantParent;
+
 	//Plants Stats
 	public string type;
 	public float health;
@@ -32,14 +33,14 @@ public class PlantScript : BasicOrganismScript {
 	}
 
 	public override void UpdateOrganism() {
-		Grow(Time.fixedDeltaTime, CalculateSun());
+		Grow(GetEarthScript().simulationDeltaTime, CalculateSun());
 	}
     #endregion
 
     #region PlantControls
     public void Grow(float _time, float _sun) {
 		age += _time;
-		float newGrowth = _time * _sun / 15;
+		float newGrowth = _time * _sun / 50;
 		if (health < growth / 3) {
 			newGrowth = AddHealth(newGrowth);
 		}
@@ -70,7 +71,7 @@ public class PlantScript : BasicOrganismScript {
 	}
 
 	public float Eat(float _biteSize) {
-		return TakeHealth(_biteSize);
+		return TakeHealth(_biteSize * 3 * 10);
     }
 
 	public float TakeHealth(float _health) {
@@ -100,7 +101,7 @@ public class PlantScript : BasicOrganismScript {
     }
 
 	public bool HasFood() {
-		if (health > maxGrowth / 3 / 10)
+		if (health > 0)
 			return true;
 		return false;
     }

@@ -5,46 +5,43 @@ using UnityEngine;
 public class CarnivoreScript : BasicBehaviorScript {
 	public CarnivoreSpecies carnivoreSpecies;
 
-	public override void UpdateBehavior() {
-		basicAnimal.SetMoving(false);
-		if (basicAnimal.waitTime > 0f) {
-			return;
-		}
-
-		if (RunFromPredator()) {
-			PrintState("PredatorFound",2);
+	public override void UpdateBehavior(AnimalActions.ActionType actionType, BasicAnimalScript animalTarget, Eddible eddibleTarget) {
+        basicAnimal.SetMoving(false);
+        if (basicAnimal.waitTime > 0f) {
             return;
-		}
-		if (basicAnimal.Eat()) {
-			PrintState("Eating", 2);
-			return;
-		}
-		if (GoToFood()) {
-			PrintState("GoingtoFood", 1);
-			return;
         }
-		if (reproductive.AttemptReproduction()) {
-			PrintState("AttemptReproduction", 2);
-			return;
-		}
-		if (FindMate()) {
-			PrintState("FoundMate", 2);
-            return;
-		}
-		if (!basicAnimal.Hungry()) {
-			if (reproductive.ReadyToAttemptReproduction()) {
-				basicAnimal.FollowOrganism(basicAnimal.mate);
-				PrintState("FollingMate", 1);
-				return;
-			}
-			if (basicAnimal.mate != null) {
-				PrintState("SittingStill", 1);
-				basicAnimal.SetMoving(false);
-				return;
-            }
-		}
-		basicAnimal.Explore();
-		PrintState("Exploring", 1);
-		return;
-	}
+        switch (actionType) {
+            case AnimalActions.ActionType.Idle:
+                User.Instance.PrintState("SittingStill",animalSpecies.speciesDisplayName, 1);
+                break;
+            case AnimalActions.ActionType.RunFromPredator:
+                basicAnimal.RunFromOrganism(animalTarget);
+                User.Instance.PrintState("PredatorFound", animalSpecies.speciesDisplayName, 2);
+                break;
+            case AnimalActions.ActionType.EatFood:
+                basicAnimal.Eat(eddibleTarget);
+                basicAnimal.LookAtPoint(eddibleTarget.GetPosition());
+                User.Instance.PrintState("Eating", animalSpecies.speciesDisplayName, 2);
+                break;
+            case AnimalActions.ActionType.GoToFood:
+                basicAnimal.GoToPoint(eddibleTarget.GetPosition());
+                User.Instance.PrintState("GoingtoFood", animalSpecies.speciesDisplayName, 1);
+                break;
+            case AnimalActions.ActionType.AttemptReproduction:
+                basicAnimal.GetReproductive().AttemptReproduction();
+                basicAnimal.LookAtPoint(basicAnimal.mate.position);
+                User.Instance.PrintState("AttemptReproduction", animalSpecies.speciesDisplayName, 2);
+                break;
+            case AnimalActions.ActionType.AttemptToMate:
+                if (basicAnimal.AttemptToMate(animalTarget)) {
+                    basicAnimal.LookAtPoint(animalTarget.position);
+                    User.Instance.PrintState("FoundMate", animalSpecies.speciesDisplayName, 2);
+                }
+                break;
+            case AnimalActions.ActionType.Explore:
+                basicAnimal.Explore();
+                User.Instance.PrintState("Exploring", animalSpecies.speciesDisplayName, 1);
+                break;
+        }
+    }
 }

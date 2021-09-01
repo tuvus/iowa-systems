@@ -8,8 +8,10 @@ public class User : MonoBehaviour {
 
 
     public delegate void ChangedSettingsEventHandler(User user, SettingsEventArgs args);
-    public event ChangedSettingsEventHandler changedSettings;
+    public event ChangedSettingsEventHandler ChangedSettings;
 
+    [Tooltip("Will display messages higher or equal to this number: 0=UnimportantActions, 1=ImportantActions, 2=OrganismDeaths, 3=Nothing")]
+    [SerializeField] int debugLogg;
 
     public void Awake() {
         if (Instance == null) {
@@ -30,7 +32,9 @@ public class User : MonoBehaviour {
         if (!PlayerPrefs.HasKey("RenderSun"))
             PlayerPrefs.SetInt("RenderSun", 0);
         if (!PlayerPrefs.HasKey("RenderSkybox"))
-            PlayerPrefs.SetInt("RenderSkybox", 1);
+            PlayerPrefs.SetInt("RenderSkybox", 1); 
+        if (!PlayerPrefs.HasKey("FramesPerSeccond"))
+            PlayerPrefs.SetInt("FramesPerSeccond", 60);
     }
 
     public void StartSimulation() {
@@ -45,16 +49,26 @@ public class User : MonoBehaviour {
         } else {
             Camera.main.clearFlags = CameraClearFlags.SolidColor;
         }
-        if (changedSettings != null) {
-            changedSettings(this, new SettingsEventArgs { rendering = GetRenderWorldUserPref(), shadows = GetRenderShadowsUserPref(), sun = GetRenderSunUserPref(), skybox = GetRenderSkyboxUserPref() });
+        SimulationScript.Instance.SetFrameRate(GetFramesPerSeccondUserPref());
+        if (ChangedSettings != null) {
+            ChangedSettings(this, new SettingsEventArgs { Rendering = GetRenderWorldUserPref(), Shadows = GetRenderShadowsUserPref(), Sun = GetRenderSunUserPref(), Skybox = GetRenderSkyboxUserPref(), FramesPerSeccond = GetFramesPerSeccondUserPref() });
         }
     }
 
+    /// <summary>
+    /// For Debuging purposes print level will be between 1 and 3 on importance.
+    /// </summary>
+    internal void PrintState(string text, string speciesDisplayName, int printLevel) {
+        if (Application.isEditor && printLevel > debugLogg)
+            Debug.Log(speciesDisplayName + ":" + text);
+    }
+
+    #region GetMethods
     public UserMotor GetUserMotor() {
         return GetComponent<UserMotor>();
     }
 
-public bool GetRenderWorldUserPref() {
+    public bool GetRenderWorldUserPref() {
 		if (PlayerPrefs.GetInt("RenderWorld") == 0)
 			return false;
 		return true;
@@ -77,11 +91,18 @@ public bool GetRenderWorldUserPref() {
 			return false;
 		return true;
 	}
+
+    public int GetFramesPerSeccondUserPref() {
+        return PlayerPrefs.GetInt("FramesPerSeccond");
+    }
+    #endregion
 }
 
 public class SettingsEventArgs : EventArgs {
-	public bool rendering { get; set; }
-	public bool shadows { get; set; }
-	public bool sun { get; set; }
-	public bool skybox { get; set; }
+	public bool Rendering { get; set; }
+	public bool Shadows { get; set; }
+	public bool Sun { get; set; }
+	public bool Skybox { get; set; }
+
+    public int FramesPerSeccond { get; set; }
 }

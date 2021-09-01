@@ -22,7 +22,7 @@ public class MeatFoodScript : BasicFoodScript {
 	}
 
 	public override void UpdateFood() {
-		deterationTime -= Time.fixedDeltaTime * 0.1f;
+		deterationTime -= earth.simulationDeltaTime * 0.1f;
 		if (deterationTime <= 0) {
 			earth.OnEndFrame += OnDestroyFood;
 		}

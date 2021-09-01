@@ -41,7 +41,6 @@ public class UserMotor : MonoBehaviour {
 	void ManageScroll(float earthSize) {
 		//scrollModifyer = Mathf.Pow(cameraTransform.localPosition.y - (earthSize / 4f), 2) / -(earthSize * 20);
 		scrollModifyer = Mathf.Pow(cameraTransform.localPosition.y - (earthSize / 4), 2) / -(earthSize * 20);
-		print(scrollModifyer);
 		if (scrollModifyer > 0)
 			scrollModifyer *= -1;
 		cameraTransform.localPosition += new Vector3(0, Input.mouseScrollDelta.y * scrollModifyer * scrollFactor, 0);

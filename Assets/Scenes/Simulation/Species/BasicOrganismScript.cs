@@ -13,7 +13,7 @@ public abstract class BasicOrganismScript : MonoBehaviour {
 
     #region OrganismSetup
     public void SetUpOrganism(BasicSpeciesScript species, BasicOrganismScript newParent) {
-		User.Instance.changedSettings += OnSettingsChanged;
+		User.Instance.ChangedSettings += OnSettingsChanged;
 		this.species = species;
 		parent = newParent;
 		SetUpSpecificOrganism(parent);
@@ -34,7 +34,7 @@ public abstract class BasicOrganismScript : MonoBehaviour {
 
     public void OnSettingsChanged(User _user, SettingsEventArgs _settings) {
 		if (organismDead == false)
-			GetMeshRenderer().enabled = _settings.rendering;
+			GetMeshRenderer().enabled = _settings.Rendering;
 	}
     #endregion
 

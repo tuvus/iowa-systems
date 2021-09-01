@@ -1,26 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Jobs;
+using Unity.Collections;
 
 public class PlantSpeciesScript : BasicSpeciesScript {
 	public GameObject plantPrefab;
+	PlantSpeciesSeeds plantSpeciesSeeds;
 
 	public float maxGrowth;
 
-	internal List<PlantScript> plants = new List<PlantScript>();
-
+	[SerializeField] private List<PlantScript> plants = new List<PlantScript>();
 
     #region StartSimulation
     internal override void SetupSpecificSimulation() {
+		plantSpeciesSeeds = GetComponent<PlantSpeciesSeeds>();
     }
 
     internal override void StartSimulation() {
 	}
 
 	internal override void StartSpecificSimulation() {
-		gameObject.name = speciesName;
-		history = GetComponentInParent<SpeciesMotor>();
-
 		Populate();
 	}
     #endregion
@@ -52,7 +52,8 @@ public class PlantSpeciesScript : BasicSpeciesScript {
 		Seed seedScript = SpawnOrganism(seed).GetComponent<Seed>();
 		SetupRandomOrganism(seedScript);
 		seedScript.SetUpOrganism(this, null);
-		GetSpeciesSeeds().AddSeed(seedScript);
+		seedScript.speciesSeeds = plantSpeciesSeeds;
+		plantSpeciesSeeds.AddSeed(seedScript);
 		return seedScript;
 	}
 
@@ -91,14 +92,29 @@ public class PlantSpeciesScript : BasicSpeciesScript {
 	}
     #endregion
 
+    #region PlantControlls
+    public override void UpdateOrganismsBehavior() {
+    }
+
+    public override void UpdateOrganisms() {
+        for (int i = 0; i < plants.Count; i++) {
+			plants[i].UpdateOrganism();
+        }
+
+        for (int i = 0; i < plantSpeciesSeeds.seeds.Count; i++) {
+			plantSpeciesSeeds.seeds[i].UpdateOrganism();
+        }
+    }
+    #endregion
+
     #region PlantListControls
     internal override void AddSpecificOrganism(BasicOrganismScript newOrganism) {
 		if (newOrganism.GetComponent<PlantScript>() != null) {
 			plants.Add(newOrganism.GetComponent<PlantScript>());
 			return;
         }
-		if (GetSpeciesSeeds() != null && newOrganism.GetComponent<Seed>() != null) {
-			GetSpeciesSeeds().seeds.Add(newOrganism.GetComponent<Seed>());
+		if (plantSpeciesSeeds != null && newOrganism.GetComponent<Seed>() != null) {
+			plantSpeciesSeeds.seeds.Add(newOrganism.GetComponent<Seed>());
 			return;
         }
 
@@ -109,14 +125,11 @@ public class PlantSpeciesScript : BasicSpeciesScript {
 			plants.Remove(deadOrganism.GetComponent<PlantScript>());
 			return;
 		}
-		if (GetSpeciesSeeds() != null && deadOrganism.GetComponent<Seed>() != null) {
-			GetSpeciesSeeds().seeds.Remove(deadOrganism.GetComponent<Seed>());
+		if (plantSpeciesSeeds != null && deadOrganism.GetComponent<Seed>() != null) {
+			plantSpeciesSeeds.seeds.Remove(deadOrganism.GetComponent<Seed>());
 			return;
 		}
 	}
     #endregion
 
-	public PlantSpeciesSeeds GetSpeciesSeeds() {
-		return GetComponent<PlantSpeciesSeeds>();
-    }
 }

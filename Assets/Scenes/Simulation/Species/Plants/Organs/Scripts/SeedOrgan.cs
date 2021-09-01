@@ -5,13 +5,11 @@ using UnityEngine;
 public class SeedOrgan : BasicPlantOrganScript {
 
 	public PlantSpeciesSeeds speciesSeeds;
-	private PlantScript basicPlant;
 
 	public List<float> awnsGrowth = new List<float>();
 
 
 	internal override void SetUpSpecificOrgan() {
-		basicPlant = GetComponent<PlantScript>();
 	}
 
 	public float Grow(float _growth, float _time) {
@@ -42,8 +40,8 @@ public class SeedOrgan : BasicPlantOrganScript {
 	}
 
 	public void SpreadNewSeed(int seedCount) {
-        for (int i = 0; i < seedCount; i++) {
+		for (int i = 0; i < seedCount; i++) {
 			speciesSeeds.SpreadSeed(plantScript);
-        }
+		}
 	}
 }

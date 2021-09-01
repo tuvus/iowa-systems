@@ -19,9 +19,11 @@ public class AnimalMotor : OrganismMotor {
         return moving;
     }
 
-    void FixedUpdate() {
-        if (moving)
-            GetRotationTransform().RotateAround(new Vector3(0, 0, 0), GetModelTransform().right, frameMoveSpeed * Time.fixedDeltaTime / 12);
+    public void MoveOrganism() {
+        if (moving) {
+            GetRotationTransform().RotateAround(new Vector3(0, 0, 0), GetModelTransform().right, frameMoveSpeed * earth.simulationDeltaTime / 12);
+            organismScript.RefreshOrganism();
+        }
     }
 
     #region RotationControls

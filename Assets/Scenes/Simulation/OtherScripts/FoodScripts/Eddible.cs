@@ -1,10 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Mathematics;
 
 public class Eddible : MonoBehaviour {
 
     public Vector3 postion;
+    public struct Data {
+        public float3 position;
+        public int rank;
+
+        public Eddible.Data SetupData(Eddible eddible) {
+            position = eddible.GetPosition();
+            rank = eddible.GetFoodRank();
+            return this;
+        }
+    }
 
     public float Eat(float biteSize, BasicAnimalScript eater) {
         if (GetBasicAnimal() != null) {
@@ -45,6 +56,18 @@ public class Eddible : MonoBehaviour {
             return GetFood().HasFood();
         }
         return false;
+    }
+
+    public int GetFoodRank() {
+        if (HasFood()) {
+            if (GetFood() != null)
+                return 2;
+            if (GetBasicAnimal() != null)
+                return 1;
+            return 0;
+
+        }
+        return -1;
     }
 
     public string GetFoodType() {

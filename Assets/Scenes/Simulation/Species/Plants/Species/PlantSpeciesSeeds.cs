@@ -31,14 +31,14 @@ public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
 	public void Populate (EarthScript _earth) {
 		for (int i = 0; i < startingSeedCount; i++) {
 			Seed seedScript = plantSpecies.SpawnRandomSeed(seedPrefab);
-			seedScript.SetupSeed(humidityRequirement * Random.Range(.6f, 1.4f), tempetureRequirement * Random.Range(.8f, 1.2f), timeRequirement * Random.Range(.5f, 2f),timeMaximum * Random.Range(.5f,2f));
+			seedScript.SetupSeed(humidityRequirement * Random.Range(.6f, 1.4f), tempetureRequirement * Random.Range(.8f, 1.2f), timeRequirement * Random.Range(.5f, 2f),timeMaximum * Random.Range(.5f,2f),this);
 			seedScript.age = Random.Range(0, seedScript.timeRequirement);
 		}
 	}
 
 	public void SpreadSeed(PlantScript _parent) {
 		Seed newSeed = plantSpecies.SpawnSeed(_parent, seedPrefab, seedDispertionRange);
-		newSeed.SetupSeed(humidityRequirement * Random.Range(.6f, 1.4f), tempetureRequirement * Random.Range(.8f, 1.2f), timeRequirement * Random.Range(.5f,2f), timeMaximum * Random.Range(.5f, 2f));
+		newSeed.SetupSeed(humidityRequirement * Random.Range(.6f, 1.4f), tempetureRequirement * Random.Range(.8f, 1.2f), timeRequirement * Random.Range(.5f,2f), timeMaximum * Random.Range(.5f, 2f),this);
 	}
 
 	public int GetSeedCount() {

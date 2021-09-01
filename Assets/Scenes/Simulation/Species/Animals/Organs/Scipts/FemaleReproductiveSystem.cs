@@ -15,7 +15,7 @@ public class FemaleReproductiveSystem : BasicAnimalOrganScript {
 
 	public override void UpdateOrgan() {
 		if (timeUntilBirth > 0) {
-			timeUntilBirth -= Time.fixedDeltaTime * .2f;
+			timeUntilBirth -= basicAnimalScript.GetEarthScript().simulationDeltaTime * .2f;
 			if (timeUntilBirth <= 0) {
 				timeUntilBirth = 0;
 				Reproduce();
@@ -23,7 +23,7 @@ public class FemaleReproductiveSystem : BasicAnimalOrganScript {
 			return;
 		}
 		if (timeAfterReproduction > 0) {
-			timeAfterReproduction -= Time.fixedDeltaTime * .2f;
+			timeAfterReproduction -= basicAnimalScript.GetEarthScript().simulationDeltaTime * .2f;
 			if (timeAfterReproduction <= 0)
 				timeAfterReproduction = 0;
 		}

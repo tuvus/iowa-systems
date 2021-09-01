@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Jobs;
 using UnityEngine;
 
 public abstract class BasicSpeciesScript : MonoBehaviour {
 	internal EarthScript earth;
 	internal SunScript sun;
-	internal SpeciesMotor history;
 	public string speciesName;
 	public string speciesDisplayName;
 	public Color speciesColor;
@@ -17,7 +17,8 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 	public void SetupSimulation(EarthScript _earth, SunScript _sun) {
 		earth = _earth;
 		sun = _sun;
-        foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
+		gameObject.name = speciesName;
+		foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
 			organ.SetBasicSpeciesScript(this);
         }
 		SetupSpecificSimulation();
@@ -53,19 +54,20 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 	}
 
 	internal void SetupRandomOrganism(BasicOrganismScript organism) {
-		organism.GetOrganismMotor().SetupOrganism(earth);
+		organism.GetOrganismMotor().SetupOrganism(earth,organism);
 		new SpawnRandomizer().SpawnRandom(organism.GetOrganismMotor());
 	}
 
 	internal void SetupChildOrganism(BasicOrganismScript organism, BasicOrganismScript parent, float range = 2) {
-		organism.GetOrganismMotor().SetupChildOrganism(earth, parent.GetOrganismMotor().GetRotationTransform().position, parent.GetOrganismMotor().GetRotationTransform().eulerAngles);
+		organism.GetOrganismMotor().SetupChildOrganism(earth, parent.GetOrganismMotor().GetRotationTransform().position, parent.GetOrganismMotor().GetRotationTransform().eulerAngles,organism);
 		new SpawnRandomizer().SpawnFromParent(organism.GetOrganismMotor(), range);
 	}
 
 	public GameObject InstantiateNewOrgan(GameObject _organ, BasicOrganismScript _organism) {
 		return Instantiate(_organ, _organism.transform);
 	}
-    #endregion
+	#endregion
+
 
     #region PopulationCountGraph
     public List<int> ReturnPopulationList() {
@@ -79,9 +81,13 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 	public int GetCurrentPopulation() {
 		return organisms.Count;
     }
-    #endregion
+	#endregion
 
-    #region OrganismControls
+	#region OrganismControls
+	public abstract void UpdateOrganismsBehavior();
+
+	public abstract void UpdateOrganisms();
+
     public void AddOrganism(BasicOrganismScript newOrganism) {
 		organisms.Add(newOrganism);
 		earth.AddObject(newOrganism,this);
@@ -114,7 +120,7 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
     }
 	
 	public SpeciesMotor GetSpeciesMotor() {
-		return transform.parent.GetComponent<SpeciesMotor>();
+		return SpeciesManager.Instance.GetSpeciesMotor();
     }
 
 	public string GetFoodType() {
@@ -127,5 +133,9 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 	public SunScript GetSunScript() {
 		return sun;
 	}
+
+	public BasicJobController GetBasicJobController() {
+		return GetComponent<BasicJobController>();
+    }
     #endregion
 }

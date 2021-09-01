@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 
-	EyesScript : BasicAnimalOrganScript {
+public class EyesScript : BasicAnimalOrganScript {
 	public AnimalSpeciesEyes speciesEyes;
 
 	public List<Transform> eyes = new List<Transform>();
@@ -13,10 +12,7 @@ public class
 		Side = 1,
     }
 
-	public float sightRange;
-
 	internal override void SetUpSpecificOrgan() {
-		basicAnimalScript.SetEyes(this);
 		SetUpEyes();
 	}
 
@@ -26,7 +22,7 @@ public class
 			newEye.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
 			newEye.localScale = Vector3.one;
 			newEye.localEulerAngles = Vector3.zero; 
-			newEye.localPosition = new Vector3(0, 0, sightRange / 2);
+			newEye.localPosition = new Vector3(0, 0, speciesEyes.sightRange / 2 / basicAnimalScript.GetAnimalMotor().GetModelTransform().lossyScale.z);
 			eyes.Add(newEye);
 			return;
 		}
@@ -35,7 +31,7 @@ public class
 			newLeftEye.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
 			newLeftEye.localScale = Vector3.one;
 			newLeftEye.localEulerAngles = Vector3.zero; 
-			newLeftEye.localPosition = new Vector3(-sightRange / 2, 0, 0);
+			newLeftEye.localPosition = new Vector3(-speciesEyes.sightRange / 2 / basicAnimalScript.GetAnimalMotor().GetModelTransform().lossyScale.x, 0, 0);
 			eyes.Add(newLeftEye);
 
 
@@ -43,7 +39,7 @@ public class
 			newRightEye.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
 			newRightEye.localScale = Vector3.one;
 			newRightEye.localEulerAngles = Vector3.zero; 
-			newRightEye.localPosition = new Vector3(sightRange / 2, 0, 0);
+			newRightEye.localPosition = new Vector3(speciesEyes.sightRange / 2 / basicAnimalScript.GetAnimalMotor().GetModelTransform().lossyScale.x, 0, 0);
 			eyes.Add(newRightEye);
 		}
 	}
@@ -51,39 +47,7 @@ public class
     public override void UpdateOrgan() {
     }
 
-    public List<BasicOrganismScript> GetOrganismsInRange(List<BasicOrganismScript> organisms) {
-		List<BasicOrganismScript> organismsInRange = new List<BasicOrganismScript>();
-		foreach (var organism in organisms) {
-			if (WithinRange(organism.GetOrganismMotor().GetModelTransform().position, sightRange))
-				organismsInRange.Add(organism);
-		}
-		return organismsInRange;
-	}
-
-	public List<BasicAnimalScript> GetAnimalsInRange(List<BasicAnimalScript> animals) {
-		List<BasicAnimalScript> animalsInRange = new List<BasicAnimalScript>();
-		foreach (var animal in animals) {
-			if (WithinRange(animal.position, sightRange))
-				animalsInRange.Add(animal);
-		}
-		return animalsInRange;
-	}
-
-	public List<Eddible> GetEddiblesInRange(List<Eddible> eddibles) {
-		List<Eddible> eddiblesInRange = new List<Eddible>();
-		foreach (var eddibe in eddibles) {
-			if (WithinRange(eddibe.GetPosition(), sightRange))
-				eddiblesInRange.Add(eddibe);
-		}
-		return eddiblesInRange;
-	}
-
-	bool WithinRange(Vector3 position, float _range) {
-         foreach (var eye in eyes) {
-  			if (Vector3.Distance(position, eye.position) <= _range / 2)
-				return true;
-        }
-		return false;
+	public EyeTypes GetEyeType() {
+		return speciesEyes.eyeType;
     }
-
 }

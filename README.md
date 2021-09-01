@@ -8,7 +8,7 @@ Go to "Simulating Iowa's Praries" below to see what problems the simulation has.
 #### Opening the Simulation
 To run the IowaSystemsWindows version run Systems.exe.
 
-To run the IowaSystemsWebGL version go to https://tuvus.github.io/iowa-systems-demo/.
+To run the IowaSystemsWebGL version on a browser go to https://tuvus.github.io/iowa-systems-demo/.
 
 #### Quick Simulation
 To set up a basic simulation involving foxes, rabbits and grass launch the application follow these steps.
@@ -19,7 +19,7 @@ To set up a basic simulation involving foxes, rabbits and grass launch the appli
 5. The simulation will now run at 1 times speed. See using the simulation below to look around.
 
 Seting up the Simulation
------------------------
+------------------------
 There are multiple buttons that allow customization of the simulation. 
 Once you are done setting up the simulation click the "RunSimulation" button.
 
@@ -53,6 +53,9 @@ This will open up a new panel.
 #### Simulation Settings Panel
 To change the size or calculations press the "SimulationSettings" button.
 This will open up a new panel.
+* The "SimulationSpeed" input field determines the time that each calculation represents.
+A faster speed does less calculations reletive to the simulation time, this allows the simulation to cover more time without require more prossesing power.
+A lower speed does more calculations reletive to the simulation time, this allows the simulation to be more accurate.
 * The "EarthSize" slider determines the size of the Earth.
 * The "GraphRefreshRate" slider determines how quickly the graph refreshes in simulation time.
 * The "SunRotationEffect" toggle toggles between plant growth modes. See "Growth and SunRotationEffect" below for more details.
@@ -75,6 +78,7 @@ The settings will be changeable in the simulation as well.
 * The "Render Sun" button toggles whether or not the Sun will be displayed in the Simulation.
 * The "Render Skybox" button toggles whether or not the skybox will be displayed.
 * The "Quality Settings" dropdown changes what level of graphics will be used.
+* The "Frames Per Seccond" input field controlls the disired update rate of the application.
 
 Using the Simulation
 --------------------
@@ -93,7 +97,9 @@ To move the camera using only the mouse click the buttons in the bottom right co
 * Clicking and dragging the circle on the slider above the arrow buttons will controll zooming the camera.
 
 #### Controlling the Simulation Speed
-To change the simulation speed you can either click the three buttons in the top left corner or use their hotkeys.
+To change the simulation speed you can either click the three buttons in the top left corner or use their hotkeys. 
+If the simulation cannot handle the desired speed within it's refresh rate it will display the actuall simulation update rate.
+If the simulation update rate is too low consider lowering your desired frames per seccond or increasing the simulation speed.
 * The "II" button pauses the simulation. Alternatively press the "/" key.
 * The "<" button slows the simulation by one step. Alternatively press the "," key.
 * The ">" button speeds up the simulation by one step. Alternatively press the "." key.
@@ -112,7 +118,7 @@ As the graph expands to the right you will need to move the viewport over to see
 
 The graph will automatically update the scale and all points on it if a population equals or is more than the max number.
 
-The refresh rate can be changed in the simulation settings panel as shown above.
+The simulation update speed can be changed in the simulation settings panel as shown above.
 
 Simulating Iowa's Prairie 
 -------------------------
@@ -141,7 +147,7 @@ Meaning they don't compete for reasources and will scale infinitely.
 Seeds:
 
 Seeds are spawned by a seperate variable at start that can be edited. 
-The humidity on the earth is randomly changed each frame. 
+The humidity on the earth is randomly changed each calculation. 
 Seeds will germinate after a certain time and above a certain humidity.
 
 If a seed fails to germinate within a certain time, it will die off.
@@ -170,6 +176,8 @@ Drought and recource competition has not been added yet.
 
 #### Simulating Animals
 Animals are simulated by growing over time and are required to eat food in order to stay alive.
+The animal's actions are calculated using multiple processors to speed up the calculation time.
+Then after all calculations are completed the animals will update on the main thread using the data that the processors comupted.
 
 Animals have a set age that they will die at.
 
@@ -183,7 +191,7 @@ Here is a list of behaviors that the animals can display in the order of their p
 * Check if there is an eligible mate nearby, if so set them as mate. (There is not yet any compitition for mating, first come first served basically)
 * Check if the animal is hungry, if so explore. If not and the animal has a mate and is ready to reproduce move to the mate. Otherwise sit still.
 
-Note: Animals have a small wait time after eating or biting.
+Note: Wait time in animals are no longer implamented but may be readded in the future.
 
 ---
 
@@ -221,9 +229,10 @@ The fullFood stat varies for each individual organism, calculated from a random 
 
 Awareness:
 
-Animals search their area using their eyes to see predators and prey. 
+Animals search their area using their eyes and smell to see predators and prey.
 Bunnies have two eyes on either side and have a lower sight range while foxes only have one eye but have a higher sight range.
+Smell is centered around the animal and goes in every direction.
+Bunnies have a better sense of smell then foxes.
 
 Note: Hearing is not implamented yet although there are some inactive scripts in the build.
-
 ---

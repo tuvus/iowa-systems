@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SpeciesMotor : MonoBehaviour {
-
-	GameObject canvasUI;
 	[SerializeField]
 	GameObject populaitonCountPrefab;
+
+	EarthScript earth;
+	GameObject canvasUI;
+	GraphWindow graphWindow;
+
 	float refreshTime;
 	public float maxRefreshTime;
 	int refreshCount;
 
 	public void SetupSimulation(EarthScript earth, SunScript sun) {
+		this.earth = earth;
 		canvasUI = GameObject.Find("Canvas");
-		GetGraphWindow().gameObject.SetActive(false);
+		graphWindow = canvasUI.transform.GetChild(0).GetComponent<GraphWindow>();
+		graphWindow.gameObject.SetActive(false);
 		for (int i = 0; i < transform.childCount; i++) {
 			GameObject newCountPrefab = Instantiate(populaitonCountPrefab, GetPopulationCountParent());
 			newCountPrefab.GetComponent<SpeciesPopulaitonCount>().SetSpecies(transform.GetChild(i).GetComponent<BasicSpeciesScript>(), i);
@@ -34,36 +39,36 @@ public class SpeciesMotor : MonoBehaviour {
 		refreshTime = maxRefreshTime;
 	}
 
-	void FixedUpdate() {
+	public void UpdateSpeciesGraphData() {
 		if (refreshTime <= 0) {
 			refreshTime = maxRefreshTime;
 			refreshCount++;
 			AddNewData();
 		}
-		refreshTime -= Time.fixedDeltaTime;
+		refreshTime -= earth.simulationDeltaTime;
 	}
 
 	public void AddNewData() {
 		bool newYMaximum = false;
         foreach (var species in GetAllSpecies()) {
-			if (GetGraphWindow().SetPopulationMax(species.GetCurrentPopulation())) {
+			if (graphWindow.SetPopulationMax(species.GetCurrentPopulation())) {
 				newYMaximum = true;
             }
 			species.RefreshPopulationList();
 		}
 		if (newYMaximum) {
-			GetGraphWindow().RefreshPopulationMax();
+			graphWindow.RefreshPopulationMax();
         }
         foreach (var species in GetAllSpecies()) {
-			GetGraphWindow().AddNewDot(refreshCount, species.GetCurrentPopulation(), species.speciesColor, species);
+			graphWindow.AddNewDot(refreshCount, species.GetCurrentPopulation(), species.speciesColor, species);
 		}
 	}
 
 	public void ToggleGraph() {
-		if (GetGraphWindow().gameObject.activeSelf) {
-			GetGraphWindow().gameObject.SetActive(false);
+		if (graphWindow.gameObject.activeSelf) {
+			graphWindow.gameObject.SetActive(false);
 		} else {
-			GetGraphWindow().gameObject.SetActive(true);
+			graphWindow.gameObject.SetActive(true);
 		}
 	}
 
@@ -75,10 +80,6 @@ public class SpeciesMotor : MonoBehaviour {
         //			transform.GetChild(i).GetComponent<BasicSpeciesScript>());
         //	}
         //}
-    }
-
-	public GraphWindow GetGraphWindow() {
-		return canvasUI.transform.GetChild(0).GetComponent<GraphWindow>();
     }
 
 	public Transform GetPopulationCountParent() {
@@ -106,8 +107,8 @@ public class SpeciesMotor : MonoBehaviour {
 	public List<BasicAnimalSpecies> GetAllAnimalSpecies() {
 		List<BasicAnimalSpecies> animalSpecies = new List<BasicAnimalSpecies>();
         foreach (var species in GetAllSpecies()) {
-			if ((BasicAnimalSpecies)species != null)
-				animalSpecies.Add((BasicAnimalSpecies)species);
+			if (species.GetComponent<BasicAnimalSpecies>() != null)
+				animalSpecies.Add(species.GetComponent<BasicAnimalSpecies>());
         }
 		return animalSpecies;
 	}

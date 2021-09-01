@@ -14,7 +14,7 @@ public class MaleReproductiveSystem : BasicAnimalOrganScript {
 
     public override void UpdateOrgan() {
         if (timeAfterReproduction > 0) {
-            timeAfterReproduction -= Time.fixedDeltaTime * .2f;
+            timeAfterReproduction -= basicAnimalScript.GetEarthScript().simulationDeltaTime * .2f;
             if (timeAfterReproduction <= 0)
                 timeAfterReproduction = 0;
         }
@@ -31,7 +31,7 @@ public class MaleReproductiveSystem : BasicAnimalOrganScript {
 
     public bool ReadyToConcieve() {
         if (timeAfterReproduction <= 0 && basicAnimalScript.mate != null) {
-            return false;
+            return true;
         }
         return false;
     }

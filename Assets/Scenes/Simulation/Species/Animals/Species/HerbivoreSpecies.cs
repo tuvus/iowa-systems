@@ -5,8 +5,6 @@ using UnityEngine;
 public class HerbivoreSpecies : BasicAnimalSpecies {
 
 	internal override void StartSpecificSimulation() {
-		gameObject.name = speciesName;
-		history = GetComponentInParent<SpeciesMotor>();
 		Populate();
 	}
 	
