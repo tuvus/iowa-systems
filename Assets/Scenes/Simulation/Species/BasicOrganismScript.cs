@@ -5,14 +5,19 @@ using UnityEngine;
 public abstract class BasicOrganismScript : MonoBehaviour {
 	internal BasicSpeciesScript species;
 	internal BasicOrganismScript parent;
+
+	public int organismIndex;
+	public int specificOrganismIndex;
 	[SerializeField] internal float age;
 
 	internal bool organismDead;
 
 	public Vector3 position;
+	public int zone;
 
-    #region OrganismSetup
-    public void SetUpOrganism(BasicSpeciesScript species, BasicOrganismScript newParent) {
+
+	#region OrganismSetup
+	public void SetUpOrganism(BasicSpeciesScript species, BasicOrganismScript newParent) {
 		User.Instance.ChangedSettings += OnSettingsChanged;
 		this.species = species;
 		parent = newParent;
@@ -40,23 +45,12 @@ public abstract class BasicOrganismScript : MonoBehaviour {
 
     #region RemoveOrganism
     public void KillOrganism() {
+		species.OrganismDeath();
 		organismDead = true;
-		species.OrganismDeath(this);
 		OrganismDied();
-		GetEarthScript().OnEndFrame += OnDestroyOrganism;
     }
 
-	internal void OnDestroyOrganism(object sender, System.EventArgs info) {
-		GetEarthScript().OnEndFrame -= OnDestroyOrganism;
-		DestroyOrganism();
-	}
-
 	internal abstract void OrganismDied();
-
-	void DestroyOrganism() {
-		species.RemoveOrganism(this);
-		Destroy(gameObject);
-	}
     #endregion
 
     #region GetMethods
@@ -70,12 +64,6 @@ public abstract class BasicOrganismScript : MonoBehaviour {
 
 	public EarthScript GetEarthScript() {
 		return species.GetEarthScript();
-    }
-
-	public abstract string GetFoodType();
-
-	public Eddible GetEddible() {
-		return GetComponent<Eddible>();
     }
     #endregion
 }

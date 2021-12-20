@@ -8,9 +8,9 @@ public class PlantSpeciesVegetativePropagation : BasicPlantSpeciesOrganScript {
 	public float newPlantGrowthCost;
 	public int newPlantGrowChance;
 
-	public override void MakeOrganism(BasicOrganismScript _newOrganism) {
+	public override void MakeOrganism(BasicOrganismScript newOrganism) {
 		return;
-		//VegetativePropagationOrgan propagation = _newOrganism.AddComponent<VegetativePropagationOrgan>();
+		//VegetativePropagationOrgan propagation = newOrganism.AddComponent<VegetativePropagationOrgan>();
 		//propagation.SetupBasicOrgan(this);
 		//propagation.plantSpeciesVegetativePropagation = this;
 		//propagation.growthMax = growthMax;

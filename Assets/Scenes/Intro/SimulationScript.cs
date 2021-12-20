@@ -8,6 +8,8 @@ public class SimulationScript : MonoBehaviour {
 	public float simulationSpeed;
 	public int earthSize;
 	public bool sunRotationEffect;
+	public int numberOfZones;
+	public int maxNeiboringZones;
 
 	public static SimulationScript Instance { get; private set; }
 	EarthScript earth;

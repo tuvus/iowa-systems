@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.0073891585, g: 0.006946402, b: 0.007394376, a: 1}
+  m_IndirectSpecularColor: {r: 0.007438578, g: 0.006992427, b: 0.007437706, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2188,6 +2188,8 @@ MonoBehaviour:
   speciesDisplayName: Elk
   speciesColor: {r: 0.31132078, g: 0.1581312, b: 0, a: 1}
   startingPopulation: 0
+  speciesIndex: 0
+  specificSpeciesIndex: 0
   organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
@@ -2202,8 +2204,6 @@ MonoBehaviour:
   animals: []
   availableMaleMates: []
   availableFemaleMates: []
-  eddibleFood: []
-  predators: []
 --- !u!114 &446744798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2216,9 +2216,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  diet:
-  - Grass
-  - TallGrass
 --- !u!114 &446744801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2274,11 +2271,16 @@ MonoBehaviour:
   speciesDisplayName: TallGrass
   speciesColor: {r: 0.62352943, g: 0.6392157, b: 0, a: 1}
   startingPopulation: 24
+  speciesIndex: 0
+  specificSpeciesIndex: 0
   organisms: []
-  plantPrefab: {fileID: 1449010634114082, guid: 0dfa93e504d7446ad8c2c33189419f51,
+  plantPrefab: {fileID: 1992517119343582, guid: a3e7fae49ee31442aac03db2a66b47b5,
     type: 3}
-  maxGrowth: 15
+  speciesOrgansOrder: []
+  growthStagesInput: []
   plants: []
+  activePlants: 
+  inactivePlants: 
 --- !u!114 &456575642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2291,7 +2293,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350de5468c2b46f1821fb5cb6d36ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seedPrefab: {fileID: 1362928467765342, guid: 496275388225b461aa42374e0a4afb22, type: 3}
   foodType: 
   startingSeedCount: 12
   humidityRequirement: 64
@@ -2300,8 +2301,10 @@ MonoBehaviour:
   timeRequirement: 18
   timeMaximum: 36
   awnMaxGrowth: 24
-  awnMaxAmount: 1
   awnMaxSeedAmount: 6
+  awnSeedDispertionTime: 1000
+  awnSeedDispersalSuccessChance: 30
+  seedEnergyAmount: 0.01
 --- !u!1 &496184813
 GameObject:
   m_ObjectHideFlags: 0
@@ -3683,6 +3686,8 @@ MonoBehaviour:
   speciesDisplayName: Wolf
   speciesColor: {r: 0.26415092, g: 0.22125883, b: 0.20808114, a: 1}
   startingPopulation: 0
+  speciesIndex: 0
+  specificSpeciesIndex: 0
   organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
@@ -3697,8 +3702,6 @@ MonoBehaviour:
   animals: []
   availableMaleMates: []
   availableFemaleMates: []
-  eddibleFood: []
-  predators: []
 --- !u!114 &667267391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3711,9 +3714,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  diet:
-  - Deer
-  - Elk
 --- !u!1 &676291395
 GameObject:
   m_ObjectHideFlags: 0
@@ -4421,6 +4421,8 @@ MonoBehaviour:
   simulationSpeed: 1
   earthSize: 1000
   sunRotationEffect: 0
+  numberOfZones: 1000
+  maxNeiboringZones: 15
   simulationInitialised: 0
 --- !u!1 &747077542
 GameObject:
@@ -4772,7 +4774,7 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 432053242}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &809522556
+--- !u!114 &809522554
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4781,12 +4783,42 @@ MonoBehaviour:
   m_GameObject: {fileID: 809522552}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 580515522c3d74722bf9fd4e21038bbe, type: 3}
+  m_Script: {fileID: 11500000, guid: 8c1231416625e854ab7c6720b77b1115, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  growthMax: 10.52
-  newPlantGrowthCost: 4.9
-  newPlantGrowChance: 20
+  maxBladeArea: 30
+  organType: Blade
+--- !u!114 &809522555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 809522552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac9b9331e47e1bb4883b9198cb2f12db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxStemHeight: 8
+  organType: Stem
+--- !u!114 &809522557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 809522552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b949b328fad520498bfcd968e642710, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rootGrowthMax:
+    x: 1
+    y: 100
+  rootDensity: 0.6
+  organType: Root
 --- !u!114 &809522558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4803,11 +4835,25 @@ MonoBehaviour:
   speciesDisplayName: Grass
   speciesColor: {r: 0.13960083, g: 0.754717, b: 0, a: 1}
   startingPopulation: 80
+  speciesIndex: 0
+  specificSpeciesIndex: 0
   organisms: []
-  plantPrefab: {fileID: 1449010634114082, guid: 0dfa93e504d7446ad8c2c33189419f51,
+  plantPrefab: {fileID: 1992517119343582, guid: a3e7fae49ee31442aac03db2a66b47b5,
     type: 3}
-  maxGrowth: 10
+  speciesOrgansOrder:
+  - {fileID: 809522557}
+  - {fileID: 809522555}
+  - {fileID: 809522554}
+  - {fileID: 809522560}
+  growthStagesInput:
+  - {x: 0, y: -100, z: 4}
+  - {x: 5, y: 0, z: 4}
+  - {x: 10, y: 10, z: 80}
+  - {x: 15, y: 60, z: 120}
+  - {x: 30, y: 100, z: 120}
   plants: []
+  activePlants: 
+  inactivePlants: 
 --- !u!114 &809522560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4820,17 +4866,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350de5468c2b46f1821fb5cb6d36ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seedPrefab: {fileID: 1362928467765342, guid: 496275388225b461aa42374e0a4afb22, type: 3}
-  foodType: 
+  foodType: Seed
   startingSeedCount: 40
   humidityRequirement: 52
   tempetureRequirement: 45
   seedDispertionRange: 30
-  timeRequirement: 12
-  timeMaximum: 24
+  timeRequirement: 5760
+  timeMaximum: 17520
   awnMaxGrowth: 18
-  awnMaxAmount: 1
   awnMaxSeedAmount: 6
+  awnSeedDispertionTime: 720
+  awnSeedDispersalSuccessChance: 30
+  seedEnergyAmount: 0.1
 --- !u!1 &835355319
 GameObject:
   m_ObjectHideFlags: 0
@@ -8632,7 +8679,6 @@ MonoBehaviour:
     type: 3}
   plantSimulation:
   - {fileID: 809522552}
-  - {fileID: 456575634}
   defaultSimulation:
   - {fileID: 1627060932}
   - {fileID: 1600016790}
@@ -9724,6 +9770,8 @@ MonoBehaviour:
   speciesDisplayName: Fox
   speciesColor: {r: 0.8490566, g: 0, b: 0, a: 1}
   startingPopulation: 12
+  speciesIndex: 0
+  specificSpeciesIndex: 0
   organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
@@ -9738,8 +9786,6 @@ MonoBehaviour:
   animals: []
   availableMaleMates: []
   availableFemaleMates: []
-  eddibleFood: []
-  predators: []
 --- !u!114 &1600016798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9752,8 +9798,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  diet:
-  - CottontailRabbit
 --- !u!114 &1600016799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9860,6 +9904,8 @@ MonoBehaviour:
   speciesDisplayName: Cottontail
   speciesColor: {r: 0.754717, g: 0.48981506, b: 0.20220716, a: 1}
   startingPopulation: 36
+  speciesIndex: 0
+  specificSpeciesIndex: 0
   organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
@@ -9874,8 +9920,6 @@ MonoBehaviour:
   animals: []
   availableMaleMates: []
   availableFemaleMates: []
-  eddibleFood: []
-  predators: []
 --- !u!114 &1627060939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9888,9 +9932,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  diet:
-  - Grass
-  - TallGrass
 --- !u!114 &1627060940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10375,6 +10416,8 @@ MonoBehaviour:
   speciesDisplayName: Deer
   speciesColor: {r: 0.4811321, g: 0.24438457, b: 0, a: 1}
   startingPopulation: 0
+  speciesIndex: 0
+  specificSpeciesIndex: 0
   organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
@@ -10389,8 +10432,6 @@ MonoBehaviour:
   animals: []
   availableMaleMates: []
   availableFemaleMates: []
-  eddibleFood: []
-  predators: []
 --- !u!114 &1754343640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10403,10 +10444,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  diet:
-  - Grass
-  - Bush
-  - TallGrass
 --- !u!114 &1754343643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11188,6 +11225,8 @@ MonoBehaviour:
   speciesDisplayName: Racoon
   speciesColor: {r: 0.1981132, g: 0.13925514, b: 0.07943218, a: 1}
   startingPopulation: 0
+  speciesIndex: 0
+  specificSpeciesIndex: 0
   organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
@@ -11202,8 +11241,6 @@ MonoBehaviour:
   animals: []
   availableMaleMates: []
   availableFemaleMates: []
-  eddibleFood: []
-  predators: []
 --- !u!114 &1924411861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11216,7 +11253,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  diet: []
 --- !u!114 &1924411864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11637,10 +11673,15 @@ MonoBehaviour:
   speciesDisplayName: Bush
   speciesColor: {r: 0, g: 0.3018868, b: 0.009769872, a: 1}
   startingPopulation: 0
+  speciesIndex: 0
+  specificSpeciesIndex: 0
   organisms: []
   plantPrefab: {fileID: 0}
-  maxGrowth: 16
+  speciesOrgansOrder: []
+  growthStagesInput: []
   plants: []
+  activePlants: 
+  inactivePlants: 
 --- !u!1 &1994337417
 GameObject:
   m_ObjectHideFlags: 0
@@ -12289,6 +12330,8 @@ MonoBehaviour:
   speciesDisplayName: Bison
   speciesColor: {r: 0.24528301, g: 0.12409181, b: 0, a: 1}
   startingPopulation: 0
+  speciesIndex: 0
+  specificSpeciesIndex: 0
   organisms: []
   deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
   noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
@@ -12303,8 +12346,6 @@ MonoBehaviour:
   animals: []
   availableMaleMates: []
   availableFemaleMates: []
-  eddibleFood: []
-  predators: []
 --- !u!114 &2143928219
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12317,8 +12358,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  diet:
-  - TallGrass
 --- !u!114 &2143928222
 MonoBehaviour:
   m_ObjectHideFlags: 0

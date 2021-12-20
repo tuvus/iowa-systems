@@ -32,7 +32,7 @@ public class SpeciesPopulaitonCount : MonoBehaviour {
 
 	void UpdateText() {
 		if (speciesScript.GetComponent<PlantSpeciesSeeds>() != null) {
-			transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation() + "(" + speciesScript.GetComponent<PlantSpeciesSeeds>().GetSeedCount() + ")");
+			transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation() + "(" + speciesScript.GetComponent<PlantSpeciesSeeds>().seedCount + ")");
 			return;
 		}
 		transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation());

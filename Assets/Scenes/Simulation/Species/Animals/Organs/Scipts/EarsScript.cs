@@ -32,10 +32,10 @@ public class EarsScript : BasicAnimalOrganScript {
 
 	List<GameObject> GetAllHearableGameobjects(float _range) {
 		List<GameObject> hearableGameObjects = new List<GameObject>();
-		foreach (var obj in basicAnimalScript.GetEarthScript().GetAllOrganisms()) {
-			if (obj.gameObject.layer == 12)
-				hearableGameObjects.Add(obj.gameObject);
-		}
+		//foreach (var obj in basicAnimalScript.GetEarthScript().GetAllOrganisms()) {
+		//	if (obj.gameObject.layer == 12)
+		//		hearableGameObjects.Add(obj.gameObject);
+		//}
 		return hearableGameObjects;
 	}
 

@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4335165961271216}
   - component: {fileID: 114243292682214942}
-  - component: {fileID: -4821577308206446256}
   m_Layer: 11
   m_Name: BaiscPlant
   m_TagString: Untagged
@@ -45,24 +44,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3976062d6396242068b237bdcc1eb09e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  age: 0
   position: {x: 0, y: 0, z: 0}
-  type: 
-  health: 0
+  plantSpecies: {fileID: 0}
+  plantIndex: 0
+  plantDataIndex: 0
+  zone: 0
   growth: 0
-  maxGrowth: 0
-  organismCount: 0
---- !u!114 &-4821577308206446256
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1992517119343582}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a81bfd8c0a1ef5045b3c50cee27d7dd3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  bladeArea: 0
+  stemHeight: 0
+  rootGrowth:
+    x: 0
+    y: 0
+  stage: -2
+  organs: []
 --- !u!1 &1314572327634962358
 GameObject:
   m_ObjectHideFlags: 0

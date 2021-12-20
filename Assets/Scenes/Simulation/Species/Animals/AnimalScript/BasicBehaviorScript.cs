@@ -13,5 +13,5 @@ public abstract class BasicBehaviorScript : MonoBehaviour {
 		basicAnimal.behavior = this;
     }
 
-	public abstract void UpdateBehavior(AnimalActions.ActionType actionType, BasicAnimalScript animalTarget, Eddible eddibleTarget);
+	public abstract void UpdateBehavior(AnimalActions.ActionType actionType, BasicAnimalScript animalTarget);
 }

@@ -32,7 +32,7 @@ public class AnimalSpeciesReproductiveSystem : BasicAnimalSpeciesOrganScript {
 
 	public void MakeChildOrganism (int _amount, BasicOrganismScript _parent) {
 		for (int i = 0; i < _amount; i++) {
-			animalSpecies.SpawnSpecificOrganism(_parent);
+			animalSpecies.SpawnOrganism(_parent);
 		}
 	}
 }

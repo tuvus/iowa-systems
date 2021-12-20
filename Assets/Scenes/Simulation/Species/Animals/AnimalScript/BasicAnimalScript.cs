@@ -130,14 +130,14 @@ public class BasicAnimalScript : BasicOrganismScript {
 		food = UnityEngine.Random.Range(animalSpecies.fullFood / 2, animalSpecies.maxFood);
 	}
 
+
 	#region AnimalUpdate
 	public override void RefreshOrganism() {
 		position = GetOrganismMotor().GetModelTransform().position;
-		GetEddible().postion = position;
 	}
 	
-	public void UpdateAnimalBehavior(AnimalActions.ActionType actionType, BasicAnimalScript animalTarget, Eddible eddibleTarget) {
-		behavior.UpdateBehavior(actionType,animalTarget,eddibleTarget);
+	public void UpdateAnimalBehavior(AnimalActions.ActionType actionType, BasicAnimalScript animalTarget) {
+		behavior.UpdateBehavior(actionType,animalTarget);
 	}
 
 	public override void UpdateOrganism() {
@@ -238,16 +238,17 @@ public class BasicAnimalScript : BasicOrganismScript {
 		_animalToBite.Eaten(GetMouth().biteSize, this);
 	}
 
-	public bool Eat(Eddible eddible) {
+	public bool Eat() {
+		Debug.LogError("not implamented, please fix");
 		if (Full()) {
 			return false;
 		}
-		if (eddible.HasFood()) {
-			food += eddible.Eat(GetMouth().biteSize, this);
-			CreateNewNoise();
-			waitTime = GetMouth().eatTime;
-			return true;
-		}
+		//if (eddible.HasFood()) {
+		//	food += eddible.Eat(GetMouth().biteSize, this);
+		//	CreateNewNoise();
+		//	waitTime = GetMouth().eatTime;
+		//	return true;
+		//}
 		return false;
 	}
 
@@ -269,12 +270,13 @@ public class BasicAnimalScript : BasicOrganismScript {
 	}
 	
 	internal override void OrganismDied() {
-		MeatFoodScript newDeadBody = animalSpecies.SpawnDeadAnimal(gameObject);
-		newDeadBody.SetupFoodType(animalSpecies.speciesName, 1.2f, 10,GetEarthScript());
-		newDeadBody.foodCount = (animalSpecies.maxFood / food + 1) * animalSpecies.bodySize;
-		if (animalSpecies.IsMateAvalible(this, GetReproductive().GetSex())) {
-			GetEarthScript().OnEndFrame += RemoveAvailableMate;
-        }
+		Debug.LogError("not implamented, add create corpse feature");
+		//MeatFoodScript newDeadBody = animalSpecies.SpawnDeadAnimal(gameObject);
+		//newDeadBody.SetupFoodType(animalSpecies.speciesName, 1.2f, 10,GetEarthScript());
+		//newDeadBody.foodCount = (animalSpecies.maxFood / food + 1) * animalSpecies.bodySize;
+		//if (animalSpecies.IsMateAvalible(this, GetReproductive().GetSex())) {
+		//	GetEarthScript().OnEndFrame += RemoveAvailableMate;
+  //      }
 		if (mate != null && !mate.organismDead) {
 			mate.mate = null;
 			GetEarthScript().OnEndFrame += mate.AddAvailableMate;
@@ -368,19 +370,17 @@ public class BasicAnimalScript : BasicOrganismScript {
 	}
     
 	public bool CheckIfEddible(GameObject _object) {
-		if (animalSpecies.GetDiet().IsEddible(_object)) {
-			return true;
-		}
+		Debug.LogError("not implamented, please fix");
 		return false;
+		//if (animalSpecies.GetDiet().IsEddible(_object)) {
+		//	return true;
+		//}
+		//return false;
 	}
 
 	public AnimalMotor GetAnimalMotor() {
 		return GetOrganismMotor().GetComponent<AnimalMotor>();
     }
-
-	public override string GetFoodType() {
-		return species.GetFoodType();
-	}
 
 	public ReproductiveSystem GetReproductive() {
 		return behavior.reproductive;

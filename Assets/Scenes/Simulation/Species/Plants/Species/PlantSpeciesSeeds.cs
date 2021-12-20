@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
-	public GameObject seedPrefab;
+	//public GameObject seedPrefab;
 
 	public string foodType;
 	public int startingSeedCount;
@@ -14,48 +14,67 @@ public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
 	public float timeMaximum;
 
 	public float awnMaxGrowth;
-	public int awnMaxAmount;
 	public int awnMaxSeedAmount;
+	public float awnSeedDispertionTime;
+	public float awnSeedDispersalSuccessChance;
 
-	internal List<Seed> seeds = new List<Seed>();
+	public float seedEnergyAmount;
+
+	public int seedCount { private set; get; }
+
+	public SeedGerminationRequirement seedGerminationRequirement;
+
+    public struct SeedGerminationRequirement {
+		public float humidityRequirement;
+		public float tempetureRequirement;
+		public float timeRequirement;
+		public float timeMaximum;
+
+        public SeedGerminationRequirement(PlantSpeciesSeeds speciesSeeds) {
+			humidityRequirement = speciesSeeds.humidityRequirement;
+			tempetureRequirement = speciesSeeds.tempetureRequirement;
+			timeRequirement = speciesSeeds.timeRequirement;
+			timeMaximum = speciesSeeds.timeMaximum;
+        }
+	}
+
+	public void SetupPlantSpeciesSeeds() {
+		seedGerminationRequirement = new SeedGerminationRequirement(this);
+    }
 
 	public override void MakeOrganism(BasicOrganismScript _newOrganism) {
 		SeedOrgan seeds = _newOrganism.gameObject.AddComponent<SeedOrgan>();
 		seeds.speciesSeeds = this;
 		seeds.SetupBasicOrgan(this);
 	}
-	public void MakePlant (Seed _plantToGrow, float growth) {
-		PlantScript newPlant = plantSpecies.SpawnOrganismFromSeed(_plantToGrow);
+
+	public void MakePlant (PlantScript plant, float growth) {
+		
 	}
 
-	public void Populate (EarthScript _earth) {
+	public void Populate () {
+		plantSpecies.PreSpawn(startingSeedCount);
 		for (int i = 0; i < startingSeedCount; i++) {
-			Seed seedScript = plantSpecies.SpawnRandomSeed(seedPrefab);
-			seedScript.SetupSeed(humidityRequirement * Random.Range(.6f, 1.4f), tempetureRequirement * Random.Range(.8f, 1.2f), timeRequirement * Random.Range(.5f, 2f),timeMaximum * Random.Range(.5f,2f),this);
-			seedScript.age = Random.Range(0, seedScript.timeRequirement);
+			PlantScript newseed = plantSpecies.SpawnRandomSeed();
+			AddSeed();
 		}
 	}
 
-	public void SpreadSeed(PlantScript _parent) {
-		Seed newSeed = plantSpecies.SpawnSeed(_parent, seedPrefab, seedDispertionRange);
-		newSeed.SetupSeed(humidityRequirement * Random.Range(.6f, 1.4f), tempetureRequirement * Random.Range(.8f, 1.2f), timeRequirement * Random.Range(.5f,2f), timeMaximum * Random.Range(.5f, 2f),this);
+	public void SpreadSeed(PlantScript parent) {
+		PlantScript newSeed = plantSpecies.SpawnSeed(parent, seedDispertionRange);
+		AddSeed();
 	}
 
-	public int GetSeedCount() {
-		return seeds.Count;
+	public void AddSeed() {
+		seedCount++;
+	}
+
+	public void SeedDeath() {
+		seedCount--;
     }
 
-	public void AddSeed(Seed newSeed) {
-		seeds.Add(newSeed);
-		speciesScript.GetEarthScript().AddObject(newSeed, speciesScript);
-
-	}
-
-	public void SeedDeath(Seed deadSeed) {
-		seeds.Remove(deadSeed);
-    }
-
-	public void RemoveSeed(Seed removeSeed) {
-		speciesScript.GetEarthScript().RemoveObject(removeSeed, speciesScript);
-	}
+	public void GrowSeed() {
+		plantSpecies.SeedGrownToPlant();
+		seedCount--;
+	}	
 }

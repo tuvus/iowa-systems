@@ -22,6 +22,7 @@ public class SpeciesManager : MonoBehaviour {
 		speciesMaker = GameObject.Find("SpeciesMakerPanel").GetComponent<SpeciesMakerPanel>();
 		speciesList = GameObject.Find("SpeciesList");
 	}
+
 	public void SetDefaultSimulation() {
 		ClearSpecies();
 		speciesMaker.AddListOfSpecies(defaultSimulation);
@@ -45,6 +46,21 @@ public class SpeciesManager : MonoBehaviour {
 	public void SelectSpecies(SpeciesHolderScript speciesHolder) {
 		speciesMaker.DisplayPanel(true);
 		speciesMaker.EditSpecies(speciesHolder);
+	}
+
+	public int GetAllStartingPlantsAndSeeds() {
+		int count = 0;
+        for (int i = 0; i < transform.childCount; i++) {
+			PlantSpecies plantSpecies = transform.GetChild(i).GetComponent<PlantSpecies>();
+			if (plantSpecies != null) {
+				count += plantSpecies.startingPopulation;
+				PlantSpeciesSeeds speciesSeeds = plantSpecies.GetComponent<PlantSpeciesSeeds>();
+				if (speciesSeeds != null) {
+					count += speciesSeeds.startingSeedCount;
+                }
+            }
+        }
+		return count;
 	}
 
 	public SpeciesMotor GetSpeciesMotor() {

@@ -14,6 +14,10 @@ public class SpeciesMotor : MonoBehaviour {
 	public float maxRefreshTime;
 	int refreshCount;
 
+	List<BasicSpeciesScript> allSpecies = new List<BasicSpeciesScript>();
+	List<BasicAnimalSpecies> animalSpecies = new List<BasicAnimalSpecies>();
+	List<PlantSpecies> plantSpecies = new List<PlantSpecies>();
+
 	public void SetupSimulation(EarthScript earth, SunScript sun) {
 		this.earth = earth;
 		canvasUI = GameObject.Find("Canvas");
@@ -23,18 +27,35 @@ public class SpeciesMotor : MonoBehaviour {
 			GameObject newCountPrefab = Instantiate(populaitonCountPrefab, GetPopulationCountParent());
 			newCountPrefab.GetComponent<SpeciesPopulaitonCount>().SetSpecies(transform.GetChild(i).GetComponent<BasicSpeciesScript>(), i);
 		}
-        foreach (var speciesHolder in GetAllSpeciesHolders()) {
+		foreach (var speciesHolder in GetAllSpeciesHolders()) {
 			speciesHolder.Destroy();
-        }
-        foreach (var species in GetAllSpecies()) {
+		}
+		for (int i = 0; i < transform.childCount; i++) {
+			allSpecies.Add(transform.GetChild(i).GetComponent<BasicSpeciesScript>());
+			transform.GetChild(i).GetComponent<BasicSpeciesScript>().speciesIndex = i;
+		}
+		for (int i = 0; i < GetAllSpecies().Count; i++) {
+			if (GetAllSpecies()[i].GetComponent<BasicAnimalSpecies>() != null) {
+				animalSpecies.Add(GetAllSpecies()[i].GetComponent<BasicAnimalSpecies>());
+				GetAllSpecies()[i].specificSpeciesIndex = i;
+			}
+		}
+		for (int i = 0; i < GetAllSpecies().Count; i++) {
+			if (GetAllSpecies()[i].GetComponent<PlantSpecies>() != null) {
+				plantSpecies.Add(GetAllSpecies()[i].GetComponent<PlantSpecies>());
+				GetAllSpecies()[i].specificSpeciesIndex = i;
+			}
+		}
+
+		foreach (var species in GetAllSpecies()) {
 			species.SetupSimulation(earth, sun);
-        }
+		}
 	}
 
 	public void StartSimulation() {
-        foreach (var species in GetAllSpecies()) {
+		foreach (var species in GetAllSpecies()) {
 			species.StartBasicSimulation();
-        }
+		}
 		AddNewData();
 		refreshTime = maxRefreshTime;
 	}
@@ -50,16 +71,16 @@ public class SpeciesMotor : MonoBehaviour {
 
 	public void AddNewData() {
 		bool newYMaximum = false;
-        foreach (var species in GetAllSpecies()) {
+		foreach (var species in GetAllSpecies()) {
 			if (graphWindow.SetPopulationMax(species.GetCurrentPopulation())) {
 				newYMaximum = true;
-            }
+			}
 			species.RefreshPopulationList();
 		}
 		if (newYMaximum) {
 			graphWindow.RefreshPopulationMax();
-        }
-        foreach (var species in GetAllSpecies()) {
+		}
+		foreach (var species in GetAllSpecies()) {
 			graphWindow.AddNewDot(refreshCount, species.GetCurrentPopulation(), species.speciesColor, species);
 		}
 	}
@@ -73,18 +94,18 @@ public class SpeciesMotor : MonoBehaviour {
 	}
 
 	public void ShowGraph() {
-        //for (int i = 0; i < transform.childCount; i++) {
-        //	if (transform.GetChild(i).GetComponent<BasicSpeciesScript>() != null) {
-        //		GetGraphWindow().AddDisplaySpecies(transform.GetChild(i).GetComponent<BasicSpeciesScript>().ReturnPopulationList(),
-        //			transform.GetChild(i).GetComponent<BasicSpeciesScript>().speciesColor,
-        //			transform.GetChild(i).GetComponent<BasicSpeciesScript>());
-        //	}
-        //}
-    }
+		//for (int i = 0; i < transform.childCount; i++) {
+		//	if (transform.GetChild(i).GetComponent<BasicSpeciesScript>() != null) {
+		//		GetGraphWindow().AddDisplaySpecies(transform.GetChild(i).GetComponent<BasicSpeciesScript>().ReturnPopulationList(),
+		//			transform.GetChild(i).GetComponent<BasicSpeciesScript>().speciesColor,
+		//			transform.GetChild(i).GetComponent<BasicSpeciesScript>());
+		//	}
+		//}
+	}
 
 	public Transform GetPopulationCountParent() {
 		return canvasUI.transform.GetChild(1);
-    }
+	}
 
 	public List<SpeciesHolderScript> GetAllSpeciesHolders() {
 		List<SpeciesHolderScript> speciesHolders = new List<SpeciesHolderScript>();
@@ -97,19 +118,15 @@ public class SpeciesMotor : MonoBehaviour {
 	}
 
 	public List<BasicSpeciesScript> GetAllSpecies() {
-		List<BasicSpeciesScript> species = new List<BasicSpeciesScript>();
-        for (int i = 0; i < transform.childCount; i++) {
-			species.Add(transform.GetChild(i).GetComponent<BasicSpeciesScript>());
-        }
-		return species;
-    }
+		return allSpecies;
+	}
 
 	public List<BasicAnimalSpecies> GetAllAnimalSpecies() {
-		List<BasicAnimalSpecies> animalSpecies = new List<BasicAnimalSpecies>();
-        foreach (var species in GetAllSpecies()) {
-			if (species.GetComponent<BasicAnimalSpecies>() != null)
-				animalSpecies.Add(species.GetComponent<BasicAnimalSpecies>());
-        }
+
 		return animalSpecies;
+	}
+
+	public List<PlantSpecies> GetAllPlantSpecies() {
+		return plantSpecies;
 	}
 }

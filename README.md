@@ -135,13 +135,19 @@ Foxes reproduce too quickly and outscale and overhunt bunnies and then die off.
 
 ---
 
+### Zones
+The earth is split up somewhat evenly into zones, by default this is 1000. 
+Plants only check in thier zone and neiboring zones for resource competition. 
+In the future each zone will have it's own temperature and water.
+In the future animals will only check nearby zones for predators and prey.
+
 #### Simulating Plants
 Plants are simulated by accumalating growth from the sun according to how much sun it gathers. 
 Once they reach a certain growth they can grow their awns, which then spread their seeds around.
 Plants can be eaten by bunnies.
 
-Note: Plants are not affected by bottom-up regulation yet. 
-Meaning they don't compete for reasources and will scale infinitely.
+Note: Plants are somewhat affected by bottom-up regulation. 
+Meaning they don't really compete for reasources and will scale infinitely.
 
 ---
 Seeds:
@@ -163,8 +169,14 @@ Note: Plants at the poles will always be at a disadvantage if SunRotationEffect 
 
 Without SunRotationEffect turned on all plants will grow at a rate of .5 equally.
 
-Plants currently have only two stages: Growing the plant itself and growing the awns, the plant's reproductive organ.
-Roots, leaves and vegatative propagation have not yet been implemented.
+Plants currently have 7 stages: 
+ * Dead, the plant object is not currently in use
+ * Seed, the plant is in it's seed stage and must check for germination
+ * Germinating, the plant is growing roots
+ * Sprout, the plants stem has breached the surface
+ * Seedling, a tiny blade and stem but with most of the growth going to the roots
+ * Youngling, growing stem, blade and roots
+ * Adult, fully mature and is growing awns or spreading seeds
 
 ---
 Death:
@@ -220,7 +232,7 @@ Food and Fullness:
 
 Animals have a maxFood value and cannot store food above that value.
 
-Animals will not eat food infront of them if they are over 90% of their stored food capacity.
+Animals will not eat food in front of them if they are over 90% of their stored food capacity.
 
 The fullFood variable determines whether or not the animal will activily search for food.
 The fullFood stat varies for each individual organism, calculated from a random number between 60 and 80 percent of the max food that they can eat.

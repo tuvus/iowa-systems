@@ -28,7 +28,7 @@ public class TimeUI : MonoBehaviour {
 
     void UpdateTimeScale() {
         GetFrameManager().SetItterationsPerFrame(timeScaleArray[timeScale]);
-        GetTimeStepText().text = "SimulationSpeed:" + GetFrameManager().GetItterationsPerFrame();
+        //GetTimeStepText().text = "SimulationSpeed:" + GetFrameManager().GetItterationsPerFrame();
     }
 
     private void LateUpdate() {

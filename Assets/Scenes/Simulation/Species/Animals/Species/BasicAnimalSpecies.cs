@@ -23,32 +23,32 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
 	[SerializeField] internal List<BasicAnimalScript> animals = new List<BasicAnimalScript>();
 	[SerializeField] internal List<BasicAnimalScript> availableMaleMates = new List<BasicAnimalScript>();
 	[SerializeField] internal List<BasicAnimalScript> availableFemaleMates = new List<BasicAnimalScript>();
-	[SerializeField] internal List<Eddible> eddibleFood = new List<Eddible>();
-	[SerializeField] internal List<BasicAnimalScript> predators = new List<BasicAnimalScript>();
 
+	AnimalJobController animalJobController;
+
+    #region StartSimulation
     internal override void SetupSpecificSimulation() {
-		gameObject.AddComponent<AnimalJobController>().SetUpJobController(this);
-		earth.OnCreateNewOrganism += AddOtherOrganism;
-        earth.OnDestroyNewOrganism += RemoveOtherOrganism;
-		earth.OnCreateNewFood += AddOtherFood;
-		earth.OnDestroyNewFood += RemoveOtherFood;
+		animalJobController = gameObject.AddComponent<AnimalJobController>();
+		animalJobController.SetUpJobController(this,earth);
 		fullFood = maxFood * .7f;
     }
 
     internal override void StartSimulation() {
+		Populate();
 	}
+    #endregion
 
     #region SpawnOrganisms
-	public override void Populate() {
+    public override void Populate() {
 		int organismsToSpawn = startingPopulation;
 		for (int i = 0; i < organismsToSpawn; i++) {
-			SpawnSpecificRandomOrganism();
+			SpawnRandomOrganism();
 		}
 	}
 
-    public override void SpawnSpecificRandomOrganism() {
+    public override void SpawnRandomOrganism() {
 		BasicAnimalScript basicAnimal = SpawnOrganism(basicOrganism).GetComponent<BasicAnimalScript>();
-		SetupRandomOrganism(basicAnimal);
+		RandomiseOrganismPosition(basicAnimal);
 		AddBehaviorToNewOrganism(basicAnimal, this);
 		basicAnimal.animalSpecies = this;
 		basicAnimal.SetUpOrganism(this,null);
@@ -61,13 +61,12 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
         }
 	}
 
-	public override BasicOrganismScript SpawnSpecificOrganism(BasicOrganismScript parent) {
+	public override BasicOrganismScript SpawnOrganism(BasicOrganismScript parent) {
 		BasicAnimalScript basicAnimal = SpawnOrganism(basicOrganism).GetComponent<BasicAnimalScript>();
-		SetupChildOrganism(basicAnimal, parent);
+		RandomiseOrganismChildPosition(basicAnimal, parent);
 		AddBehaviorToNewOrganism(basicAnimal, this);
 		basicAnimal.animalSpecies = this;
 		basicAnimal.SetUpOrganism(this,parent);
-		GetEarthScript().OnEndFrame += basicAnimal.OnAddOrganism;
 		foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
 			organ.MakeOrganism(basicAnimal);
 		}
@@ -78,41 +77,43 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
 
     #endregion
 
+    #region AnimalControls
+    public override void UpdateOrganismData() {
+		Debug.LogError("not implamented, please fix");
+	}
 
-	#region AnimalControls
-    public override void UpdateOrganismsBehavior() {
+	public override void UpdateOrganismsBehavior() {
         for (int i = 0; i < animals.Count; i++) {
 			AnimalActions animalAction = GetAnimalJobController().animalActions[i];
-			//print(animalAction.actionType);
 			BasicAnimalScript animalTarget = null;
-			Eddible eddibleTarget = null;
-            switch (animalAction.actionType) {
-                case AnimalActions.ActionType.Idle:
-                    break;
-                case AnimalActions.ActionType.RunFromPredator:
-					if (animalAction.index == -1)
-						Debug.LogError("animalAction.index was not set");
-					animalTarget = predators[animalAction.index];
-					break;
-                case AnimalActions.ActionType.EatFood:
-					eddibleTarget = eddibleFood[animalAction.index];
-					break;
-                case AnimalActions.ActionType.GoToFood:
-					eddibleTarget = eddibleFood[animalAction.index];
-					break;
-                case AnimalActions.ActionType.AttemptReproduction:
-                    break;
-                case AnimalActions.ActionType.AttemptToMate:
-					if (animals[i].behavior.reproductive.GetSex()) {
-						animalTarget = availableFemaleMates[animalAction.index];
-					} else {
-						animalTarget = availableMaleMates[animalAction.index];
-					}
-					break;
-                case AnimalActions.ActionType.Explore:
-                    break;
-            }
-            animals[i].UpdateAnimalBehavior(animalAction.actionType,animalTarget,eddibleTarget);
+			Debug.LogError("not implamented, please fix");
+     //       switch (animalAction.actionType) {
+     //           case AnimalActions.ActionType.Idle:
+     //               break;
+     //           case AnimalActions.ActionType.RunFromPredator:
+					//if (animalAction.index == -1)
+					//	Debug.LogError("animalAction.index was not set");
+					//animalTarget = predators[animalAction.index];
+					//break;
+     //           case AnimalActions.ActionType.EatFood:
+					//eddibleTarget = eddibleFood[animalAction.index];
+					//break;
+     //           case AnimalActions.ActionType.GoToFood:
+					//eddibleTarget = eddibleFood[animalAction.index];
+					//break;
+     //           case AnimalActions.ActionType.AttemptReproduction:
+     //               break;
+     //           case AnimalActions.ActionType.AttemptToMate:
+					//if (animals[i].behavior.reproductive.GetSex()) {
+					//	animalTarget = availableFemaleMates[animalAction.index];
+					//} else {
+					//	animalTarget = availableMaleMates[animalAction.index];
+					//}
+					//break;
+     //           case AnimalActions.ActionType.Explore:
+     //               break;
+     //       }
+            //animals[i].UpdateAnimalBehavior(animalAction.actionType,animalTarget,eddibleTarget);
         }
     }
 
@@ -120,11 +121,6 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
 		for (int i = 0; i < animals.Count; i++) {
 			animals[i].UpdateOrganism();
 		}
-	}
-	public MeatFoodScript SpawnDeadAnimal(GameObject _animal) {
-		MeatFoodScript newDeadBody = Instantiate(deadAnimal, _animal.transform.position, _animal.transform.rotation, null).GetComponent<MeatFoodScript>();
-		newDeadBody.transform.SetParent(earth.GetOrganismsTransform());
-		return newDeadBody;
 	}
 
 	public float GetFoodConsumption() {
@@ -137,10 +133,6 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
 		animals.Add((BasicAnimalScript)newOrganism);
     }
 	
-    internal override void SpecificOrganismDeath(BasicOrganismScript deadOrganism) {
-		animals.Remove((BasicAnimalScript)deadOrganism);
-	}
-
 	public void AddAvalibleMate(BasicAnimalScript animal, bool maleOrFemale) {
 		if (maleOrFemale) {
 			availableMaleMates.Add(animal);
@@ -173,42 +165,6 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
 			return availableMaleMates;
 		}
 	}
-
-	public void AddOtherOrganism(object sender, EarthScript.OnOrganismArgs information) {
-		if (information.species == this)
-			return;
-		if (GetDiet().IsEddible(information.organism)) {
-            eddibleFood.Add(information.organism.GetEddible());
-        }
-		if (information.species.GetComponent<BasicAnimalSpecies>() != null && IsPredator(this,information.species.GetComponent<BasicAnimalSpecies>())) {
-			predators.Add(information.organism.GetComponent<BasicAnimalScript>());
-        }
-    }
-
-	public void RemoveOtherOrganism(object sender, EarthScript.OnOrganismArgs information) {
-		if (information.species == this)
-			return;
-		if (GetDiet().IsEddible(information.organism)) {
-			eddibleFood.Remove(information.organism.GetEddible());
-		}
-		if (information.species.GetComponent<BasicAnimalSpecies>() != null && IsPredator(this, information.species.GetComponent<BasicAnimalSpecies>())) {
-			predators.Remove(information.organism.GetComponent<BasicAnimalScript>());
-		}
-	}
-
-	public void AddOtherFood(object sender, EarthScript.OnFoodArgs information) {
-		if (GetDiet().IsEddible(information.foodScript)) {
-			eddibleFood.Add(information.foodScript.GetEddible());
-        }
-    }
-
-	public void RemoveOtherFood(object sender, EarthScript.OnFoodArgs information) {
-		if (GetDiet().IsEddible(information.foodScript)) {
-			eddibleFood.Remove(information.foodScript.GetEddible());
-        }
-    }
-
-
     #endregion
 
     #region GetMethods
@@ -222,24 +178,6 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
 
 	public List<BasicAnimalScript> GetAvailableFemaleMates() {
 		return availableFemaleMates;
-	}
-
-	public List<Eddible> GetEddibleFood() {
-		return eddibleFood;
-	}
-
-	public List<BasicAnimalScript> GetPredators() {
-		return predators;
-	}
-
-    public bool IsPredator(BasicSpeciesScript _preySpecies, BasicAnimalSpecies _predatorSpecies) {
-		if (_predatorSpecies.GetDiet().IsEddible(_preySpecies))
-			return true;
-		return false;
-	}
-
-    public DietScript GetDiet() {
-		return GetComponent<DietScript>();
 	}
 
 	public float GetSightRange() {
@@ -259,7 +197,13 @@ public abstract class BasicAnimalSpecies : BasicSpeciesScript {
     }
 
 	public AnimalJobController GetAnimalJobController() {
-		return GetBasicJobController().GetComponent<AnimalJobController>();
+		return animalJobController;
+    }
+
+    public override List<string> GetOrganismFoodTypes() {
+		List<string> foodTypes = new List<string>();
+		foodTypes.Add(speciesName);
+		return foodTypes;
     }
     #endregion
 }

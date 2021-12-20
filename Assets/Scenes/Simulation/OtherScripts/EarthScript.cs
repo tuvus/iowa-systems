@@ -16,6 +16,7 @@ public class EarthScript : MonoBehaviour {
 
 	public Transform sunTransform;
 	FrameManager frameManager;
+	ZoneController zoneController;
 
     #region EarthVariables
     public int size;
@@ -25,41 +26,41 @@ public class EarthScript : MonoBehaviour {
 	public float tempeture;
 	public float humidity;
 	public float humidityTarget;
-    readonly List<BasicOrganismScript> organisms = new List<BasicOrganismScript>();
-	List<BasicFoodScript> foods = new List<BasicFoodScript>();
-
+	public EarthState earthState { private set; get; }
     #endregion
-
-    #region Events
-    public event EventHandler<OnOrganismArgs> OnCreateNewOrganism;
-	public event EventHandler<OnOrganismArgs> OnDestroyNewOrganism;
-
-	public class OnOrganismArgs : EventArgs {
-		public BasicOrganismScript organism;
-		public BasicSpeciesScript species;
-	}
-
-	public event EventHandler<OnFoodArgs> OnCreateNewFood;
-	public event EventHandler<OnFoodArgs> OnDestroyNewFood;
-
-	public class OnFoodArgs : EventArgs {
-		public BasicFoodScript foodScript;
-	}
 
 	public event EventHandler<EventArgs> OnEndFrame;
-    #endregion
 
     List<JobHandle> activeJobs = new List<JobHandle>();
 	SimulationUpdateStatus simulationUpdateStatus = SimulationUpdateStatus.Intializing;
-	bool shouldNotChangeOrganismsList;
+	List<string> typeIndex;
+
+	public struct EarthState {
+		public Vector3 sunPostion;
+		public float earthRadius;
+		public float humidity;
+		public float temperature;
+		public EarthState SetEarthState(EarthScript earthScript) {
+			sunPostion = earthScript.GetSunPosition();
+			earthRadius = earthScript.GetRadius();
+			humidity = earthScript.humidity;
+			temperature = earthScript.tempeture;
+			return this;
+        }
+	}
 
 	public void SetUpEarth(int size, float simulationSpeed) {
 		this.simulationDeltaTime = simulationSpeed / 10;
 		this.size = size;
 		transform.localScale = new Vector3(size, size, size);
+		SetupFoodTypeIdex();
 		User.Instance.ChangedSettings += OnSettingsChanged;
 		frameManager = GetComponent<FrameManager>();
 		frameManager.SetWantedItterationsPerFrame(User.Instance.GetFramesPerSeccondUserPref());
+		zoneController = GetComponent<ZoneController>();
+		zoneController.SetupZoneController(this);
+		zoneController.SpawnZones(size,SimulationScript.Instance.numberOfZones,SimulationScript.Instance.maxNeiboringZones, SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() * 5);
+		earthState = new EarthState();
 	}
 
 	public void StartSimulation() {
@@ -81,14 +82,18 @@ public class EarthScript : MonoBehaviour {
 				return;
             }
 		}
+		frameManager.SetItterationsThatOccuredThisFrame(frameManager.GetItterationsPerFrame());
 	}
 
 	void UpdateSimualtion() {
 		if (simulationUpdateStatus == SimulationUpdateStatus.SettingUp) {
+			StartFindZoneJobs();
 			UpdateWorldTime();
 			UpdateHumidity();
-			SimulationScript.Instance.GetSun().UpdateSun();
-			shouldNotChangeOrganismsList = true;
+            SimulationScript.Instance.GetSun().UpdateSun();
+			UpdateEarthState();
+			CompleteFindZoneJobs();
+			UpdateOrganismData();
 			StartOrganismJobs();
 			simulationUpdateStatus = SimulationUpdateStatus.Calculating;
 			return;
@@ -102,32 +107,36 @@ public class EarthScript : MonoBehaviour {
 		if (simulationUpdateStatus == SimulationUpdateStatus.Updating) {
 			UpdateOrganismsBehavior();
 			UpdateOrganisms();
-			UpdateFoods();
 			simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
         }
 		if (simulationUpdateStatus == SimulationUpdateStatus.CleaningUp) {
-			shouldNotChangeOrganismsList = false;
 			OnEndFrame?.Invoke(this, new EventArgs { });
 			simulationUpdateStatus = SimulationUpdateStatus.SettingUp;
         }
 	}
 
 	void UpdateSimulationWithoutDelay() {
+		StartFindZoneJobs();
 		UpdateWorldTime();
 		UpdateHumidity();
-		shouldNotChangeOrganismsList = true;
+		SimulationScript.Instance.GetSun().UpdateSun();
+		UpdateEarthState();
+		CompleteFindZoneJobs();
+		UpdateOrganismData();
         StartOrganismJobs();
         simulationUpdateStatus = SimulationUpdateStatus.Calculating;
         CompleteJobs();
         simulationUpdateStatus = SimulationUpdateStatus.Updating;
         UpdateOrganismsBehavior();
         UpdateOrganisms();
-        UpdateFoods();
         simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
-        shouldNotChangeOrganismsList = false;
         OnEndFrame?.Invoke(this, new EventArgs { });
 		UpdateSpeciesMotorGraphData();
         simulationUpdateStatus = SimulationUpdateStatus.SettingUp;
+    }
+
+	void StartFindZoneJobs() {
+		activeJobs.Add(zoneController.FindZoneController.StartUpdateJob());
     }
 
 	void UpdateWorldTime() {
@@ -155,11 +164,25 @@ public class EarthScript : MonoBehaviour {
 		humidityTarget = UnityEngine.Random.Range(0, 100f);
     }
 
+	void UpdateEarthState() {
+		earthState = earthState.SetEarthState(this);
+    }
+
+	void CompleteFindZoneJobs() {
+		CompleteJobs();
+		zoneController.FindZoneController.CompleteZoneJob();
+    }
+
+	void UpdateOrganismData() {
+        for (int i = 0; i < GetAllSpecies().Count; i++) {
+			GetAllSpecies()[i].UpdateOrganismData();
+        }
+    }
+
 	void StartOrganismJobs() {
-		List<BasicAnimalSpecies> allSpecies = SpeciesManager.Instance.GetSpeciesMotor().GetAllAnimalSpecies();
+		List<BasicSpeciesScript> allSpecies = SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
         for (int i = 0; i < allSpecies.Count; i++) {
-		  	JobHandle newJob = allSpecies[i].GetBasicJobController().StartJob();
-			activeJobs.Add(newJob);
+			activeJobs.Add(allSpecies[i].GetBasicJobController().StartUpdateJob());
         }
     }
 
@@ -195,12 +218,6 @@ public class EarthScript : MonoBehaviour {
 		}
 	}
 
-	void UpdateFoods() {
-        foreach (var food in foods) {
-			food.UpdateFood();
-        }
-    }
-
 	void UpdateSpeciesMotorGraphData() {
 		SpeciesManager.Instance.GetSpeciesMotor().UpdateSpeciesGraphData();
     }
@@ -222,68 +239,52 @@ public class EarthScript : MonoBehaviour {
 		frameManager.SetWantedItterationsPerFrame(_settings.FramesPerSeccond);
     }
 
-    #region ObjectControlls
-    public void AddObject(BasicOrganismScript newOrganism, BasicSpeciesScript species) {
-		if (shouldNotChangeOrganismsList)
-			Debug.LogWarning("Changing organism list while in a loop:" + newOrganism);
-		organisms.Add(newOrganism);
-		OnCreateNewOrganism?.Invoke(this, new OnOrganismArgs { organism = newOrganism, species = species});
+    #region FoodTypeManagment
+	void SetupFoodTypeIdex() {
+		typeIndex = new List<string>();
+        for (int i = 0; i < GetAllSpecies().Count; i++) {
+            for (int f = 0; f < GetAllSpecies()[i].GetOrganismFoodTypes().Count; f++) {
+				AddFoodTypeToList(GetAllSpecies()[i].GetOrganismFoodTypes()[f]);
+            }
+        }
     }
 
-	public void AddObject(BasicFoodScript foodScript) {
-		if (shouldNotChangeOrganismsList)
-			Debug.LogWarning("Changing organism list while in a loop:" + foodScript);
-		foods.Add(foodScript);
-		OnCreateNewFood?.Invoke(this, new OnFoodArgs { foodScript = foodScript });
-	}
-
-	public void RemoveObject(BasicOrganismScript removeOrganism, BasicSpeciesScript species) {
-		if (shouldNotChangeOrganismsList)
-			Debug.LogWarning("Changing organism list while in a loop:" + removeOrganism);
-		organisms.Remove(removeOrganism);
-        OnDestroyNewOrganism?.Invoke(this, new OnOrganismArgs { organism = removeOrganism, species = species});
+	void AddFoodTypeToList(string foodType) {
+		if (!typeIndex.Contains(foodType)) {
+			typeIndex.Add(foodType);
+		}
     }
 
-	public void RemoveObject(BasicFoodScript foodScript) {
-		if (shouldNotChangeOrganismsList)
-			Debug.LogWarning("Changing organism list while in a loop:" + foodScript);
-		foods.Remove(foodScript);
-		OnDestroyNewFood?.Invoke(this, new OnFoodArgs { foodScript = foodScript });
-	}
-	#endregion
+	public int GetIndexOfFoodType(string foodType) {
+        for (int i = 0; i < typeIndex.Count; i++) {
+			if (typeIndex[i] == foodType) {
+				return i;
+			}
+        }
+		return -1;
+    }
+    #endregion
 
-	#region GetMethods
-	public List<BasicSpeciesScript> GetAllSpecies() {
+
+    #region GetMethods
+    public List<BasicSpeciesScript> GetAllSpecies() {
 		return SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
     }
 
-
 	public List<BasicJobController> GetAllJobControllers() {
 		List<BasicJobController> jobControllers = new List<BasicJobController>();
-        foreach (var animalSpecies in SpeciesManager.Instance.GetSpeciesMotor().GetAllAnimalSpecies()) {
+        foreach (var animalSpecies in SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()) {
 			jobControllers.Add(animalSpecies.GetBasicJobController());
         }
 		return jobControllers;
-	}
-	public float GetSunValue(Vector3 _position) {
-		if (SimulationScript.Instance.sunRotationEffect) {
-			float objectDistanceFromSun = Vector3.Distance(_position, sunTransform.position);
-			float sunDistanceFromEarth = Vector3.Distance(transform.position, sunTransform.position);
-			float sunValue = (objectDistanceFromSun - sunDistanceFromEarth) / size * 2;
-			if (sunValue < 0)
-				return 0;
-			return sunValue;
-		} else {
-			return 0.5f;
-        }
 	}
 
     public Transform GetOrganismsTransform () {
 		return transform.GetChild(1);
     }
 
-	public List<BasicOrganismScript> GetAllOrganisms() {
-		return organisms;
+	public Transform GetInactiveObjectsTransform() {
+		return transform.GetChild(2);
     }
 
 	MeshRenderer GetAtmosphereRenderer () {
@@ -292,6 +293,18 @@ public class EarthScript : MonoBehaviour {
 
 	public FrameManager GetFrameManager() {
 		return frameManager;
+    }
+
+	public ZoneController GetZoneController() {
+		return zoneController;
+    }
+
+	public float GetRadius() {
+		return size;
+    }
+
+	public Vector3 GetSunPosition() {
+		return sunTransform.position;
     }
     #endregion
 }

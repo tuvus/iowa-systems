@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4959404041129638}
   - component: {fileID: 114840308466920854}
-  - component: {fileID: 3554471940176655740}
   m_Layer: 9
   m_Name: BasicAnimal
   m_TagString: Untagged
@@ -54,24 +53,9 @@ MonoBehaviour:
   maxAge: 0
   waitTime: 0
   food: 0
-  fullFood: 0
-  maxFood: 0
   bodyFoodConsumption: 0
   mate: {fileID: 0}
   health: 0
---- !u!114 &3554471940176655740
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1935006318196538}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a81bfd8c0a1ef5045b3c50cee27d7dd3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  postion: {x: 0, y: 0, z: 0}
 --- !u!1 &7263993166501292513
 GameObject:
   m_ObjectHideFlags: 0
