@@ -4,15 +4,16 @@ using UnityEngine;
 
 public abstract class BasicAnimalOrganScript : BasicOrganScript {
     internal BasicAnimalSpeciesOrganScript basicAnimalSpeciesOrganScript;
-    internal BasicAnimalScript basicAnimalScript;
-    internal BasicBehaviorScript behaviorScript;
+    internal AnimalScript animalScript;
 
-    internal override void SetupOrgan(BasicSpeciesOrganScript _basicSpeciesOrganScript) {
-        basicAnimalSpeciesOrganScript = (BasicAnimalSpeciesOrganScript)_basicSpeciesOrganScript;
-        basicAnimalScript = basicOrganismScript.GetComponent<BasicAnimalScript>();
-        behaviorScript = basicOrganismScript.GetComponent<BasicBehaviorScript>();
-        basicAnimalScript.AddOrgan(this);
+    internal override void SetupOrgan(BasicSpeciesOrganScript basicSpeciesOrganScript) {
+        basicAnimalSpeciesOrganScript = (BasicAnimalSpeciesOrganScript)basicSpeciesOrganScript;
+        animalScript = (AnimalScript)basicOrganismScript;
+        animalScript.AddOrgan(this);
     }
 
     public abstract void UpdateOrgan();
+
+    internal override void RemoveFoodTypeFromZone(int zoneIndex) {
+    }
 }

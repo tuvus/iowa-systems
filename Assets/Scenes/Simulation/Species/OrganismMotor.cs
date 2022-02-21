@@ -6,7 +6,7 @@ public class OrganismMotor : MonoBehaviour {
     internal EarthScript earth;
     internal BasicOrganismScript organismScript;
 
-    public void SetupOrganismMotor (EarthScript earth, BasicOrganismScript organismScript) {
+    public virtual void SetupOrganismMotor (EarthScript earth, BasicOrganismScript organismScript) {
         this.earth = earth;
         this.organismScript = organismScript;
         transform.parent.SetParent(earth.GetOrganismsTransform());

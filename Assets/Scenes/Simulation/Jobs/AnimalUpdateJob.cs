@@ -1,225 +1,257 @@
 using Unity.Mathematics;
 using Unity.Jobs;
 using Unity.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public struct AnimalUpdateJob : IJobParallelFor {
 
-    public NativeArray<AnimalActions> animalActions;
+    public NativeArray<AnimalScript.AnimalActions> animalActions;
 
-	[ReadOnly] NativeArray<BasicAnimalScript.AnimalData> animals;
+	[ReadOnly] NativeArray<int> updateAnimals;
+	[ReadOnly] float speciesFullFood;
+	[ReadOnly] float speciesMaxFood;
+	[ReadOnly] float speciesSightRange;
+	[ReadOnly] EyesScript.EyeTypes speciesEyeType;
+	[ReadOnly] float speciesEatRange;
+	[ReadOnly] float speciesSmellRange;
+	[ReadOnly] int speciesFoodType;
+	[ReadOnly] NativeArray<int> eddibleFoodTypes;
+	[ReadOnly] NativeArray<int> predatorFoodTypes;
 
-	[ReadOnly] public float speciesFullFood;
-	[ReadOnly] public float speciesMaxFood;
-	[ReadOnly] public float speciesSightRange;
-	[ReadOnly] public float speciesEatRange;
-	[ReadOnly] public float speciesSmellRange;
+	[ReadOnly] NativeArray<AnimalScript.AnimalData> allAnimals;
+	[ReadOnly] NativeArray<PlantScript.PlantData> allPlants;
+	[ReadOnly] NativeArray<ZoneController.ZoneData> zones;
+	[ReadOnly] NativeMultiHashMap<int, int> neiboringZones;
+	[ReadOnly] NativeMultiHashMap<int, int> animalsInZones;
+	[ReadOnly] NativeMultiHashMap<int, int> plantsInZones;
+	[ReadOnly] NativeMultiHashMap<int2, ZoneController.DataLocation> organismsByFoodTypeInZones;
 
-	int availableMaleMateCount;
-	[ReadOnly] NativeArray<float3> availableMaleMatePositions;
-	int availableFemaleMateCount;
-	[ReadOnly] NativeArray<float3> availableFemaleMatesPositions;
-
-
-
-	int predatorCount;
-	[ReadOnly] NativeArray<BasicAnimalScript.PredatorData> predators;
-
-    public static JobHandle BeginJob(NativeArray<AnimalActions> animalActions, NativeArray<BasicAnimalScript.AnimalData> animals,int animalCount, float speciesFullFood, 
-		float speciesMaxFood, float speciesSightRange, float speciesEatRange, float speciesSmellRange, int availableMaleMateCount,
-		NativeArray<float3> availableMaleMatePositions,int availableFemaleMateCount, NativeArray<float3> availableFemaleMatesPositions, 
-		int predatorCount, NativeArray<BasicAnimalScript.PredatorData> predators) {
-
+	public static JobHandle BeginJob(NativeArray<AnimalScript.AnimalActions> animalActions, NativeArray<int> updateAnimals,
+		int animalCount, float speciesFullFood, float speciesMaxFood, float speciesSightRange, EyesScript.EyeTypes speciesEyeType, float speciesEatRange, float speciesSmellRange,
+		int speciesFoodType,NativeArray<int> eddibleFoodTypes, NativeArray<int> predatorFoodTypes,
+		NativeArray<AnimalScript.AnimalData> allAnimals, NativeArray<PlantScript.PlantData> allPlants,
+		NativeArray<ZoneController.ZoneData> zones, NativeMultiHashMap<int, int> neiboringZones, NativeMultiHashMap<int, int> animalsInZones,
+		NativeMultiHashMap<int, int> plantsInZones, NativeMultiHashMap<int2, ZoneController.DataLocation> organismsByFoodTypeInZones) {
 		AnimalUpdateJob job = new AnimalUpdateJob() {
-			animalActions = animalActions, animals = animals, speciesFullFood = speciesFullFood, speciesMaxFood = speciesMaxFood,
-			speciesSightRange = speciesSightRange, speciesEatRange = speciesEatRange, speciesSmellRange = speciesSmellRange,
-			availableMaleMateCount = availableMaleMateCount, availableMaleMatePositions = availableMaleMatePositions, availableFemaleMateCount = availableFemaleMateCount,
-			availableFemaleMatesPositions = availableFemaleMatesPositions, predatorCount = predatorCount, predators = predators
-		};
-
+			animalActions = animalActions, updateAnimals = updateAnimals, speciesFullFood = speciesFullFood, speciesMaxFood = speciesMaxFood,
+			speciesSightRange = speciesSightRange, speciesEyeType = speciesEyeType, speciesEatRange = speciesEatRange, speciesSmellRange = speciesSmellRange,
+			speciesFoodType = speciesFoodType, eddibleFoodTypes = eddibleFoodTypes, predatorFoodTypes = predatorFoodTypes,
+			allAnimals = allAnimals, allPlants = allPlants, zones = zones, neiboringZones = neiboringZones, animalsInZones = animalsInZones,
+			plantsInZones = plantsInZones, organismsByFoodTypeInZones = organismsByFoodTypeInZones};
 		return IJobParallelForExtensions.Schedule(job, animalCount,1);
     }
 
 	public void Execute(int animalIndex) {
-		BasicAnimalScript.AnimalData animal = animals[animalIndex];
-        int closestPredator = GetClosestPredator(animal);
-        if (closestPredator != -1) {
-            animalActions[animalIndex] = new AnimalActions(AnimalActions.ActionType.RunFromPredator, closestPredator);
-            return;
-        }
-
-        if (!IsAnimalFull(animal)) {
-            int closestBestMouthFood = GetClosestBestMouthFood(animal);
-            if (closestBestMouthFood != -1) {
-				animalActions[animalIndex] = new AnimalActions(AnimalActions.ActionType.EatFood, closestBestMouthFood);
-                return;
-            }
-
-            if (IsAnimalHungry(animal)) {
-                int closestBestSightFood = GetClosestBestSightFood(animal);
-                if (closestBestSightFood != -1) {
-                    animalActions[animalIndex] = new AnimalActions(AnimalActions.ActionType.GoToFood, closestBestSightFood);
-                    return;
-                }
-            }
-        }
-
-        if (!IsAnimalHungry(animal)) {
-            if (DoesAnimalHaveMate(animal)) {
-                if (AnimalPairReadyToAttemptReproduction(animal)) {
-					animalActions[animalIndex] = new AnimalActions(AnimalActions.ActionType.AttemptReproduction);
-                    return;
-                }
-
-            } else {
-                int closestAvailableMate = GetClosestAvailableMate(animal);
-                if (closestAvailableMate != -1) {
-					animalActions[animalIndex] = new AnimalActions(AnimalActions.ActionType.AttemptToMate, closestAvailableMate);
-                    return;
-                }
-            }
-        }
-
-        if (IsAnimalHungry(animal) || !DoesAnimalHaveMate(animal)) {
-			animalActions[animalIndex] = new AnimalActions(AnimalActions.ActionType.Explore);
+		AnimalScript.AnimalData animal = allAnimals[updateAnimals[animalIndex]];
+		if (animal.zone == -1) {
+			Debug.LogError("Animal zone was not set. stage: " + animal.stage + " species: " + animal.speciesIndex + " animalIndex: " + animal.animalIndex);
+		}
+		List<int> zonesInSightRange;
+		if (speciesEyeType == EyesScript.EyeTypes.Foward) {
+			zonesInSightRange = ZoneCalculator.GetNearbyZones(zones, neiboringZones, animal.zone, animal.animalEyePosition.c0, speciesSightRange);
+		} else {
+			zonesInSightRange = ZoneCalculator.GetNearbyZonesFromTwoPositions(zones, neiboringZones, animal.zone, animal.animalEyePosition, speciesSightRange);
+		}
+		ZoneController.DataLocation closestPredator = GetClosestPredator(animal, zonesInSightRange);
+		if (closestPredator.dataIndex != -1) {
+			animalActions[animalIndex] = new AnimalScript.AnimalActions(AnimalScript.AnimalActions.ActionType.RunFromPredator, closestPredator);
 			return;
+		}
 
-        } else {
-			animalActions[animalIndex] = new AnimalActions(AnimalActions.ActionType.Idle);
-			return;
-        }
-    }
+		if (!IsAnimalFull(animal)) {
+			ZoneController.DataLocation closestBestMouthFood = GetClosestBestMouthFood(animal);
+			if (closestBestMouthFood.dataType != ZoneController.DataLocation.DataType.None) {
+				animalActions[animalIndex] = new AnimalScript.AnimalActions(AnimalScript.AnimalActions.ActionType.EatFood, closestBestMouthFood);
+				return;
+			}
 
-    #region AnimalActions
-    int GetClosestPredator(BasicAnimalScript.AnimalData animalData) {
-		int closestPredator = -1;
-		float predatorDistance = -1;
-		for (int i = 0; i < predatorCount; i++) {
-			float directDistance = GetDistance(animalData.animalPosition, predators[i].animalPosition);
-			if (DistanceInSmellRange(directDistance) || DistanceInSightRange(GetClosestDistanceFromTwoPositions(animalData.animalEyePosition, predators[i].animalPosition))) {
-				if (closestPredator != -1) {
-					if (directDistance < predatorDistance) {
-						closestPredator = i;
-						predatorDistance = directDistance;
-					}
-				} else {
-					closestPredator = i;
-					predatorDistance = directDistance;
+			if (IsAnimalHungry(animal)) {
+				ZoneController.DataLocation closestBestSightFood = GetClosestBestSightFood(animal, zonesInSightRange);
+				if (closestBestSightFood.dataType != ZoneController.DataLocation.DataType.None) {
+					animalActions[animalIndex] = new AnimalScript.AnimalActions(AnimalScript.AnimalActions.ActionType.GoToFood, closestBestSightFood);
+					return;
 				}
 			}
 		}
+
+		if (!IsAnimalHungry(animal)) {
+			if (IsAnimalMature(animal) && DoesAnimalHaveMate(animal)) {
+				if (AnimalPairReadyToAttemptReproduction(animal)) {
+					animalActions[animalIndex] = new AnimalScript.AnimalActions(AnimalScript.AnimalActions.ActionType.AttemptReproduction, new ZoneController.DataLocation());
+					return;
+				}
+			} else {
+				ZoneController.DataLocation closestAvailableMate = GetClosestAvailableMate(animal, zonesInSightRange);
+				if (closestAvailableMate.dataType != ZoneController.DataLocation.DataType.None) {
+					animalActions[animalIndex] = new AnimalScript.AnimalActions(AnimalScript.AnimalActions.ActionType.AttemptToMate, closestAvailableMate);
+					return;
+				}
+			}
+		}
+
+		if (IsAnimalHungry(animal) || !DoesAnimalHaveMate(animal)) {
+			animalActions[animalIndex] = new AnimalScript.AnimalActions(AnimalScript.AnimalActions.ActionType.Explore);
+			return;
+		}
+
+		animalActions[animalIndex] = new AnimalScript.AnimalActions(AnimalScript.AnimalActions.ActionType.Idle);
+	}
+
+
+	#region AnimalActions
+	ZoneController.DataLocation GetClosestPredator(AnimalScript.AnimalData animalData, List<int> zonesInSightRange) {
+		ZoneController.DataLocation closestPredator = new ZoneController.DataLocation(ZoneController.DataLocation.DataType.None, -1);
+		float predatorDistance = -1;
+        for (int i = 0; i < zonesInSightRange.Count; i++) {
+            for (int j = 0; j < predatorFoodTypes.Length; j++) {
+				List<ZoneController.DataLocation> animalsInZone = ZoneCalculator.GetOrganismsInZoneByFoodType(organismsByFoodTypeInZones, zonesInSightRange[i], predatorFoodTypes[j]);
+                for (int f = 0; f < animalsInZone.Count; f++) {
+					if (animalsInZone[f].dataType == ZoneController.DataLocation.DataType.Animal) {
+						float directDistance = GetDistance(animalData.position, allAnimals[animalsInZone[f].dataIndex].position);
+						if (!(DistanceInSmellRange(directDistance) || DistanceInSightRange(GetClosestDistanceFromTwoPositions(animalData.animalEyePosition, allAnimals[animalsInZone[f].dataIndex].position))))
+							continue;
+						if (closestPredator.dataType == ZoneController.DataLocation.DataType.None || directDistance < predatorDistance) {
+							closestPredator = animalsInZone[f];
+							predatorDistance = directDistance;
+						}
+					}
+                }
+			}
+        }
 		return closestPredator;
 	}
 
-	int GetClosestBestMouthFood(BasicAnimalScript.AnimalData animalData) {
-		int closestBestFood = -1;
+	ZoneController.DataLocation GetClosestBestMouthFood(AnimalScript.AnimalData animalData) {
+		ZoneController.DataLocation closestBestFood = new ZoneController.DataLocation(ZoneController.DataLocation.DataType.None,-1);
 		float foodDistance = -1;
-		int foodRank = -1;
-		
-  //      for (int i = 0; i < eddibleCount; i++) {
-		//	float directDistance = GetDistance(animalData.animalMouthPosition, eddibles[i].position);
-		//	if (DistanceInEatRange(directDistance)) {
-		//		if (closestBestFood != -1) {
-		//			if (eddibles[i].rank > foodRank || (eddibles[i].rank <= foodRank && directDistance < foodDistance)) {
-		//				closestBestFood = i;
-		//				foodDistance = directDistance;
-		//				foodRank = eddibles[i].rank;
-		//			}
-		//		} else {
-		//			closestBestFood = i;
-		//			foodDistance = directDistance;
-		//			foodRank = eddibles[i].rank;
-		//		}
-		//	}
-		//}
-
+		List<int> zonesInMouthRange = ZoneCalculator.GetNearbyZones(zones, neiboringZones, animalData.zone, animalData.animalMouthPosition, speciesEatRange);
+		for (int j = 0; j < eddibleFoodTypes.Length; j++) {
+			for (int i = 0; i < zonesInMouthRange.Count; i++) {
+				List<ZoneController.DataLocation> foodInZone = ZoneCalculator.GetOrganismsInZoneByFoodType(organismsByFoodTypeInZones, zonesInMouthRange[i],eddibleFoodTypes[j]);
+                for (int f = 0; f < foodInZone.Count; f++) {
+					if (foodInZone[f].dataType == ZoneController.DataLocation.DataType.Plant) {
+						float mouthDistance = GetDistance(animalData.animalMouthPosition, allPlants[foodInZone[f].dataIndex].position);
+						if (!DistanceInEatRange(mouthDistance))
+							continue;
+						if (!(closestBestFood.dataType == ZoneController.DataLocation.DataType.None || mouthDistance < foodDistance))
+							continue;
+						closestBestFood = foodInZone[f];
+						foodDistance = mouthDistance;
+						continue;
+					}
+					if (foodInZone[f].dataType == ZoneController.DataLocation.DataType.Animal) {
+						float mouthDistance = GetDistance(animalData.animalMouthPosition, allAnimals[foodInZone[f].dataIndex].position);
+						if (!DistanceInEatRange(mouthDistance))
+							continue;
+						if (!(closestBestFood.dataType == ZoneController.DataLocation.DataType.None || mouthDistance < foodDistance))
+							continue;
+						closestBestFood = foodInZone[f];
+						foodDistance = mouthDistance;
+						continue;
+					}
+				}
+			}
+		}
 		return closestBestFood;
     }
 
-	int GetClosestBestSightFood(BasicAnimalScript.AnimalData animalData) {
-		int closestBestFood = -1;
+	ZoneController.DataLocation GetClosestBestSightFood(AnimalScript.AnimalData animalData, List<int> zonesInSightRange) {
+		ZoneController.DataLocation closestBestFood = new ZoneController.DataLocation(ZoneController.DataLocation.DataType.None, -1);
 		float foodDistance = -1;
-		int foodRank = -1;
-
-		//for (int i = 0; i < eddibleCount; i++) {
-		//	float directDistance = GetDistance(animalData.animalPosition, eddibles[i].position);
-		//	if (DistanceInSmellRange(directDistance) || DistanceInSightRange(GetClosestDistanceFromTwoPositions(animalData.animalEyePosition, eddibles[i].position))) {
-		//		if (closestBestFood != -1) {
-		//			if (eddibles[i].rank > foodRank || (eddibles[i].rank <= foodRank && directDistance < foodDistance)) {
-		//				closestBestFood = i;
-		//				foodDistance = directDistance;
-		//				foodRank = eddibles[i].rank;
-		//			}
-		//		} else {
-		//			closestBestFood = i;
-		//			foodDistance = directDistance;
-		//			foodRank = eddibles[i].rank;
-		//		}
-		//	}
-		//}
+		for (int j = 0; j < eddibleFoodTypes.Length; j++) {
+			for (int i = 0; i < zonesInSightRange.Count; i++) {
+                List<ZoneController.DataLocation> foodInZone = ZoneCalculator.GetOrganismsInZoneByFoodType(organismsByFoodTypeInZones, zonesInSightRange[i], eddibleFoodTypes[j]);
+				for (int f = 0; f < foodInZone.Count; f++) {
+					if (foodInZone[f].dataType == ZoneController.DataLocation.DataType.Plant) {
+						float directDistance = GetDistance(animalData.position, allPlants[foodInZone[f].dataIndex].position);
+						if (!(DistanceInSmellRange(directDistance) || DistanceInSightRange(GetEyeDistance(animalData.animalEyePosition, allPlants[foodInZone[f].dataIndex].position))))
+							continue;
+						if (!(closestBestFood.dataType == ZoneController.DataLocation.DataType.None || directDistance < foodDistance))
+							continue;
+						closestBestFood = foodInZone[f];
+						foodDistance = directDistance;
+						continue;
+					}
+					if (foodInZone[f].dataType == ZoneController.DataLocation.DataType.Animal) {
+						float directDistance = GetDistance(animalData.position, allAnimals[foodInZone[f].dataIndex].position);
+						if (!(DistanceInSmellRange(directDistance) || DistanceInSightRange(GetEyeDistance(animalData.animalEyePosition, allAnimals[foodInZone[f].dataIndex].position))))
+							continue;
+						if (!(closestBestFood.dataType == ZoneController.DataLocation.DataType.None || directDistance < foodDistance))
+							continue;
+						closestBestFood = foodInZone[f];
+						foodDistance = directDistance;
+						continue;
+					}
+				}
+			}
+		}
 		return closestBestFood;
 	}
 
-	bool AnimalPairReadyToAttemptReproduction(BasicAnimalScript.AnimalData animalData) {
-		if (animalData.animalReproductionReady.x && animalData.animalReproductionReady.y)
-			return true;
-		return false;
-    }
-    #endregion
+	ZoneController.DataLocation GetClosestAvailableMate(AnimalScript.AnimalData animalData, List<int> zonesInSightRange) {
+		ZoneController.DataLocation closestMate = new ZoneController.DataLocation(ZoneController.DataLocation.DataType.None, -1);
+		float mateDistance = -1;
+		for (int i = 0; i < zonesInSightRange.Count; i++) {
+			List<ZoneController.DataLocation> organismsInZone = ZoneCalculator.GetOrganismsInZoneByFoodType(organismsByFoodTypeInZones, zonesInSightRange[i], speciesFoodType);
+			for (int f = 0; f < organismsInZone.Count; f++) {
+				if (organismsInZone[f].dataType != ZoneController.DataLocation.DataType.Animal)
+					continue;
+				if (allAnimals[organismsInZone[f].dataIndex].speciesIndex != animalData.speciesIndex)
+					continue;
+				if (animalData.animalHasMate || allAnimals[organismsInZone[f].dataIndex].animalHasMate)
+					continue;
+				if (animalData.animalSex == allAnimals[organismsInZone[f].dataIndex].animalSex)
+					continue;
+				float directDistance = GetDistance(animalData.position, allAnimals[organismsInZone[f].dataIndex].position);
+				if (!(DistanceInSmellRange(directDistance) || DistanceInSightRange(GetEyeDistance(animalData.animalEyePosition, allAnimals[organismsInZone[f].dataIndex].position))))
+					continue;
+				if (!(closestMate.dataType == ZoneController.DataLocation.DataType.None || directDistance < mateDistance))
+					continue;
+				closestMate = organismsInZone[f];
+				mateDistance = directDistance;
+			}
+		}
+		return closestMate;
+	}
+	#endregion
 
-    #region AnimalState
-    bool IsAnimalFull(BasicAnimalScript.AnimalData animalData) {
+	#region AnimalState
+	bool IsAnimalFull(AnimalScript.AnimalData animalData) {
 		if (animalData.animalFood >= speciesMaxFood * .9f)
 			return true;
 		return false;
     }
 
-	bool IsAnimalHungry(BasicAnimalScript.AnimalData animalData) {
+	bool IsAnimalHungry(AnimalScript.AnimalData animalData) {
 		if (animalData.animalFood < speciesFullFood)
 			return true;
 		return false;
     }
 
-	bool DoesAnimalHaveMate(BasicAnimalScript.AnimalData animalData) {
+	bool IsAnimalMature(AnimalScript.AnimalData animalData) {
+		if (animalData.stage == AnimalScript.GrowthStage.Adult)
+			return true;
+		return false;
+    }
+
+	bool DoesAnimalHaveMate(AnimalScript.AnimalData animalData) {
 		return animalData.animalHasMate;
     }
 
-	int GetClosestAvailableMate(BasicAnimalScript.AnimalData animalData) {
-		int closestMate = -1;
-		float mateDistance = -1;
-		if (animalData.animalSex) {
-            for (int i = 0; i < availableFemaleMateCount; i++) {
-				float distance = GetClosestDistanceFromTwoPositions(animalData.animalEyePosition, availableFemaleMatesPositions[i]);
-				if (!DistanceInSightRange(distance))
-					continue;
-				if (closestMate != -1) {
-					if (distance < mateDistance) {
-						closestMate = i;
-						mateDistance = distance;
-					}
-                } else {
-					closestMate = i;
-					mateDistance = distance;
-                }
-            }
-			return closestMate;
-        } else {
-			for (int i = 0; i < availableMaleMateCount; i++) {
-				float distance = GetClosestDistanceFromTwoPositions(animalData.animalEyePosition, availableMaleMatePositions[i]);
-				if (!DistanceInSightRange(distance))
-					continue;
-				if (closestMate != -1) {
-					if (distance < mateDistance) {
-						closestMate = i;
-						mateDistance = distance;
-					}
-				} else {
-					closestMate = i;
-					mateDistance = distance;
-				}
-			}
-			return closestMate;
+	bool AnimalPairReadyToAttemptReproduction(AnimalScript.AnimalData animalData) {
+		if (animalData.animalReproductionReady.x && animalData.animalReproductionReady.y)
+			return true;
+		return false;
+	}
+
+	float GetEyeDistance(float3x2 eyePositions, float3 to) {
+		if (speciesEyeType == EyesScript.EyeTypes.Foward) {
+			return GetDistance(eyePositions.c0, to);
+		} else {
+			return GetClosestDistanceFromTwoPositions(eyePositions, to);
 		}
-    }
+	}
 
 	float GetDistance(float3 from, float3 to) {
 		float distance = math.distance(from, to);
@@ -235,12 +267,14 @@ public struct AnimalUpdateJob : IJobParallelFor {
 	}
 
 	bool DistanceInSightRange(float distance) {
-		if (distance <= speciesSightRange)
+		//speciesSightRange needs to be divided by 2 because half of it is already factored in from the eye position
+		if (distance <= speciesSightRange / 2)
 			return true;
 		return false;
     }
 
 	bool DistanceInEatRange(float distance) {
+		//speciesEayRange needs to be divided by 2 because half of it is already factored in from the mouth position
 		if (distance <= speciesEatRange)
 			return true;
 		return false;

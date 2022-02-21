@@ -6,27 +6,24 @@ using Unity.Mathematics;
 
 public class FindZoneController : BasicJobController {
 
-    public NativeArray<FindZoneData> findZones;
-    public int findZoneCount;
+    private NativeArray<FindZoneData> findZones;
+    private int findZoneCount;
 
     public struct FindZoneData {
-        public int speciesIndex;
-        public int organismIndex;
+        public ZoneController.DataLocation dataLocation;
         public float3 position;
         public float range;
         public int zone;
 
-        public FindZoneData(int speciesIndex, int organismIndex,float3 position, float range) {
-            this.speciesIndex = speciesIndex;
-            this.organismIndex = organismIndex;
+        public FindZoneData(ZoneController.DataLocation dataLocation, int zone, float3 position, float range) {
+            this.dataLocation = dataLocation;
             this.position = position;
             this.range = range;
-            zone = -1;
+            this.zone = zone;
         }
 
         public FindZoneData(FindZoneData oldData, int zone) {
-            this.speciesIndex = oldData.speciesIndex;
-            this.organismIndex = oldData.organismIndex;
+            this.dataLocation = oldData.dataLocation;
             this.position = oldData.position;
             this.range = oldData.range;
             this.zone = zone;
@@ -34,13 +31,15 @@ public class FindZoneController : BasicJobController {
     }
 
     public override JobHandle StartUpdateJob() {
-        job = FindZonesJob.BeginJob(findZones, findZoneCount, earth.GetZoneController().zones);
+        job = FindZonesJob.BeginJob(findZones, findZoneCount, earth.GetZoneController().zones, earth.GetZoneController().neiboringZones);
         return job;
     }
 
     public void CompleteZoneJob() {
         for (int i = 0; i < findZoneCount; i++) {
-            SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[findZones[i].speciesIndex].SetOrganismZone(findZones[i].organismIndex, findZones[i].zone);
+            if (findZones[i].zone == -1)
+                Debug.LogError("error");
+            earth.GetZoneController().GetOrganismFromDataLocation(findZones[i].dataLocation).SetOrganismZone(findZones[i].zone);
         }
         findZoneCount = 0;
     }
@@ -60,7 +59,7 @@ public class FindZoneController : BasicJobController {
     }
 
     public override void Allocate() {
-        findZones = new NativeArray<FindZoneData>(SpeciesManager.Instance.GetAllStartingPlantsAndSeeds(), Allocator.Persistent);
+        findZones = new NativeArray<FindZoneData>(SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() + SpeciesManager.Instance.GetAllStartingAnimals(), Allocator.Persistent);
     }
 
     internal override void OnDestroy() {

@@ -2181,41 +2181,32 @@ MonoBehaviour:
   m_GameObject: {fileID: 446744792}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed91e844c53d547d48bdcee21abce103, type: 3}
+  m_Script: {fileID: 11500000, guid: 402ad1b933586144f9624bd9c075b4ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speciesName: Elk
   speciesDisplayName: Elk
-  speciesColor: {r: 0.31132078, g: 0.1581312, b: 0, a: 1}
+  speciesColor: {r: 0.30980393, g: 0.15686275, b: 0, a: 1}
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
-  deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
-  noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
-  bodySize: 10
+  corpseColor: {r: 0, g: 0, b: 0, a: 0}
+  bodyWeight: 0
   maxHealth: 14
   speed: 2
+  foodConsumption: 0
   fullFood: 0
-  maxFood: 21.7
+  maxFood: 22
   maxAge: 26
+  deteriationTime: 0
+  eddibleFoodTypesInput: []
   animals: []
-  availableMaleMates: []
-  availableFemaleMates: []
---- !u!114 &446744798
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 446744792}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  activeAnimals: 
+  activeCorpses: 
+  inactiveAnimals: 
 --- !u!114 &446744801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2252,6 +2243,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 580515522c3d74722bf9fd4e21038bbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  organType: 
+  organFoodIndex: 0
   growthMax: 9.89
   newPlantGrowthCost: 6.13
   newPlantGrowChance: 20
@@ -2293,7 +2286,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350de5468c2b46f1821fb5cb6d36ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  foodType: 
+  organType: 
+  organFoodIndex: 0
   startingSeedCount: 12
   humidityRequirement: 64
   tempetureRequirement: 50
@@ -3316,11 +3310,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1627060941}
     - target: {fileID: 114473300618344846, guid: 4d4a09e89fadd41e19ce31891e00a6e9,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: DeleteSpecies
+      objectReference: {fileID: 0}
+    - target: {fileID: 114473300618344846, guid: 4d4a09e89fadd41e19ce31891e00a6e9,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: SpeciesHolderScript, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 224042759089908620, guid: 4d4a09e89fadd41e19ce31891e00a6e9,
         type: 3}
@@ -3679,41 +3678,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 667267383}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c6165bfe34124188a7319bf46fe8880, type: 3}
+  m_Script: {fileID: 11500000, guid: 402ad1b933586144f9624bd9c075b4ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speciesName: Wolf
   speciesDisplayName: Wolf
-  speciesColor: {r: 0.26415092, g: 0.22125883, b: 0.20808114, a: 1}
+  speciesColor: {r: 0.2627451, g: 0.21960784, b: 0.20784314, a: 1}
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
-  deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
-  noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
-  basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
-    type: 3}
-  bodySize: 5
-  maxHealth: 10.99
+  basicOrganism: {fileID: 0}
+  corpseColor: {r: 0, g: 0, b: 0, a: 0}
+  bodyWeight: 0
+  maxHealth: 10
   speed: 2.4
+  foodConsumption: 0
   fullFood: 0
   maxFood: 21.5
-  maxAge: 6
+  maxAge: 0
+  deteriationTime: 0
+  eddibleFoodTypesInput: []
   animals: []
-  availableMaleMates: []
-  availableFemaleMates: []
---- !u!114 &667267391
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 667267383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  activeAnimals: 
+  activeCorpses: 
+  inactiveAnimals: 
 --- !u!1 &676291395
 GameObject:
   m_ObjectHideFlags: 0
@@ -4419,10 +4408,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   simulationSpeed: 1
-  earthSize: 1000
+  earthSize: 2000
   sunRotationEffect: 0
-  numberOfZones: 1000
-  maxNeiboringZones: 15
+  numberOfZones: 20
+  maxNeiboringZones: 4
+  zoneSetup: 1
   simulationInitialised: 0
 --- !u!1 &747077542
 GameObject:
@@ -4786,8 +4776,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c1231416625e854ab7c6720b77b1115, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxBladeArea: 30
   organType: Blade
+  organFoodIndex: 0
+  maxBladeArea: 30
 --- !u!114 &809522555
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4800,8 +4791,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac9b9331e47e1bb4883b9198cb2f12db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxStemHeight: 8
   organType: Stem
+  organFoodIndex: 0
+  maxStemHeight: 8
 --- !u!114 &809522557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4814,11 +4806,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b949b328fad520498bfcd968e642710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  organType: Root
+  organFoodIndex: 0
   rootGrowthMax:
     x: 1
     y: 100
   rootDensity: 0.6
-  organType: Root
 --- !u!114 &809522558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4866,7 +4859,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350de5468c2b46f1821fb5cb6d36ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  foodType: Seed
+  organType: Seed
+  organFoodIndex: 0
   startingSeedCount: 40
   humidityRequirement: 52
   tempetureRequirement: 45
@@ -9706,7 +9700,7 @@ MonoBehaviour:
     type: 3}
   birthTime: 70
   reproductionDelay: 20
-  reproductionAge: 1
+  reproductionAge: 8760
   reproducionAmount: 5
   birthSuccessPercent: 60
 --- !u!114 &1600016794
@@ -9722,9 +9716,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
-  biteSize: 0.29
-  eatRange: 4
-  eatTime: 0.32
+  biteSize: 3
+  eatRange: 30
+  eatTime: 0.002777778
 --- !u!114 &1600016795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9738,7 +9732,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
-  sightRange: 120
+  sightRange: 320
   eyeType: 0
 --- !u!114 &1600016796
 MonoBehaviour:
@@ -9753,7 +9747,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
-  hearRange: 6.64
+  hearRange: 120
 --- !u!114 &1600016797
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9763,41 +9757,33 @@ MonoBehaviour:
   m_GameObject: {fileID: 1600016790}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c6165bfe34124188a7319bf46fe8880, type: 3}
+  m_Script: {fileID: 11500000, guid: 402ad1b933586144f9624bd9c075b4ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speciesName: Fox
   speciesDisplayName: Fox
-  speciesColor: {r: 0.8490566, g: 0, b: 0, a: 1}
+  speciesColor: {r: 0.8509804, g: 0, b: 0, a: 1}
   startingPopulation: 12
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
-  deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
-  noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
-  bodySize: 3
+  corpseColor: {r: 0, g: 0, b: 0, a: 0}
+  bodyWeight: 13
   maxHealth: 3
-  speed: 14
+  speed: 50
+  foodConsumption: 1.2
   fullFood: 0
-  maxFood: 10
-  maxAge: 7
+  maxFood: 12
+  maxAge: 61320
+  deteriationTime: 720
+  eddibleFoodTypesInput:
+  - CottontailRabbit
   animals: []
-  availableMaleMates: []
-  availableFemaleMates: []
---- !u!114 &1600016798
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1600016790}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  activeAnimals: 
+  activeCorpses: 
+  inactiveAnimals: 
 --- !u!114 &1600016799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9811,7 +9797,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nose: {fileID: 3750231290935706298, guid: 2835814a3c92b3240844edeb53097a14, type: 3}
-  smellRange: 20
+  smellRange: 80
 --- !u!1 &1627060932 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1225496576153444, guid: 4d4a09e89fadd41e19ce31891e00a6e9,
@@ -9840,7 +9826,7 @@ MonoBehaviour:
     type: 3}
   birthTime: 50
   reproductionDelay: 10
-  reproductionAge: 0.5
+  reproductionAge: 2184
   reproducionAmount: 8
   birthSuccessPercent: 30
 --- !u!114 &1627060935
@@ -9856,9 +9842,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
-  biteSize: 0.18
-  eatRange: 4
-  eatTime: 0.25
+  biteSize: 1
+  eatRange: 30
+  eatTime: 0.0027777783
 --- !u!114 &1627060936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9872,7 +9858,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
-  sightRange: 90
+  sightRange: 270
   eyeType: 1
 --- !u!114 &1627060937
 MonoBehaviour:
@@ -9887,7 +9873,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
-  hearRange: 14.36
+  hearRange: 160
 --- !u!114 &1627060938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9897,41 +9883,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 1627060932}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed91e844c53d547d48bdcee21abce103, type: 3}
+  m_Script: {fileID: 11500000, guid: 402ad1b933586144f9624bd9c075b4ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speciesName: CottontailRabbit
   speciesDisplayName: Cottontail
-  speciesColor: {r: 0.754717, g: 0.48981506, b: 0.20220716, a: 1}
+  speciesColor: {r: 0.7529412, g: 0.49019608, b: 0.20392157, a: 1}
   startingPopulation: 36
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
-  deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
-  noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
-  bodySize: 1
+  corpseColor: {r: 0, g: 0, b: 0, a: 0}
+  bodyWeight: 2.5
   maxHealth: 1
-  speed: 13
+  speed: 28
+  foodConsumption: 1
   fullFood: 0
-  maxFood: 8
-  maxAge: 6
+  maxFood: 7
+  maxAge: 52560
+  deteriationTime: 720
+  eddibleFoodTypesInput:
+  - Stem
+  - Blade
   animals: []
-  availableMaleMates: []
-  availableFemaleMates: []
---- !u!114 &1627060939
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1627060932}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  activeAnimals: 
+  activeCorpses: 
+  inactiveAnimals: 
 --- !u!114 &1627060940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9945,7 +9924,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nose: {fileID: 3750231290935706298, guid: 2835814a3c92b3240844edeb53097a14, type: 3}
-  smellRange: 20
+  smellRange: 100
+--- !u!114 &1627060941 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114412744328121418, guid: 4d4a09e89fadd41e19ce31891e00a6e9,
+    type: 3}
+  m_PrefabInstance: {fileID: 640576621}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1627060932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4f7cbf78b1b143c982cf2267b3bbdd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1629009799
 GameObject:
   m_ObjectHideFlags: 0
@@ -10409,41 +10400,32 @@ MonoBehaviour:
   m_GameObject: {fileID: 1754343634}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed91e844c53d547d48bdcee21abce103, type: 3}
+  m_Script: {fileID: 11500000, guid: 402ad1b933586144f9624bd9c075b4ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speciesName: Deer
   speciesDisplayName: Deer
-  speciesColor: {r: 0.4811321, g: 0.24438457, b: 0, a: 1}
+  speciesColor: {r: 0.48235294, g: 0.24313726, b: 0, a: 1}
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
-  deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
-  noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
-  bodySize: 8
+  corpseColor: {r: 0, g: 0, b: 0, a: 0}
+  bodyWeight: 0
   maxHealth: 12
   speed: 2
+  foodConsumption: 0
   fullFood: 0
-  maxFood: 27.2
+  maxFood: 27
   maxAge: 14
+  deteriationTime: 0
+  eddibleFoodTypesInput: []
   animals: []
-  availableMaleMates: []
-  availableFemaleMates: []
---- !u!114 &1754343640
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1754343634}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  activeAnimals: 
+  activeCorpses: 
+  inactiveAnimals: 
 --- !u!114 &1754343643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11218,41 +11200,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 1924411854}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed91e844c53d547d48bdcee21abce103, type: 3}
+  m_Script: {fileID: 11500000, guid: 402ad1b933586144f9624bd9c075b4ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speciesName: Racoon
   speciesDisplayName: Racoon
-  speciesColor: {r: 0.1981132, g: 0.13925514, b: 0.07943218, a: 1}
+  speciesColor: {r: 0.2, g: 0.14117648, b: 0.078431375, a: 1}
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
-  deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
-  noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
-  basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
-    type: 3}
-  bodySize: 2
-  maxHealth: 7.31
-  speed: 0.15
+  basicOrganism: {fileID: 0}
+  corpseColor: {r: 0, g: 0, b: 0, a: 0}
+  bodyWeight: 0
+  maxHealth: 7
+  speed: 3
+  foodConsumption: 0
   fullFood: 0
-  maxFood: 13.1
+  maxFood: 14
   maxAge: 16
+  deteriationTime: 0
+  eddibleFoodTypesInput: []
   animals: []
-  availableMaleMates: []
-  availableFemaleMates: []
---- !u!114 &1924411861
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1924411854}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  activeAnimals: 
+  activeCorpses: 
+  inactiveAnimals: 
 --- !u!114 &1924411864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11654,6 +11626,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 580515522c3d74722bf9fd4e21038bbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  organType: 
+  organFoodIndex: 0
   growthMax: 13.59
   newPlantGrowthCost: 7.87
   newPlantGrowChance: 20
@@ -12323,41 +12297,33 @@ MonoBehaviour:
   m_GameObject: {fileID: 2143928213}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed91e844c53d547d48bdcee21abce103, type: 3}
+  m_Script: {fileID: 11500000, guid: 402ad1b933586144f9624bd9c075b4ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speciesName: Bison
   speciesDisplayName: Bison
-  speciesColor: {r: 0.24528301, g: 0.12409181, b: 0, a: 1}
+  speciesColor: {r: 0.24705882, g: 0.1254902, b: 0, a: 1}
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
-  deadAnimal: {fileID: 1515285692600266, guid: 7072c2aaf2a654f8996ab79976037a99, type: 3}
-  noise: {fileID: 1978174260861356, guid: c8665b4fed01e4945acc84beeaf7f60e, type: 3}
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
-  bodySize: 24
+  corpseColor: {r: 0, g: 0, b: 0, a: 0}
+  bodyWeight: 0
   maxHealth: 18
   speed: 1.8
+  foodConsumption: 0
   fullFood: 0
-  maxFood: 29.3
+  maxFood: 30
   maxAge: 25
+  deteriationTime: 0
+  eddibleFoodTypesInput:
+  - Grass
   animals: []
-  availableMaleMates: []
-  availableFemaleMates: []
---- !u!114 &2143928219
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2143928213}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cc3dbf82061bcb41aace91bbac225ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  activeAnimals: 
+  activeCorpses: 
+  inactiveAnimals: 
 --- !u!114 &2143928222
 MonoBehaviour:
   m_ObjectHideFlags: 0

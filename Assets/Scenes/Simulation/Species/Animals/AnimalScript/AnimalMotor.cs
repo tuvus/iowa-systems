@@ -3,9 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AnimalMotor : OrganismMotor {
+    AnimalScript animal;
 
     bool moving;
     float frameMoveSpeed;
+
+    public override void SetupOrganismMotor(EarthScript earth, BasicOrganismScript organismScript) {
+        this.earth = earth;
+        this.organismScript = organismScript;
+        this.animal = organismScript.GetComponent<AnimalScript>();
+        transform.parent.SetParent(earth.GetOrganismsTransform());
+        Vector3 previousSize = transform.parent.localScale;
+        transform.parent.localScale = new Vector3(1, 1, 1);
+        transform.parent.localPosition = new Vector3(0, .5f, 0);
+        transform.localScale = new Vector3(transform.localScale.x * previousSize.x, transform.localScale.y * previousSize.y, transform.localScale.z * previousSize.z);
+    }
 
     public void SetSpeed(float _speed) {
         frameMoveSpeed = _speed;
@@ -22,7 +34,8 @@ public class AnimalMotor : OrganismMotor {
     public void MoveOrganism() {
         if (moving) {
             GetRotationTransform().RotateAround(new Vector3(0, 0, 0), GetModelTransform().right, frameMoveSpeed * earth.simulationDeltaTime / 12);
-            organismScript.RefreshOrganism();
+            animal.RefreshOrganism();
+            animal.animalSpecies.AddToFindZone(animal, animal.zone, frameMoveSpeed * earth.simulationDeltaTime / 12);
         }
     }
 

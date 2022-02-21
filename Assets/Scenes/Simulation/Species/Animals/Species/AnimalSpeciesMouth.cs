@@ -10,11 +10,11 @@ public class AnimalSpeciesMouth : BasicAnimalSpeciesOrganScript {
 	public float eatRange;
 	public float eatTime;
 
-	public override void MakeOrganism(BasicOrganismScript _newOrganism) {
-		MouthScript mouthScript = speciesScript.InstantiateNewOrgan(mouth,_newOrganism).GetComponent<MouthScript>();
+	public override void MakeOrganism(BasicOrganismScript newOrganism) {
+		MouthScript mouthScript = speciesScript.InstantiateNewOrgan(mouth, newOrganism).GetComponent<MouthScript>();
 		mouthScript.biteSize = biteSize;
 		mouthScript.eatTime = eatTime;
 		mouthScript.eatRange = eatRange;
-		mouthScript.SetupBasicOrgan(this);
+		mouthScript.SetupBasicOrgan(this, newOrganism);
 	}
 }

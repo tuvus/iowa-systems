@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
 	//public GameObject seedPrefab;
 
-	public string foodType;
 	public int startingSeedCount;
 	public float humidityRequirement;
 	public float tempetureRequirement;
@@ -42,10 +41,10 @@ public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
 		seedGerminationRequirement = new SeedGerminationRequirement(this);
     }
 
-	public override void MakeOrganism(BasicOrganismScript _newOrganism) {
-		SeedOrgan seeds = _newOrganism.gameObject.AddComponent<SeedOrgan>();
+	public override void MakeOrganism(BasicOrganismScript newOrganism) {
+		SeedOrgan seeds = newOrganism.gameObject.AddComponent<SeedOrgan>();
 		seeds.speciesSeeds = this;
-		seeds.SetupBasicOrgan(this);
+		seeds.SetupBasicOrgan(this, newOrganism);
 	}
 
 	public void MakePlant (PlantScript plant, float growth) {
@@ -56,12 +55,14 @@ public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
 		plantSpecies.PreSpawn(startingSeedCount);
 		for (int i = 0; i < startingSeedCount; i++) {
 			PlantScript newseed = plantSpecies.SpawnRandomSeed();
+			newseed.SpawnSeedRandom(Random.Range(0, seedGerminationRequirement.timeRequirement));
 			AddSeed();
 		}
 	}
 
 	public void SpreadSeed(PlantScript parent) {
 		PlantScript newSeed = plantSpecies.SpawnSeed(parent, seedDispertionRange);
+		newSeed.SpawnSeed();
 		AddSeed();
 	}
 
@@ -76,5 +77,9 @@ public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
 	public void GrowSeed() {
 		plantSpecies.SeedGrownToPlant();
 		seedCount--;
-	}	
+	}
+
+    public override string GetOrganType() {
+		return organType;
+    }
 }

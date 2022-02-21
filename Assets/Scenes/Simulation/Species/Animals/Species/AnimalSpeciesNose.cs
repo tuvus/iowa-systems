@@ -7,9 +7,10 @@ public class AnimalSpeciesNose : BasicAnimalSpeciesOrganScript {
 
 	public float smellRange;
 
-	public override void MakeOrganism(BasicOrganismScript _newOrganism) {
-		GameObject newNose = speciesScript.InstantiateNewOrgan(nose, _newOrganism);
+	public override void MakeOrganism(BasicOrganismScript newOrganism) {
+		GameObject newNose = speciesScript.InstantiateNewOrgan(nose, newOrganism);
 		NoseScript noseScipt = newNose.GetComponent<NoseScript>();
-		noseScipt.SetupBasicOrgan(this);
+		noseScipt.speciesNose = this;
+		noseScipt.SetupBasicOrgan(this, newOrganism);
 	}
 }

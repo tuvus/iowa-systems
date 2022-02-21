@@ -6,19 +6,9 @@ public class EarsScript : BasicAnimalOrganScript {
 
 	public float hearRange;
 
-	public Transform ears;
-
 	List<GameObject> heardGameobjects = new List<GameObject>();
 
     internal override void SetUpSpecificOrgan() {
-	}
-
-	public void SetUpEars() {
-		ears = new GameObject("Ears").transform;
-		ears.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
-		ears.localScale = Vector3.one;
-		ears.localEulerAngles = Vector3.zero;
-		ears.localPosition = new Vector3(0, 0, 0);
 	}
 
 	public override void UpdateOrgan() {
@@ -41,18 +31,21 @@ public class EarsScript : BasicAnimalOrganScript {
 
 
 
-	//void OnTriggerEnter(Collider trigg) {
-	//	if (trigg.gameObject.layer == 12) {
-	//		if (basicAnimal.nearbyObjects != null) {
-	//			basicAnimal.nearbyObjects.Add(trigg.transform.parent.gameObject);
-	//		}
-	//	}
-	//}
-	//void OnTriggerExit(Collider trigg) {
-	//	if (trigg.gameObject.layer == 12) {
-	//		if (basicAnimal.nearbyObjects != null) {
-	//			basicAnimal.nearbyObjects.Remove(trigg.transform.parent.gameObject);
-	//		}
-	//	}
-	//}
+    //void OnTriggerEnter(Collider trigg) {
+    //	if (trigg.gameObject.layer == 12) {
+    //		if (basicAnimal.nearbyObjects != null) {
+    //			basicAnimal.nearbyObjects.Add(trigg.transform.parent.gameObject);
+    //		}
+    //	}
+    //}
+    //void OnTriggerExit(Collider trigg) {
+    //	if (trigg.gameObject.layer == 12) {
+    //		if (basicAnimal.nearbyObjects != null) {
+    //			basicAnimal.nearbyObjects.Remove(trigg.transform.parent.gameObject);
+    //		}
+    //	}
+    //}
+
+    public override void ResetOrgan() {
+    }
 }

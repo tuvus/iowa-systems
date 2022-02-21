@@ -19,9 +19,10 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 	BasicJobController jobController;
 
 	#region SimulationStart
-	public void SetupSimulation(EarthScript _earth, SunScript _sun) {
-		earth = _earth;
-		sun = _sun;
+
+	public void SetupSimulation(EarthScript earth, SunScript sun) {
+		this.earth = earth;
+		this.sun = sun;
 		gameObject.name = speciesName;
 		foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
 			organ.SetBasicSpeciesScript(this);
@@ -31,6 +32,8 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 	}
 
 	internal abstract void SetupSpecificSimulation();
+
+	public abstract void SetupSpeciesFoodType();
 
 	public void StartBasicSimulation() {
 		StartSimulation();
@@ -42,29 +45,20 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 	#endregion
 
 	#region SpawnOrganisms
+	public abstract void PreSpawn(int spawnNumber);
+
 	public abstract void SpawnRandomOrganism();
 
-	public abstract BasicOrganismScript SpawnOrganism(BasicOrganismScript _parent);
-
-	internal BasicOrganismScript SpawnOrganism(GameObject organismPrefab) {
-		BasicOrganismScript basicOrganism = Instantiate(organismPrefab, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null).GetComponent<BasicOrganismScript>();
-		basicOrganism.GetMeshRenderer().material.color = speciesColor;
-		basicOrganism.GetMeshRenderer().enabled = User.Instance.GetRenderWorldUserPref();
-		basicOrganism.species = this;
-
-		return basicOrganism;
-	}
-
-	internal void SetupOrganismMotor(BasicOrganismScript organism) {
-		organism.GetOrganismMotor().SetupOrganismMotor(earth, organism);
+	internal GameObject SpawnOrganism(GameObject organismPrefab) {
+		return Instantiate(organismPrefab, new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 1), null);
 	}
 
 	internal void RandomiseOrganismPosition(BasicOrganismScript organism) {
-		new SpawnRandomizer().SpawnRandom(organism.GetOrganismMotor());
+		SpawnRandomizer.SpawnRandom(organism.GetOrganismMotor());
 	}
 
 	internal void RandomiseOrganismChildPosition(BasicOrganismScript organism, BasicOrganismScript parent, float range = 2) {
-		new SpawnRandomizer().SpawnFromParent(organism.GetOrganismMotor(), parent.GetOrganismMotor().GetRotationTransform().position, parent.GetOrganismMotor().GetRotationTransform().eulerAngles, range);
+		SpawnRandomizer.SpawnFromParent(organism.GetOrganismMotor(), parent.GetOrganismMotor().GetRotationTransform().position, parent.GetOrganismMotor().GetRotationTransform().eulerAngles, range);
 	}
 
 	public GameObject InstantiateNewOrgan(GameObject _organ, BasicOrganismScript _organism) {
@@ -94,6 +88,8 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 
 	public abstract void UpdateOrganisms();
 
+	public abstract void UpdateOrganismLists();
+
 	public void AddOrganism(BasicOrganismScript newOrganism) {
 		organisms.Add(newOrganism);
 		newOrganism.organismIndex = organisms.Count - 1;
@@ -109,9 +105,7 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 		populationCount--;
 	}
 
-	public void SetOrganismZone(int organismIndex, int zone) {
-		organisms[organismIndex].zone = zone;
-    }
+
 	#endregion
 
     #region GetMethods

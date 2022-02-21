@@ -51,6 +51,7 @@ public class SpeciesManager : MonoBehaviour {
 	public int GetAllStartingPlantsAndSeeds() {
 		int count = 0;
         for (int i = 0; i < transform.childCount; i++) {
+			
 			PlantSpecies plantSpecies = transform.GetChild(i).GetComponent<PlantSpecies>();
 			if (plantSpecies != null) {
 				count += plantSpecies.startingPopulation;
@@ -62,6 +63,18 @@ public class SpeciesManager : MonoBehaviour {
         }
 		return count;
 	}
+
+	public int GetAllStartingAnimals() {
+		int count = 0;
+        for (int i = 0; i < transform.childCount; i++) {
+			AnimalSpecies animalSpecies = transform.GetChild(i).GetComponent<AnimalSpecies>();
+			if (animalSpecies != null) {
+				count += animalSpecies.startingPopulation;
+				AnimalSpecies speciesSeeds = animalSpecies.GetComponent<AnimalSpecies>();
+			}
+		}
+		return count;
+    }
 
 	public SpeciesMotor GetSpeciesMotor() {
 		return GetComponent<SpeciesMotor>();

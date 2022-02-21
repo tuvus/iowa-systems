@@ -8,23 +8,24 @@ public abstract class BasicOrganismScript : MonoBehaviour {
 
 	public int organismIndex;
 	public int specificOrganismIndex;
+	public bool spawned;
 	[SerializeField] internal float age;
-
-	internal bool organismDead;
 
 	public Vector3 position;
 	public int zone;
 
+	internal MeshRenderer meshRenderer;
+
+
 
 	#region OrganismSetup
-	public void SetUpOrganism(BasicSpeciesScript species, BasicOrganismScript newParent) {
+	internal void SetUpOrganism(BasicSpeciesScript species) {
 		User.Instance.ChangedSettings += OnSettingsChanged;
 		this.species = species;
-		parent = newParent;
-		SetUpSpecificOrganism(parent);
+		meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
+		GetMeshRenderer().material.color = species.speciesColor;
+		GetOrganismMotor().SetupOrganismMotor(species.earth,this);
 	}
-
-	public abstract void SetUpSpecificOrganism(BasicOrganismScript parent);
 
 	public void OnAddOrganism(object sender, System.EventArgs info) {
 		GetEarthScript().OnEndFrame -= OnAddOrganism;
@@ -38,24 +39,38 @@ public abstract class BasicOrganismScript : MonoBehaviour {
 	public abstract void UpdateOrganism();
 
     public void OnSettingsChanged(User _user, SettingsEventArgs _settings) {
-		if (organismDead == false)
+		if (spawned)
 			GetMeshRenderer().enabled = _settings.Rendering;
 	}
-    #endregion
+	#endregion
 
-    #region RemoveOrganism
-    public void KillOrganism() {
+	#region OrganismControlls
+	public abstract void AddToZone(int zoneIndex);
+
+	public virtual void RemoveFromZone() {
+	}
+
+	public void SetOrganismZone(int zone) {
+		if (this.zone != zone) {
+			if (this.zone != -1)
+				RemoveFromZone();
+			this.zone = zone;
+			if (zone != -1)
+				AddToZone(zone);
+		}
+	}
+
+	public virtual void KillOrganism() {
 		species.OrganismDeath();
-		organismDead = true;
 		OrganismDied();
-    }
+	}
 
 	internal abstract void OrganismDied();
     #endregion
 
     #region GetMethods
     public MeshRenderer GetMeshRenderer() {
-		return transform.GetChild(0).GetComponent<MeshRenderer>();
+		return meshRenderer;
     }
 
 	public OrganismMotor GetOrganismMotor() {
@@ -65,5 +80,9 @@ public abstract class BasicOrganismScript : MonoBehaviour {
 	public EarthScript GetEarthScript() {
 		return species.GetEarthScript();
     }
-    #endregion
+
+	public ZoneController GetZoneController() {
+		return GetEarthScript().GetZoneController();
+	}
+	#endregion
 }

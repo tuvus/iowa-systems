@@ -507,6 +507,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allPlantsCount: 0
+  allAnimalsCount: 0
 --- !u!114 &55259193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -519,7 +520,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5973d167d304724bb9898b3aff877c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  findZoneCount: 0
 --- !u!1 &118585886
 GameObject:
   m_ObjectHideFlags: 0
@@ -4331,7 +4331,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: SimulationSpeed:0
+  m_Text: Calculations/Frame:0
 --- !u!222 &1501718615
 CanvasRenderer:
   m_ObjectHideFlags: 0

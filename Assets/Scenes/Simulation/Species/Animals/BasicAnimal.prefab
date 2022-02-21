@@ -44,18 +44,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea3e00205ebbb42c688e5a97ef194536, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  organismIndex: 0
+  specificOrganismIndex: 0
   age: 0
   position: {x: 0, y: 0, z: 0}
+  zone: 0
   animalSpecies: {fileID: 0}
   behavior: {fileID: 0}
   animalParent: {fileID: 0}
-  speed: 1
-  maxAge: 0
+  animalDataIndex: 0
   waitTime: 0
   food: 0
-  bodyFoodConsumption: 0
   mate: {fileID: 0}
   health: 0
+  stage: -2
 --- !u!1 &7263993166501292513
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,82 +5,47 @@ using Unity.Collections;
 using Unity.Mathematics;
 
 public class AnimalJobController : BasicJobController {
-    BasicAnimalSpecies animalSpecies;
+    AnimalSpecies animalSpecies;
 
-    public NativeArray<AnimalActions> animalActions;
+    public NativeArray<AnimalScript.AnimalActions> animalActions;
 
-    NativeArray<BasicAnimalScript.AnimalData> animals;
-    int animalCount;
-
-    public float speciesFullFood;
-    public float speciesMaxFood;
-    public float speciesSightRange;
-    public float speciesEatRange;
-    public float speciesSmellRange;
-
-    int availableMaleMateCount;
-    NativeArray<float3> availableMaleMatePositions;
-    int availableFemaleMateCount;
-    NativeArray<float3> availableFemaleMatesPositions;
-
-    int predatorCount;
-    [ReadOnly] NativeArray<BasicAnimalScript.PredatorData> predators;
+    NativeArray<int> updateAnimals;
 
     internal override void SetUpSpecificJobController(BasicSpeciesScript speciesScript) {
-        animalSpecies = (BasicAnimalSpecies)speciesScript;
+        animalSpecies = (AnimalSpecies)speciesScript;
     }
 
     public override JobHandle StartUpdateJob() {
         SetUpNativeArrays();
-        job = AnimalUpdateJob.BeginJob(animalActions,animals,animalCount, speciesFullFood, speciesMaxFood, speciesSightRange, speciesEatRange, speciesSmellRange,
-             availableMaleMateCount,availableMaleMatePositions,availableFemaleMateCount, availableFemaleMatesPositions,predatorCount, predators);
+        ZoneController zoneController = earth.GetZoneController();
+        job = AnimalUpdateJob.BeginJob(animalActions, updateAnimals, animalSpecies.GetActiveAnimalsCount(), animalSpecies.fullFood, animalSpecies.maxFood, animalSpecies.GetSightRange(), animalSpecies.GetEyeType(),
+            animalSpecies.GetEatRange(), animalSpecies.GetSmellRange(), animalSpecies.GetFoodIndex(), animalSpecies.eddibleFoodTypes, 
+            animalSpecies.predatorFoodTypes, zoneController.allAnimals, zoneController.allPlants,
+            zoneController.zones, zoneController.neiboringZones, zoneController.animalsInZones, zoneController.plantsInZones,
+            zoneController.organismsByFoodTypeInZones);
         return job;
     }
 
     void SetUpNativeArrays() {
-        animalCount = animalSpecies.GetAnimals().Count;
-        for (int i = 0; i < animalCount; i++) {
-            BasicAnimalScript animal = animalSpecies.GetAnimals()[i];
-            animals[i] = animals[i].SetupData(animal);
+        if (animalSpecies.GetActiveAnimalsCount() > updateAnimals.Length)
+            SetUpdateAnimalsLength(animalSpecies.GetActiveAnimalsCount() * 2);
+        for (int i = 0; i < animalSpecies.GetActiveAnimalsCount(); i++) {
+            updateAnimals[i] = animalSpecies.GetAnimal(animalSpecies.GetActiveAnimal(i)).animalDataIndex;
         }
+    }
 
-        speciesFullFood = animalSpecies.fullFood;
-        speciesMaxFood = animalSpecies.maxFood;
-        speciesSightRange = animalSpecies.GetSightRange();
-        speciesEatRange = animalSpecies.GetEatRange();
-        speciesSmellRange = animalSpecies.GetSmellRange();
+    void SetUpdateAnimalsLength(int length) {
+        animalActions.Dispose();
+        animalActions = new NativeArray<AnimalScript.AnimalActions>(length, Allocator.Persistent);
 
-        availableMaleMateCount = animalSpecies.GetAvailableMaleMates().Count;
-        for (int i = 0; i < availableMaleMateCount; i++) {
-            availableMaleMatePositions[i] = animalSpecies.GetAvailableMaleMates()[i].position;
-        }
-        availableFemaleMateCount = animalSpecies.GetAvailableFemaleMates().Count;
-        for (int i = 0; i < availableFemaleMateCount; i++) {
-            availableFemaleMatesPositions[i] = animalSpecies.GetAvailableFemaleMates()[i].position;
-        }
-
-        //eddibleCount = animalSpecies.GetEddibleFood().Count;
-        //for (int i = 0; i < eddibleCount; i++) {
-        //    Eddible eddible = animalSpecies.GetEddibleFood()[i];
-        //    eddibles[i] = eddibles[i].SetupData(eddible);
-        //}
-
-        //predatorCount = animalSpecies.GetPredators().Count;
-        //for (int i = 0; i < predatorCount; i++) {
-        //    BasicAnimalScript predator = animalSpecies.GetPredators()[i];
-        //    predators[i] = predators[i].SetupData(predator);
-        //}
+        updateAnimals.Dispose();
+        updateAnimals = new NativeArray<int>(length, Allocator.Persistent);
     }
     
     public override void Allocate() {
-        animalActions = new NativeArray<AnimalActions>(500, Allocator.Persistent);
+        animalActions = new NativeArray<AnimalScript.AnimalActions>(500, Allocator.Persistent);
 
-        animals = new NativeArray<BasicAnimalScript.AnimalData>(500, Allocator.Persistent);
-
-        availableMaleMatePositions = new NativeArray<float3>(500, Allocator.Persistent);
-        availableFemaleMatesPositions = new NativeArray<float3>(500, Allocator.Persistent);
-
-        predators = new NativeArray<BasicAnimalScript.PredatorData>(600, Allocator.Persistent);
+        updateAnimals = new NativeArray<int>(500, Allocator.Persistent);
     }
 
     internal override void OnDestroy() {
@@ -88,11 +53,6 @@ public class AnimalJobController : BasicJobController {
         job.Complete();
         animalActions.Dispose();
 
-        animals.Dispose();
-
-        availableMaleMatePositions.Dispose();
-        availableFemaleMatesPositions.Dispose();
-
-        predators.Dispose();
+        updateAnimals.Dispose();
     }
 }

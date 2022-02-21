@@ -5,17 +5,20 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SimulationScript : MonoBehaviour {
+
 	public float simulationSpeed;
 	public int earthSize;
 	public bool sunRotationEffect;
 	public int numberOfZones;
 	public int maxNeiboringZones;
+	public ZoneController.ZoneSetupType zoneSetup;
 
 	public static SimulationScript Instance { get; private set; }
 	EarthScript earth;
 	SunScript sun;
 
 	public bool simulationInitialised = false;
+
 
     public void Awake() {
 		if (Instance == null) {
@@ -51,10 +54,10 @@ public class SimulationScript : MonoBehaviour {
 		earth = GameObject.Find("Earth").GetComponent<EarthScript>();
 		sun = GameObject.Find("Sun").GetComponent<SunScript>();
 
-        earth.SetUpEarth(earthSize,simulationSpeed);
-		sun.SetupSun(earth);
 		SpeciesManager.Instance.GetSpeciesMotor().enabled = true;
 		SpeciesManager.Instance.GetSpeciesMotor().SetupSimulation(earth, sun);
+        earth.SetUpEarth(earthSize,simulationSpeed);
+		sun.SetupSun(earth);
 		SpeciesManager.Instance.GetSpeciesMotor().StartSimulation();
         User.Instance.StartSimulation();
 		simulationInitialised = true;

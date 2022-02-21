@@ -17,6 +17,9 @@ public class VegetativePropagationOrgan : BasicPlantOrganScript {
 		newPlantGrowthCost = newPlantGrowthCost * Random.Range(0.8f, 1.2f);
 	}
 
+	public override void SpawnOrganismAdult() {
+	}
+
 	//void FixedUpdate() {
 	//	if (growth >= newPlantGrowthCost) {
 	//		if (Random.Range(0, growth / growthMax) >= growth / growthMax) {

@@ -15,7 +15,7 @@ public class SpeciesMotor : MonoBehaviour {
 	int refreshCount;
 
 	List<BasicSpeciesScript> allSpecies = new List<BasicSpeciesScript>();
-	List<BasicAnimalSpecies> animalSpecies = new List<BasicAnimalSpecies>();
+	List<AnimalSpecies> animalSpecies = new List<AnimalSpecies>();
 	List<PlantSpecies> plantSpecies = new List<PlantSpecies>();
 
 	public void SetupSimulation(EarthScript earth, SunScript sun) {
@@ -35,18 +35,17 @@ public class SpeciesMotor : MonoBehaviour {
 			transform.GetChild(i).GetComponent<BasicSpeciesScript>().speciesIndex = i;
 		}
 		for (int i = 0; i < GetAllSpecies().Count; i++) {
-			if (GetAllSpecies()[i].GetComponent<BasicAnimalSpecies>() != null) {
-				animalSpecies.Add(GetAllSpecies()[i].GetComponent<BasicAnimalSpecies>());
-				GetAllSpecies()[i].specificSpeciesIndex = i;
+			if (GetAllSpecies()[i].GetComponent<AnimalSpecies>() != null) {
+				animalSpecies.Add(GetAllSpecies()[i].GetComponent<AnimalSpecies>());
+				GetAllSpecies()[i].specificSpeciesIndex = animalSpecies.Count - 1;
 			}
 		}
 		for (int i = 0; i < GetAllSpecies().Count; i++) {
 			if (GetAllSpecies()[i].GetComponent<PlantSpecies>() != null) {
 				plantSpecies.Add(GetAllSpecies()[i].GetComponent<PlantSpecies>());
-				GetAllSpecies()[i].specificSpeciesIndex = i;
+				GetAllSpecies()[i].specificSpeciesIndex = plantSpecies.Count - 1;
 			}
 		}
-
 		foreach (var species in GetAllSpecies()) {
 			species.SetupSimulation(earth, sun);
 		}
@@ -121,7 +120,7 @@ public class SpeciesMotor : MonoBehaviour {
 		return allSpecies;
 	}
 
-	public List<BasicAnimalSpecies> GetAllAnimalSpecies() {
+	public List<AnimalSpecies> GetAllAnimalSpecies() {
 
 		return animalSpecies;
 	}

@@ -17,14 +17,17 @@ public class MouthScript : BasicAnimalOrganScript {
 
 	public void SetUpMouth() {
 		mouth = new GameObject("Mouth").transform;
-		mouth.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
+		mouth.SetParent(animalScript.GetAnimalMotor().GetModelTransform());
 		mouth.localScale = Vector3.one;
 		mouth.localEulerAngles = Vector3.zero;
-		mouth.localPosition = new Vector3(0, 0, eatRange / 2f / basicAnimalScript.GetAnimalMotor().GetModelTransform().lossyScale.z);
+		mouth.localPosition = new Vector3(0, 0, eatRange / 2f / animalScript.GetAnimalMotor().GetModelTransform().lossyScale.z);
 	}
 
 
     public override void UpdateOrgan() {
 
 	}
+
+    public override void ResetOrgan() {
+    }
 }

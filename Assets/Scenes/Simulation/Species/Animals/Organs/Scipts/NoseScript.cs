@@ -12,4 +12,6 @@ public class NoseScript : BasicAnimalOrganScript {
     public override void UpdateOrgan() {
     }
 
+    public override void ResetOrgan() {
+    }
 }

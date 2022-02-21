@@ -53,13 +53,14 @@ public class EarthScript : MonoBehaviour {
 		this.simulationDeltaTime = simulationSpeed / 10;
 		this.size = size;
 		transform.localScale = new Vector3(size, size, size);
-		SetupFoodTypeIdex();
+		SetupFoodTypeIndex();
+		SetupSpeciesFoodType();
 		User.Instance.ChangedSettings += OnSettingsChanged;
 		frameManager = GetComponent<FrameManager>();
 		frameManager.SetWantedItterationsPerFrame(User.Instance.GetFramesPerSeccondUserPref());
 		zoneController = GetComponent<ZoneController>();
 		zoneController.SetupZoneController(this);
-		zoneController.SpawnZones(size,SimulationScript.Instance.numberOfZones,SimulationScript.Instance.maxNeiboringZones, SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() * 5);
+		zoneController.SpawnZones(size,SimulationScript.Instance.numberOfZones,SimulationScript.Instance.maxNeiboringZones, SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() * 5, SpeciesManager.Instance.GetAllStartingAnimals() * 5, SimulationScript.Instance.zoneSetup);
 		earthState = new EarthState();
 	}
 
@@ -110,6 +111,7 @@ public class EarthScript : MonoBehaviour {
 			simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
         }
 		if (simulationUpdateStatus == SimulationUpdateStatus.CleaningUp) {
+			UpdateOrganismLists();
 			OnEndFrame?.Invoke(this, new EventArgs { });
 			simulationUpdateStatus = SimulationUpdateStatus.SettingUp;
         }
@@ -130,12 +132,13 @@ public class EarthScript : MonoBehaviour {
         UpdateOrganismsBehavior();
         UpdateOrganisms();
         simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
+		UpdateOrganismLists();
         OnEndFrame?.Invoke(this, new EventArgs { });
 		UpdateSpeciesMotorGraphData();
         simulationUpdateStatus = SimulationUpdateStatus.SettingUp;
     }
 
-	void StartFindZoneJobs() {
+	public void StartFindZoneJobs() {
 		activeJobs.Add(zoneController.FindZoneController.StartUpdateJob());
     }
 
@@ -168,7 +171,7 @@ public class EarthScript : MonoBehaviour {
 		earthState = earthState.SetEarthState(this);
     }
 
-	void CompleteFindZoneJobs() {
+	public void CompleteFindZoneJobs() {
 		CompleteJobs();
 		zoneController.FindZoneController.CompleteZoneJob();
     }
@@ -197,10 +200,9 @@ public class EarthScript : MonoBehaviour {
 	}
 
 	void CompleteJobs() {
-		for (int i = 0; i < activeJobs.Count; i++) {
+		for (int i = activeJobs.Count - 1; i >= 0; i--) {
 			activeJobs[i].Complete();
 			activeJobs.RemoveAt(i);
-			i--;
 		}
 	}
 
@@ -218,10 +220,16 @@ public class EarthScript : MonoBehaviour {
 		}
 	}
 
+	void UpdateOrganismLists() {
+		List<BasicSpeciesScript> allSpecies = GetAllSpecies();
+		for (int i = 0; i < allSpecies.Count; i++) {
+			allSpecies[i].UpdateOrganismLists();
+		}
+	}
+
 	void UpdateSpeciesMotorGraphData() {
 		SpeciesManager.Instance.GetSpeciesMotor().UpdateSpeciesGraphData();
     }
-
     #endregion
 
 	public void OnSettingsChanged(User _user, SettingsEventArgs _settings) {
@@ -240,7 +248,7 @@ public class EarthScript : MonoBehaviour {
     }
 
     #region FoodTypeManagment
-	void SetupFoodTypeIdex() {
+	void SetupFoodTypeIndex() {
 		typeIndex = new List<string>();
         for (int i = 0; i < GetAllSpecies().Count; i++) {
             for (int f = 0; f < GetAllSpecies()[i].GetOrganismFoodTypes().Count; f++) {
@@ -248,12 +256,21 @@ public class EarthScript : MonoBehaviour {
             }
         }
     }
-
 	void AddFoodTypeToList(string foodType) {
 		if (!typeIndex.Contains(foodType)) {
 			typeIndex.Add(foodType);
 		}
     }
+
+	public void SetupSpeciesFoodType() {
+        for (int i = 0; i < GetAllSpecies().Count; i++) {
+			GetAllSpecies()[i].SetupSpeciesFoodType();
+        }
+        for (int i = 0; i < GetAllAnimalSpecies().Count; i++) {
+			GetAllAnimalSpecies()[i].SetupAnimalPredatorSpeciesFoodType();
+        }
+    }
+
 
 	public int GetIndexOfFoodType(string foodType) {
         for (int i = 0; i < typeIndex.Count; i++) {
@@ -265,11 +282,18 @@ public class EarthScript : MonoBehaviour {
     }
     #endregion
 
-
     #region GetMethods
     public List<BasicSpeciesScript> GetAllSpecies() {
 		return SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
     }
+
+	public List<PlantSpecies> GetAllPlantSpecies() {
+		return SpeciesManager.Instance.GetSpeciesMotor().GetAllPlantSpecies();
+    }
+
+	public List<AnimalSpecies> GetAllAnimalSpecies () {
+		return SpeciesManager.Instance.GetSpeciesMotor().GetAllAnimalSpecies();
+	}
 
 	public List<BasicJobController> GetAllJobControllers() {
 		List<BasicJobController> jobControllers = new List<BasicJobController>();

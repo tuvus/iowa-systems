@@ -19,27 +19,27 @@ public class EyesScript : BasicAnimalOrganScript {
 	public void SetUpEyes() {
 		if (speciesEyes.eyeType == EyeTypes.Foward) {
 			Transform newEye = new GameObject("Eyes").transform;
-			newEye.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
+			newEye.SetParent(animalScript.GetAnimalMotor().GetModelTransform());
 			newEye.localScale = Vector3.one;
 			newEye.localEulerAngles = Vector3.zero; 
-			newEye.localPosition = new Vector3(0, 0, speciesEyes.sightRange / 2 / basicAnimalScript.GetAnimalMotor().GetModelTransform().lossyScale.z);
+			newEye.localPosition = new Vector3(0, 0, speciesEyes.sightRange / 2 / animalScript.GetAnimalMotor().GetModelTransform().lossyScale.z);
 			eyes.Add(newEye);
 			return;
 		}
 		if (speciesEyes.eyeType == EyeTypes.Side) {
 			Transform newLeftEye = new GameObject("LeftEye").transform;
-			newLeftEye.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
+			newLeftEye.SetParent(animalScript.GetAnimalMotor().GetModelTransform());
 			newLeftEye.localScale = Vector3.one;
 			newLeftEye.localEulerAngles = Vector3.zero; 
-			newLeftEye.localPosition = new Vector3(-speciesEyes.sightRange / 2 / basicAnimalScript.GetAnimalMotor().GetModelTransform().lossyScale.x, 0, 0);
+			newLeftEye.localPosition = new Vector3(-speciesEyes.sightRange / 2 / animalScript.GetAnimalMotor().GetModelTransform().lossyScale.x, 0, 0);
 			eyes.Add(newLeftEye);
 
 
 			Transform newRightEye = new GameObject("RightEye").transform;
-			newRightEye.SetParent(basicAnimalScript.GetAnimalMotor().GetModelTransform());
+			newRightEye.SetParent(animalScript.GetAnimalMotor().GetModelTransform());
 			newRightEye.localScale = Vector3.one;
 			newRightEye.localEulerAngles = Vector3.zero; 
-			newRightEye.localPosition = new Vector3(speciesEyes.sightRange / 2 / basicAnimalScript.GetAnimalMotor().GetModelTransform().lossyScale.x, 0, 0);
+			newRightEye.localPosition = new Vector3(speciesEyes.sightRange / 2 / animalScript.GetAnimalMotor().GetModelTransform().lossyScale.x, 0, 0);
 			eyes.Add(newRightEye);
 		}
 	}
@@ -49,5 +49,8 @@ public class EyesScript : BasicAnimalOrganScript {
 
 	public EyeTypes GetEyeType() {
 		return speciesEyes.eyeType;
+    }
+
+    public override void ResetOrgan() {
     }
 }

@@ -11,8 +11,15 @@ public class RootOrgan : BasicPlantOrganScript {
         plantScript = basicOrganismScript.GetComponent<PlantScript>();
     }
 
+    public override void SpawnOrganismAdult() {
+        rootGrowth = new float2(speciesRoots.rootGrowthMax.x, plantScript.plantSpecies.growthStages[(int)plantScript.stage].rootDepth);
+        if (rootGrowth.y > 0)
+            GrowOrgan(0);
+    }
+
+
     public override void ResetOrgan() {
-        rootGrowth = new float2(0, 0);
+        rootGrowth = new float2(speciesRoots.rootGrowthMax.x, 0);
         rootDensity = 0;
     }
 
@@ -47,11 +54,11 @@ public class RootOrgan : BasicPlantOrganScript {
         return rootGrowth;
     }
 
-    public override void AddToZone(int zoneIndex, int plantDataIndex) {
-        plantScript.GetEarthScript().GetZoneController().organismsByFoodTypeInZones.Add(plantScript.GetEarthScript().GetIndexOfFoodType(speciesRoots.GetOrganType()), plantDataIndex);
+    public override void AddToZone(int zoneIndex, ZoneController.DataLocation dataLocation) {
+        GetZoneController().AddFoodTypeToZone(zoneIndex, speciesRoots.organFoodIndex, dataLocation);
     }
 
-    public override void RemoveFromZone(int zoneIndex) {
-        RemoveFoodTypeFromZone(zoneIndex, plantScript.GetEarthScript().GetIndexOfFoodType(speciesRoots.organType));
+    public override void RemoveFromZone(int zoneIndex, ZoneController.DataLocation dataLocation) {
+        GetZoneController().RemoveFoodTypeFromZone(zoneIndex, speciesRoots.organFoodIndex, dataLocation);
     }
 }

@@ -7,11 +7,10 @@ public class PlantSpeciesRoots : BasicPlantSpeciesOrganScript {
 
 	public float2 rootGrowthMax;
 	public float rootDensity;
-	public string organType;
 
 	public override void MakeOrganism(BasicOrganismScript newOrganism) {
 		RootOrgan rootOrgan = newOrganism.gameObject.AddComponent<RootOrgan>();
-		rootOrgan.SetupBasicOrgan(this);
+		rootOrgan.SetupBasicOrgan(this, newOrganism);
 		rootOrgan.speciesRoots = this;
 		rootOrgan.rootGrowth.x = rootGrowthMax.x;
 	}

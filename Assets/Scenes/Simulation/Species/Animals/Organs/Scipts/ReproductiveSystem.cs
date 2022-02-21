@@ -5,39 +5,98 @@ using UnityEngine;
 public class ReproductiveSystem : BasicAnimalOrganScript {
 
 	public AnimalSpeciesReproductiveSystem animalSpeciesReproductive;
-	public FemaleReproductiveSystem femaleReproductiveSystem;
-	public MaleReproductiveSystem maleReproductiveSystem;
 
+	public bool sex;
 	public float reproductionAge;
+	public float timeUntilBirth;
+	public float timeAfterReproduction;
 
 	internal override void SetUpSpecificOrgan() {
-		reproductionAge = animalSpeciesReproductive.reproductionAge * Random.Range(0.8f, 1.2f);
-		behaviorScript.reproductive = this;
+		animalScript.reproductive = this;
 	}
 
-    public override void UpdateOrgan() {
+	public void SpawnReproductive() {
+		reproductionAge = animalSpeciesReproductive.reproductionAge * Random.Range(0.8f, 1.2f);
+		if (Random.Range(0, 2) == 0) {
+			sex = false;
+		} else {
+			sex = true;
+		}
+		if (IsMature()) {
+			animalScript.stage = AnimalScript.GrowthStage.Adult;
+		}
+	}
+
+	public override void UpdateOrgan() {
+		if (sex) {
+			UpdateMaleOrgan();
+		} else {
+			UpdateFemaleOrgan();
+        }
     }
 
+	public void UpdateMaleOrgan() {
+		if (timeAfterReproduction > 0) {
+			timeAfterReproduction -= animalScript.GetEarthScript().simulationDeltaTime * .2f;
+			if (timeAfterReproduction <= 0)
+				timeAfterReproduction = 0;
+		}
+	}
+
+	public void UpdateFemaleOrgan() {
+		if (timeUntilBirth > 0) {
+			timeUntilBirth -= animalScript.GetEarthScript().simulationDeltaTime * .2f;
+			if (timeUntilBirth <= 0) {
+				timeUntilBirth = 0;
+				Reproduce();
+			}
+			return;
+		}
+		if (timeAfterReproduction > 0) {
+			timeAfterReproduction -= animalScript.GetEarthScript().simulationDeltaTime * .2f;
+			if (timeAfterReproduction <= 0)
+				timeAfterReproduction = 0;
+		}
+	}
+
+	void Reproduce() {
+		timeAfterReproduction = animalSpeciesReproductive.reproductionDelay * Random.Range(0.8f, 1.2f);
+		CreateChildren();
+	}
+
 	public bool AttemptReproduction() {
-		if (maleReproductiveSystem != null && maleReproductiveSystem.Concieve()) {
+		if (animalScript.mate != null && ReadyToAttemptReproduction() && animalScript.mate.GetReproductive().ReadyToAttemptReproduction()) {
+			Concieve();
+			animalScript.mate.GetReproductive().Concieve();
 			return true;
 		}
 		return false;
 	}
 
-	public bool ReadyToAttemptReproduction() {
-		if ((maleReproductiveSystem != null && maleReproductiveSystem.ReadyToConcieve()) || (femaleReproductiveSystem != null && femaleReproductiveSystem.ReadyToConcieve())) {
-			return true;
-        }
-		return false;
-    }
+	public void Concieve() {
+		if (sex) {
+			timeAfterReproduction = animalSpeciesReproductive.reproductionDelay * Random.Range(0.0f, .3f);
+		} else {
+			timeUntilBirth = animalSpeciesReproductive.birthTime * Random.Range(0.8f, 1.2f);
+		}
+	}
 
-	public bool CheckMate(BasicAnimalScript _basicAnimal) {
-		if (_basicAnimal.GetAnimalSpecies() == basicAnimalScript.GetAnimalSpecies() && _basicAnimal.behavior.reproductive.GetSex() != GetSex() && _basicAnimal.mate == null && PastReproductiveAge() && _basicAnimal.behavior.reproductive.PastReproductiveAge()) {
+	public bool ReadyToAttemptReproduction() {
+		if (timeAfterReproduction <= 0 && animalScript.mate != null) {
+			if (!sex && timeUntilBirth > 0)
+				return false;
 			return true;
-        }
+		}
 		return false;
-    }
+	}
+
+	public bool CheckMate(AnimalScript targetMate) {
+		if (targetMate.reproductive.GetSex() == GetSex())
+			return false;
+		if (!(IsMature() && targetMate.reproductive.IsMature()))
+			return false;
+		return true;
+	}
 
 	public void CreateChildren () {
 		int birthAmmount = animalSpeciesReproductive.reproducionAmount;
@@ -46,22 +105,27 @@ public class ReproductiveSystem : BasicAnimalOrganScript {
 				birthAmmount--;
 			}
 		}
-		User.Instance.PrintState("Birth:" + birthAmmount,animalSpeciesReproductive.animalSpecies.speciesDisplayName, 3);
-		animalSpeciesReproductive.MakeChildOrganism(birthAmmount, basicOrganismScript);
+		User.Instance.PrintState("Birth:" + birthAmmount,animalSpeciesReproductive.animalSpecies.speciesDisplayName, 2);
+		animalSpeciesReproductive.MakeChildOrganism(birthAmmount, animalScript);
 	}
 
 	/// <summary>
 	/// Returns false for Female and true for Male
 	/// </summary>
 	public bool GetSex() {
-		if (maleReproductiveSystem)
+		return sex;
+    }
+
+	public bool IsMature() {
+		if (animalScript.age >= reproductionAge)
 			return true;
 		return false;
     }
 
-	public bool PastReproductiveAge() {
-		if (basicAnimalScript.age >= reproductionAge)
-			return true;
-		return false;
+    public override void ResetOrgan() {
+		sex = false;
+		reproductionAge = 0;
+		timeUntilBirth = 0;
+		timeAfterReproduction = 0;
     }
 }

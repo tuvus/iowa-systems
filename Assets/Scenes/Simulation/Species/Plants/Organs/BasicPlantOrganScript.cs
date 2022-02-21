@@ -7,14 +7,42 @@ public abstract class BasicPlantOrganScript : BasicOrganScript {
     internal BasicPlantSpeciesOrganScript basicPlantSpeciesOrganScript;
     internal PlantScript plantScript;
     internal float growthPriority;
+    internal bool spawned;
 
-    internal override void SetupOrgan(BasicSpeciesOrganScript _basicSpeciesOrganScript) {
-        basicPlantSpeciesOrganScript = (BasicPlantSpeciesOrganScript)_basicSpeciesOrganScript;
+    internal override void SetupOrgan(BasicSpeciesOrganScript basicSpeciesOrganScript) {
+        basicPlantSpeciesOrganScript = (BasicPlantSpeciesOrganScript)basicSpeciesOrganScript;
         plantScript = basicOrganismScript.GetComponent<PlantScript>();
         plantScript.organs.Add(this);
     }
 
-    public abstract void ResetOrgan();
+    public abstract void SpawnOrganismAdult();
+
+    public override void ResetOrgan() {
+        Despawn();
+    }
+
+    internal void Spawn() {
+        if (!spawned) {
+            spawned = true;
+            AddToZone(plantScript.zone, new ZoneController.DataLocation(plantScript));
+        }
+    }
+
+    internal void Despawn() {
+        if (spawned) {
+            spawned = false;
+            RemoveFromZone(plantScript.zone, new ZoneController.DataLocation(plantScript));
+        }
+    }
+
+    public virtual void OnPlantAddToZone(int zone, ZoneController.DataLocation dataLocation) {
+        return;
+    }
+
+
+    public virtual void OnOrganismGermination() {
+        return;
+    }
 
     public abstract void GrowOrgan(float growth);
 
@@ -31,6 +59,7 @@ public abstract class BasicPlantOrganScript : BasicOrganScript {
     public virtual float GetStemheight() {
         return 0;
     }
+    
     /// <summary>
     /// Raw growth gained from the organ.
     /// </summary>
@@ -38,39 +67,13 @@ public abstract class BasicPlantOrganScript : BasicOrganScript {
     public virtual float GetGrowth(float deltaTime) {
         return 0;
     }
+   
     /// <summary>
     /// Returns a value from 0 to 1 depending on how much growth should be spend in this organ.
     /// </summary>
     /// <returns>float</returns>
     public float GetGrowthPriority() {
         return growthPriority;
-    }
-
-    public virtual void OnOrganismDeath() {
-        return;
-    }
-
-    public virtual void OnOrganismGermination() {
-        return;
-    }
-
-    public virtual void AddToZone(int zoneIndex, int plantDataIndex) {
-        return;
-    }
-
-    public virtual void RemoveFromZone(int zoneIndex) {
-        return;
-    }
-
-    internal void RemoveFoodTypeFromZone(int zoneIndex,int foodTypeIndex) {
-        if (plantScript.GetEarthScript().GetZoneController().organismsByFoodTypeInZones.TryGetFirstValue(foodTypeIndex, out int value, out var iterator)) {
-            do {
-                if (value == plantScript.plantDataIndex) {
-                    plantScript.GetEarthScript().GetZoneController().organismsByFoodTypeInZones.Remove(iterator);
-                    return;
-                }
-            } while (plantScript.GetEarthScript().GetZoneController().organismsByFoodTypeInZones.TryGetNextValue(out value, ref iterator));
-        }
     }
 
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
+using System;
 
 public class PlantScript : BasicOrganismScript {
 	public enum GrowthStage {
@@ -23,11 +24,13 @@ public class PlantScript : BasicOrganismScript {
 	public float2 rootGrowth;
 	public GrowthStage stage;
 
-	public List<BasicPlantOrganScript> organs = new List<BasicPlantOrganScript>();
+	public List<BasicPlantOrganScript> organs;
+	public List<EddiblePlantOrganScript> eddibleOrgans;
 
 	public struct PlantData {
 		public float age;
 		public int speciesIndex;
+		public int specificSpeciesIndex;
 		public int plantIndex;
 		public int zone;
 		public float3 position;
@@ -39,7 +42,8 @@ public class PlantScript : BasicOrganismScript {
 
 		public PlantData(PlantScript plantScript) {
 			age = plantScript.age;
-			speciesIndex = plantScript.species.specificSpeciesIndex;
+			speciesIndex = plantScript.species.speciesIndex;
+			specificSpeciesIndex = plantScript.species.specificSpeciesIndex;
 			plantIndex = plantScript.specificOrganismIndex;
 			zone = plantScript.zone;
 			position = plantScript.position;
@@ -48,45 +52,57 @@ public class PlantScript : BasicOrganismScript {
 			rootGrowth = plantScript.rootGrowth;
 			rootDensity = .1f;
 			stage = plantScript.stage;
-
-		}
-
-		public void SetupData(PlantScript plantScript) {
-			age = plantScript.age;
-			speciesIndex = plantScript.species.specificSpeciesIndex;
-			plantIndex = plantScript.specificOrganismIndex;
-			zone = plantScript.zone;
-			position = plantScript.position;
-			bladeArea = plantScript.bladeArea;
-			stemHeight = plantScript.stemHeight;
-			rootGrowth = plantScript.rootGrowth;
-			rootDensity = .1f;
-			stage = plantScript.stage;
-			plantScript.plantSpecies.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex] = this;
-			//Debug.Log(plantIndex + " " + plantScript.plantIndex);
 		}
 	}
 
-	public override void SetUpSpecificOrganism(BasicOrganismScript parent) {
-		//position = GetOrganismMotor().GetModelTransform().position;
-		//GetEddible().postion = position;
-		zone = -1;
-		if (parent != null) {
-			plantParent = parent.GetComponent<PlantScript>();
-			return;
-		}
+    #region setup
+    public void SetUpPlantOrganism(PlantSpecies plantSpecies) {
+		SetUpOrganism(plantSpecies);
+		this.plantSpecies = plantSpecies;
+		gameObject.name = plantSpecies + "Organism";
 	}
 
-	#region PlantUpdate
-	public override void RefreshOrganism() {
+	public void SpawnPlantRandom(GrowthStage stage) {
+		this.stage = stage;
+		age = 0;
+        for (int i = 0; i < organs.Count; i++) {
+			organs[i].SpawnOrganismAdult();
+        }
+    }
+
+	public void SpawnSeedRandom(float age) {
+		stage = GrowthStage.Seed;
+		this.age = age;
+    }
+
+	public void SpawnSeed() {
+		stage = GrowthStage.Seed;
+		age = 0;
+	}
+    #endregion
+
+    #region PlantUpdate
+    public override void RefreshOrganism() {
 	}
 
 	public void UpdateOrganismBehavior(float sunGain, float waterGain, GrowthStage stage) {
-		if (this.stage == GrowthStage.Seed && stage == GrowthStage.Germinating) {
-			SeedGerminated();
+		if (!spawned)
+			return;
+		if (this.stage == GrowthStage.Seed) {
+			if (stage == GrowthStage.Dead) {
+				KillOrganism();
+				return;
+			}
+			if (stage == GrowthStage.Germinating) {
+				SeedGerminated();
+				return;
+			}
+			return;
 		}
-		growth = GetEarthScript().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain);
         this.stage = stage;
+		if (this.stage != GrowthStage.Germinating)
+			GetMeshRenderer().enabled = User.Instance.GetRenderWorldUserPref();
+		growth = GetEarthScript().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain);
 		UpdateGrowthPriority();
 	}
 
@@ -107,18 +123,15 @@ public class PlantScript : BasicOrganismScript {
 	#endregion
 
 	#region PlantControls
-	public void AddToZone(int zoneIndex) {
-		zone = zoneIndex;
-        for (int i = 0; i < organs.Count; i++) {
-			organs[i].AddToZone(zone,plantDataIndex);
-        }
+	public override void AddToZone(int zoneIndex) {
+		for (int i = 0; i < organs.Count; i++) {
+			organs[i].OnPlantAddToZone(zone, new ZoneController.DataLocation(this));
+		}
     }
 
-	public void RemoveFromZone() {
-        for (int i = 0; i < organs.Count; i++) {
-			organs[i].RemoveFromZone(zone);
-        }
-    }
+	public override void RemoveFromZone() {
+		base.RemoveFromZone();
+	}
 
 	public void Grow(float growth) {
 		float newGrowth = growth;
@@ -131,10 +144,30 @@ public class PlantScript : BasicOrganismScript {
         }
 	}
 
+	public float EatPlant(AnimalScript animal, float biteAmount) {
+		float foodReturn = 0;
+        for (int i = eddibleOrgans.Count - 1; i >= 0; i--) {
+			//Multipling and dividing by 10 reduces the total food gained by eating an entire plant
+			float newFood = eddibleOrgans[i].EatPlantOrgan(animal, biteAmount * 10) / 10;
+			foodReturn += newFood;
+			biteAmount -= newFood;
+        }
+		return foodReturn;
+	}
+
 	void SeedGerminated() {
+		stage = GrowthStage.Germinating;
 		for (int i = 0; i < organs.Count; i++) {
 			organs[i].OnOrganismGermination();
 		}
+	}
+
+	public override void KillOrganism() {
+		if (stage == GrowthStage.Seed)
+			plantSpecies.GetSpeciesSeeds().SeedDeath();
+		else 
+			species.OrganismDeath();
+		OrganismDied();
 	}
 
 	internal override void OrganismDied() {
@@ -142,20 +175,23 @@ public class PlantScript : BasicOrganismScript {
 		for (int i = 0; i < organs.Count; i++) {
 			organs[i].OnOrganismDeath();
 		}
-		plantSpecies.DeactivatePlant(this);
+		plantSpecies.DeactivatePlant(this, PlantSpecies.ListType.activePlants);
 	}
 
 	public void ResetPlant() {
 		stage = GrowthStage.Dead;
 		zone = -1;
 		growth = 0;
+		age = 0;
 		bladeArea = 0;
 		stemHeight = 0;
 		rootGrowth = new float2(0, 0);
         for (int i = 0; i < organs.Count; i++) {
 			organs[i].ResetOrgan();
         }
-    }
+		GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(this);
+
+	}
 	#endregion
 
 	#region GetMethods

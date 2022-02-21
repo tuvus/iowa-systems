@@ -8,9 +8,9 @@ public class AnimalSpeciesEars : BasicAnimalSpeciesOrganScript {
 
 	public float hearRange;
 
-	public override void MakeOrganism(BasicOrganismScript _newOrganism) {
-		EarsScript earsScript = speciesScript.InstantiateNewOrgan(ears,_newOrganism).GetComponent<EarsScript>();
+	public override void MakeOrganism(BasicOrganismScript newOrganism) {
+		EarsScript earsScript = speciesScript.InstantiateNewOrgan(ears, newOrganism).GetComponent<EarsScript>();
 		earsScript.hearRange = hearRange;
-		earsScript.SetupBasicOrgan(this);
+		earsScript.SetupBasicOrgan(this, newOrganism);
 	}
 }
