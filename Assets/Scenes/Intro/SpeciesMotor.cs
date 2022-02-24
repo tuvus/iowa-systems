@@ -92,6 +92,10 @@ public class SpeciesMotor : MonoBehaviour {
 		}
 	}
 
+	public bool GetGraphStatus() {
+		return graphWindow.gameObject.activeSelf;
+    }
+
 	public void ShowGraph() {
 		//for (int i = 0; i < transform.childCount; i++) {
 		//	if (transform.GetChild(i).GetComponent<BasicSpeciesScript>() != null) {

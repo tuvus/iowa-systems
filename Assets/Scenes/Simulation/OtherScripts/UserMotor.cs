@@ -39,6 +39,8 @@ public class UserMotor : MonoBehaviour {
 	}
 
 	void ManageScroll(float earthSize) {
+		if (history.GetGraphStatus())
+			return;
 		//scrollModifyer = Mathf.Pow(cameraTransform.localPosition.y - (earthSize / 4f), 2) / -(earthSize * 20);
 		scrollModifyer = Mathf.Pow(cameraTransform.localPosition.y - (earthSize / 4), 2) / -(earthSize * 20);
 		if (scrollModifyer > 0)
