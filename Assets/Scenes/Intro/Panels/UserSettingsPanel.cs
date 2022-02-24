@@ -29,7 +29,8 @@ public class UserSettingsPanel : MonoBehaviour {
             GetFramesPerSeccondInputField().text = User.Instance.GetFramesPerSeccondUserPref().ToString();
         } else {
             PlayerPrefs.Save();
-            User.Instance.OnChangedSettings();
+            if (SimulationScript.Instance.simulationInitialised)
+                User.Instance.OnChangedSettings();
         }
     }
 

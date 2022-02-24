@@ -6,10 +6,6 @@ using UnityEngine;
 public class User : MonoBehaviour {
     public static User Instance { get; private set; }
 
-
-    public delegate void ChangedSettingsEventHandler(User user, SettingsEventArgs args);
-    public event ChangedSettingsEventHandler ChangedSettings;
-
     [Tooltip("Will display messages higher or equal to this number: 0=UnimportantActions, 1=ImportantActions, 2=OrganismDeaths, 3=Nothing")]
     [SerializeField] int debugLogg;
 
@@ -21,7 +17,6 @@ public class User : MonoBehaviour {
         }
 
         SetUpPlayerPrefs();
-        OnChangedSettings();
     }
 
     public void SetUpPlayerPrefs() {
@@ -50,9 +45,8 @@ public class User : MonoBehaviour {
             Camera.main.clearFlags = CameraClearFlags.SolidColor;
         }
         SimulationScript.Instance.SetFrameRate(GetFramesPerSeccondUserPref());
-        if (ChangedSettings != null) {
-            ChangedSettings(this, new SettingsEventArgs { Rendering = GetRenderWorldUserPref(), Shadows = GetRenderShadowsUserPref(), Sun = GetRenderSunUserPref(), Skybox = GetRenderSkyboxUserPref(), FramesPerSeccond = GetFramesPerSeccondUserPref() });
-        }
+        SimulationScript.Instance.GetEarth().OnSettingsChanged(GetRenderWorldUserPref(), GetFramesPerSeccondUserPref());
+        SimulationScript.Instance.GetSun().OnSettingsChanged(GetRenderSunUserPref(),GetRenderShadowsUserPref());
     }
 
     /// <summary>
@@ -96,13 +90,4 @@ public class User : MonoBehaviour {
         return PlayerPrefs.GetInt("FramesPerSeccond");
     }
     #endregion
-}
-
-public class SettingsEventArgs : EventArgs {
-	public bool Rendering { get; set; }
-	public bool Shadows { get; set; }
-	public bool Sun { get; set; }
-	public bool Skybox { get; set; }
-
-    public int FramesPerSeccond { get; set; }
 }

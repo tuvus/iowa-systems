@@ -301,10 +301,19 @@ public class AnimalSpecies : BasicSpeciesScript {
 	public void DespawnCorpse(AnimalScript animal) {
 		DeactivateAnimal(animal, ListType.activeCorpses);
     }
-	#endregion
 
-	#region AnimalListControls
-	internal override void AddSpecificOrganism(BasicOrganismScript newOrganism) {
+    public override void OnSettingsChanged(bool renderOrganisms) {
+        for (int i = 0; i < activeAnimals.Count; i++) {
+			animals[activeAnimals[i]].GetMeshRenderer().enabled = renderOrganisms;
+        }
+		for (int i = 0; i < activeCorpses.Count; i++) {
+			animals[activeCorpses[i]].GetMeshRenderer().enabled = renderOrganisms;
+		}
+	}
+    #endregion
+
+    #region AnimalListControls
+    internal override void AddSpecificOrganism(BasicOrganismScript newOrganism) {
 		AnimalScript newAnimal = (AnimalScript)newOrganism;
 		animals.Add(newAnimal);
 		newAnimal.specificOrganismIndex = animals.Count - 1;

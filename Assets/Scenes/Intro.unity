@@ -12628,5 +12628,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Quality
       objectReference: {fileID: 0}
+    - target: {fileID: 8237647047170974716, guid: 5f104e933661d8c4b9ed69fc6a18ae93,
+        type: 3}
+      propertyPath: m_Text
+      value: FramesPerSecond
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5f104e933661d8c4b9ed69fc6a18ae93, type: 3}

@@ -5,19 +5,22 @@ using UnityEngine;
 public class SunScript : MonoBehaviour {
 	EarthScript earth;
 	public float sunSpeed;
+	LensFlare lensFlare;
+	Light sunLight;
 
 	public void SetupSun(EarthScript earth) {
-		User.Instance.ChangedSettings += OnSettingsChanged;
 		this.earth = earth;
+		lensFlare = GetComponentInChildren<LensFlare>();
+		sunLight = GetComponentInChildren<Light>();
 	}
 
-	public void OnSettingsChanged(User _user, SettingsEventArgs _settings) {
-		GetComponentInChildren<LensFlare>().enabled = _settings.Sun;
-		GetComponentInChildren<Light>().enabled = _settings.Shadows;
-		if (_settings.Shadows == false) {
-			RenderSettings.ambientLight = new Color(20, 20, 20, 0);
-        } else {
+	public void OnSettingsChanged(bool renderSun, bool renderShadows) {
+		lensFlare.enabled = renderSun;
+		sunLight.enabled = renderShadows;
+		if (renderShadows) {
 			RenderSettings.ambientLight = new Color(6, 6, 6, 0);
+        } else {
+			RenderSettings.ambientLight = new Color(20, 20, 20, 0);
 		}
 	}
 

@@ -65,7 +65,8 @@ public class PlantScript : BasicOrganismScript {
 	public void SpawnPlantRandom(GrowthStage stage) {
 		this.stage = stage;
 		age = 0;
-        for (int i = 0; i < organs.Count; i++) {
+		CheckRendering();
+		for (int i = 0; i < organs.Count; i++) {
 			organs[i].SpawnOrganismAdult();
         }
     }
@@ -100,8 +101,6 @@ public class PlantScript : BasicOrganismScript {
 			return;
 		}
         this.stage = stage;
-		if (this.stage != GrowthStage.Germinating)
-			GetMeshRenderer().enabled = User.Instance.GetRenderWorldUserPref();
 		growth = GetEarthScript().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain);
 		UpdateGrowthPriority();
 	}
@@ -156,6 +155,7 @@ public class PlantScript : BasicOrganismScript {
 	}
 
 	void SeedGerminated() {
+		GetMeshRenderer().enabled = User.Instance.GetRenderWorldUserPref();
 		stage = GrowthStage.Germinating;
 		for (int i = 0; i < organs.Count; i++) {
 			organs[i].OnOrganismGermination();
@@ -191,6 +191,11 @@ public class PlantScript : BasicOrganismScript {
         }
 		GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(this);
 
+	}
+
+	public void CheckRendering() {
+		if ((int)stage > (int)GrowthStage.Germinating)
+			GetMeshRenderer().enabled = User.Instance.GetRenderWorldUserPref();
 	}
 	#endregion
 

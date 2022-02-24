@@ -66,7 +66,6 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 	}
 	#endregion
 
-
 	#region PopulationCountGraph
 	public List<int> ReturnPopulationList() {
 		return populationOverTime;
@@ -82,6 +81,8 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 	#endregion
 
 	#region OrganismControls
+	public abstract void OnSettingsChanged(bool renderOrganisms);
+
 	public abstract void UpdateOrganismData();
 
 	public abstract void UpdateOrganismsBehavior();

@@ -189,6 +189,12 @@ public class PlantSpecies : BasicSpeciesScript {
 	public void AddToFindZone(PlantScript plant, int zone = -1, float range = 0) {
 		earth.GetZoneController().FindZoneController.AddFindZoneData(new FindZoneController.FindZoneData(new ZoneController.DataLocation(plant), zone, plant.position, range));
 	}
+
+	public override void OnSettingsChanged(bool renderOrganisms) {
+		for (int i = 0; i < activePlants.Count; i++) {
+			plants[activePlants[i]].CheckRendering();
+		}
+	}
 	#endregion
 
 	#region PlantListControls

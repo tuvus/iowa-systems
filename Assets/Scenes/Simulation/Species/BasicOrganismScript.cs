@@ -16,11 +16,8 @@ public abstract class BasicOrganismScript : MonoBehaviour {
 
 	internal MeshRenderer meshRenderer;
 
-
-
 	#region OrganismSetup
 	internal void SetUpOrganism(BasicSpeciesScript species) {
-		User.Instance.ChangedSettings += OnSettingsChanged;
 		this.species = species;
 		meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
 		GetMeshRenderer().material.color = species.speciesColor;
@@ -37,11 +34,6 @@ public abstract class BasicOrganismScript : MonoBehaviour {
     public abstract void RefreshOrganism();
 
 	public abstract void UpdateOrganism();
-
-    public void OnSettingsChanged(User _user, SettingsEventArgs _settings) {
-		if (spawned)
-			GetMeshRenderer().enabled = _settings.Rendering;
-	}
 	#endregion
 
 	#region OrganismControlls

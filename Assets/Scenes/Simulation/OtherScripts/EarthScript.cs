@@ -55,7 +55,6 @@ public class EarthScript : MonoBehaviour {
 		transform.localScale = new Vector3(size, size, size);
 		SetupFoodTypeIndex();
 		SetupSpeciesFoodType();
-		User.Instance.ChangedSettings += OnSettingsChanged;
 		frameManager = GetComponent<FrameManager>();
 		frameManager.SetWantedItterationsPerFrame(User.Instance.GetFramesPerSeccondUserPref());
 		zoneController = GetComponent<ZoneController>();
@@ -232,19 +231,17 @@ public class EarthScript : MonoBehaviour {
     }
     #endregion
 
-	public void OnSettingsChanged(User _user, SettingsEventArgs _settings) {
-		GetComponent<MeshRenderer>().enabled = _settings.Rendering;
-        foreach (var renderer in GetComponentsInChildren<MeshRenderer>()) {
-			renderer.enabled = _settings.Rendering;
-        }
-		if (_settings.Rendering) {
-			if (QualitySettings.GetQualityLevel() <= 1) {
-				GetAtmosphereRenderer().enabled = false;
-			} else {
-				GetAtmosphereRenderer().enabled = true;
-			}
+	public void OnSettingsChanged(bool renderWorld, int framesPerSeccond) {
+		GetComponent<MeshRenderer>().enabled = renderWorld;
+		if (renderWorld && QualitySettings.GetQualityLevel() > 1) {
+			GetAtmosphereRenderer().enabled = true;
+		} else {
+			GetAtmosphereRenderer().enabled = false;
 		}
-		frameManager.SetWantedItterationsPerFrame(_settings.FramesPerSeccond);
+		for (int i = 0; i < GetAllSpecies().Count; i++) {
+			GetAllSpecies()[i].OnSettingsChanged(renderWorld);
+        }
+		frameManager.SetWantedItterationsPerFrame(framesPerSeccond);
     }
 
     #region FoodTypeManagment
