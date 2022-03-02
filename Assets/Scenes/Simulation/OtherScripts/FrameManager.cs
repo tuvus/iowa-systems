@@ -3,34 +3,60 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class FrameManager : MonoBehaviour {
-    int wantedItterationsPerFrame;
-    int itterationsPerFrame;
+    int wantedIterationsPerSeccond;
+    int[] iterationsOverSecond;
+    int iterationsOverSecondIndex;
+    int iterationsOverSecondCount;
+    int iterationHistoryLength;
 
     float frameStartTime;
-    float itterationStartTime;
-    float itterationEndTime;
-
-    int itterationsThatOccuredLastFrame;
+    float iterationStartTime;
+    float iterationEndTime;
 
     #region CalculatingTime
-    public bool CanStartNewItterationBeforeNextFrame() {
-        if (GetTimeRemainingInFrame() > GetItterationTimeEstimate() * 1.4f) {
+    public int GetWantedIterationsPerSeccond() {
+        return wantedIterationsPerSeccond;
+    }
+
+    public int GetWantedIterationsThisFrame() {
+
+        float index = iterationsOverSecondIndex % ((float)iterationsOverSecond.Length / (float)(wantedIterationsPerSeccond % iterationsOverSecond.Length));
+        if (wantedIterationsPerSeccond % iterationsOverSecond.Length > 0 &&
+            index <= 1 && index != 0) {
+            return Mathf.Max(wantedIterationsPerSeccond / iterationsOverSecond.Length, 0) + 1;
+        }
+        return Mathf.Max(wantedIterationsPerSeccond / iterationsOverSecond.Length, 0);
+    }
+
+    public bool CanStartNewIterationBeforeNextFrame() {
+        if (GetTimeRemainingInFrame() > GetIterationTimeEstimate() * 1.4f) {
             return true;
         }
         return false;
     }
 
     float GetTimeRemainingInFrame() {
-        return GetWantedUpdatePerFrame() - (GetTimeSinceStartup() - frameStartTime);
+        return GetTimePerFrame() - (GetTimeSinceStartup() - frameStartTime);
     }
 
-    float GetWantedUpdatePerFrame() {
-        float timePerFrame = 1f / wantedItterationsPerFrame;
+    float GetTimePerFrame() {
+        float timePerFrame = 1f / iterationsOverSecond.Length;
          return timePerFrame;
     }
 
-    float GetItterationTimeEstimate() {
-        return itterationEndTime - itterationStartTime;
+    float GetIterationTimeEstimate() {
+        return iterationEndTime - iterationStartTime;
+    }
+
+    public int GetIterationsThatOccuredLastFrame() {
+        if (iterationsOverSecondIndex != 0) {
+            return iterationsOverSecond[iterationsOverSecondIndex - 1];
+        }
+        return iterationsOverSecond[iterationsOverSecond.Length - 1];
+    }
+
+    public int GetIterationsOverLastSeccond() {
+        return iterationsOverSecondCount;
     }
     #endregion
 
@@ -40,33 +66,35 @@ public class FrameManager : MonoBehaviour {
     }
 
     public void LogSimulationItterationStart() {
-        itterationStartTime = GetTimeSinceStartup();
+        iterationStartTime = GetTimeSinceStartup();
     }
 
     public void LogSimulationItterationEnd() {
-        itterationEndTime = GetTimeSinceStartup();
+        iterationEndTime = GetTimeSinceStartup();
     }
     #endregion
 
     #region VariableControlls
-    public void SetWantedItterationsPerFrame(int wantedItterationsPerFrame) {
-        this.wantedItterationsPerFrame = wantedItterationsPerFrame;
+    public void EndFrame(int iterations) {
+        iterationsOverSecondCount -= iterationsOverSecond[iterationsOverSecondIndex];
+        iterationsOverSecond[iterationsOverSecondIndex] = iterations;
+        iterationsOverSecondCount += iterations;
+        iterationsOverSecondIndex++;
+        if (iterationsOverSecondIndex >= iterationsOverSecond.Length)
+            iterationsOverSecondIndex = 0;
+        iterationHistoryLength++;
     }
 
-    public void SetItterationsPerFrame(int itterationsPerFrame) {
-        this.itterationsPerFrame = itterationsPerFrame;
+    public void SetWantedIterationsPerSeccond(int wantedIterationsPerSeccond) {
+        this.wantedIterationsPerSeccond = wantedIterationsPerSeccond;
+        iterationHistoryLength = 0;
     }
 
-    public int GetItterationsPerFrame() {
-        return itterationsPerFrame;
-    }
-
-    public void SetItterationsThatOccuredThisFrame(int itterations) {
-        itterationsThatOccuredLastFrame = itterations;
-    }
-
-    public int GetItterationsThatOccuredLastFrame() {
-        return itterationsThatOccuredLastFrame;
+    public void SetFramesPerSeccond(int fps) {
+        iterationsOverSecond = new int[fps];
+        iterationHistoryLength = 0;
+        iterationsOverSecondIndex = 0;
+        iterationsOverSecondCount = 0;
     }
     #endregion
 

@@ -22,7 +22,16 @@ public class GraphWindow : MonoBehaviour {
 	private void Awake() {
 		graphContainer = transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<RectTransform>();
 		RefreshHorizontalRows();
-		GetXAxisText().text = "SimulationTime(Every" + SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime +"Frames)";
+		if (SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime < 24)
+			GetXAxisText().text = "Time(" + (int)SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime + "Hours)";
+		else if (SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime < 168)
+			GetXAxisText().text = "Time(" + (int)(SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime * 10.0f / 24) / 10.0f + "Days)";
+		else if (SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime < 720)
+			GetXAxisText().text = "Time(" + (int)(SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime * 10.0f / 168) / 10.0f + "Weeks)";
+		else if (SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime < 8640)
+			GetXAxisText().text = "Time(" + (int)(SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime * 10.0f / 720) / 10.0f + "Months)";
+		else
+			GetXAxisText().text = "Time(" + (int)(SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime * 10.0f / 8640) / 10.0f + "Years)";
 
 	}
 

@@ -53,11 +53,12 @@ This will open up a new panel.
 #### Simulation Settings Panel
 To change the size or calculations press the "SimulationSettings" button.
 This will open up a new panel.
-* The "SimulationSpeed" input field determines the time that each calculation represents.
-A faster speed does less calculations relative to the simulation time, this allows the simulation to cover more time without requireing more processing power.
-A lower speed does more calculations relative to the simulation time, this allows the simulation to be more accurate.
+* The "SimulationSpeed" input field determines how many hours are represented in each iteration of the simulation.
+A higher value does less calculations relative to each year, this allows the simulation to cover more time without requireing more processing power.
+A lower value does more calculations relative to each year, this allows the simulation to be more accurate.
 * The "EarthSize" slider determines the size of the Earth.
 * The "GraphRefreshRate" slider determines how quickly the graph refreshes in simulation time.
+Displayed in years, months, weeks, days and hours.
 * The "SunRotationEffect" toggle between plant growth modes. See "Growth and SunRotationEffect" below for more details.
 
 ---
@@ -97,12 +98,14 @@ To move the camera using only the mouse click the buttons in the bottom right co
 * Clicking and dragging the circle on the slider above the arrow buttons will control zooming the camera.
 
 #### Controlling the Simulation Speed
-To change the simulation speed you can either click the three buttons in the top left corner or use their hotkeys. 
-If the simulation cannot handle the desired speed within it's refresh rate it will display the actual simulation update rate.
-If the simulation update rate is too low consider lowering your desired frames per second or increasing the simulation speed.
+To change the number of hours the simulated per second you can either click the three buttons in the top left corner or use their hotkeys. 
+The top left text box shows how many hours are currently being simulated per seccond.
+The target text box shows how many target hours, days, months, weeks, years the simulation is trying to reach in a second.
 * The "II" button pauses the simulation. Alternatively press the "/" key.
 * The "<" button slows the simulation by one step. Alternatively press the "," key.
 * The ">" button speeds up the simulation by one step. Alternatively press the "." key.
+
+Note: If the top left box value is lower than the target the simulation is not capable of calculating quickly enough.
 
 #### Bottom-Right Button Group
 Extra buttons are displayed on the bottom-right of the screen.
@@ -118,7 +121,7 @@ As the graph expands to the right you will need to move the viewport over to see
 
 The graph will automatically update the scale and all points on it if a population equals or is more than the max number.
 
-The simulation update speed can be changed in the simulation settings panel as shown above.
+The simulation update rate can be changed in the simulation settings panel as shown above.
 
 Note: The graph has a few scaling issues with other screen sizes.
 

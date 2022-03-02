@@ -56,7 +56,6 @@ public class EarthScript : MonoBehaviour {
 		SetupFoodTypeIndex();
 		SetupSpeciesFoodType();
 		frameManager = GetComponent<FrameManager>();
-		frameManager.SetWantedItterationsPerFrame(User.Instance.GetFramesPerSeccondUserPref());
 		zoneController = GetComponent<ZoneController>();
 		zoneController.SetupZoneController(this);
 		zoneController.SpawnZones(size,SimulationScript.Instance.numberOfZones,SimulationScript.Instance.maxNeiboringZones, SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() * 5, SpeciesManager.Instance.GetAllStartingAnimals() * 5, SimulationScript.Instance.zoneSetup);
@@ -72,17 +71,19 @@ public class EarthScript : MonoBehaviour {
 		if (!SimulationScript.Instance.simulationInitialised)
 			return;
 		frameManager.UpdateFrameStartTime();
-		for (int i = 0; i < frameManager.GetItterationsPerFrame(); i++) {
-			if (i == 0 || frameManager.CanStartNewItterationBeforeNextFrame()) {
-				frameManager.LogSimulationItterationStart();
-				UpdateSimulationWithoutDelay();
-				frameManager.LogSimulationItterationEnd();
-			} else {
-				frameManager.SetItterationsThatOccuredThisFrame(i);
-				return;
-            }
+		int iterationsThisFrame = 0;
+		if (frameManager.GetWantedIterationsPerSeccond() > 0) {
+			int wantedIterationsThisFrame = frameManager.GetWantedIterationsThisFrame();
+			if (wantedIterationsThisFrame > 0) {
+				do {
+					frameManager.LogSimulationItterationStart();
+					UpdateSimulationWithoutDelay();
+					frameManager.LogSimulationItterationEnd();
+					iterationsThisFrame++;
+				} while (iterationsThisFrame < wantedIterationsThisFrame && frameManager.CanStartNewIterationBeforeNextFrame());
+			}
+			frameManager.EndFrame(iterationsThisFrame);
 		}
-		frameManager.SetItterationsThatOccuredThisFrame(frameManager.GetItterationsPerFrame());
 	}
 
 	void UpdateSimualtion() {
@@ -241,7 +242,7 @@ public class EarthScript : MonoBehaviour {
 		for (int i = 0; i < GetAllSpecies().Count; i++) {
 			GetAllSpecies()[i].OnSettingsChanged(renderWorld);
         }
-		frameManager.SetWantedItterationsPerFrame(framesPerSeccond);
+		frameManager.SetFramesPerSeccond(framesPerSeccond);
     }
 
     #region FoodTypeManagment

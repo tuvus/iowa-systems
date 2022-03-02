@@ -21,6 +21,7 @@ public class UserMotor : MonoBehaviour {
 		history = SpeciesManager.Instance.GetComponent<SpeciesMotor>();
 		Transform canvas = GameObject.Find("Canvas").transform;
 		timeUI = canvas.GetChild(2).GetComponent<TimeUI>();
+		timeUI.SetupSimulation();
 		cameraMovementUI = canvas.GetChild(3).GetComponent<CameraMovementUI>();
 		zoomMovementUI = canvas.GetChild(3).GetComponent<ZoomMovementUI>();
 		cameraTransform = Camera.main.transform;

@@ -11,7 +11,7 @@ public class SpeciesMotor : MonoBehaviour {
 	GraphWindow graphWindow;
 
 	float refreshTime;
-	public float maxRefreshTime;
+	public int maxRefreshTime;
 	int refreshCount;
 
 	List<BasicSpeciesScript> allSpecies = new List<BasicSpeciesScript>();
