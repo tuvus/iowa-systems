@@ -5,10 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class UserMotor : MonoBehaviour {
 	private Transform cameraTransform;
-	private SpeciesMotor history;
+	private SpeciesMotor speciesMotor;
 	private TimeUI timeUI;
 	private CameraMovementUI cameraMovementUI;
 	private ZoomMovementUI zoomMovementUI;
+	private GraphWindow graphWindow;
 
 	private float scrollModifyer;
 	public float scrollFactor;
@@ -16,21 +17,27 @@ public class UserMotor : MonoBehaviour {
 	public float moveSpeed;
 	public float rotateSpeed;
 
+	public float graphBufferInput;
+	float graphBufferTime;
+	int graphLastRefresh;
 
-	public void StartSimulation() {
-		history = SpeciesManager.Instance.GetComponent<SpeciesMotor>();
+	public void SetupSimulation(float graphBufferInput) {
+		GameObject.Find("Canvas");
+		speciesMotor = SpeciesManager.Instance.GetComponent<SpeciesMotor>();
 		Transform canvas = GameObject.Find("Canvas").transform;
+		graphWindow = canvas.GetChild(0).GetComponent<GraphWindow>();
 		timeUI = canvas.GetChild(2).GetComponent<TimeUI>();
 		timeUI.SetupSimulation();
 		cameraMovementUI = canvas.GetChild(3).GetComponent<CameraMovementUI>();
 		zoomMovementUI = canvas.GetChild(3).GetComponent<ZoomMovementUI>();
 		cameraTransform = Camera.main.transform;
 		cameraTransform.localPosition = new Vector3(0, SimulationScript.Instance.earthSize / 1.5f, 0);
+		this.graphBufferInput = graphBufferInput;
 		RefreshSlider();
 		timeUI.Pause();
 	}
 
-	void Update () {
+	void LateUpdate () {
 		float earthSize = SimulationScript.Instance.earthSize;
 		ManageScroll(earthSize);
 		ManageGraph();
@@ -40,7 +47,7 @@ public class UserMotor : MonoBehaviour {
 	}
 
 	void ManageScroll(float earthSize) {
-		if (history.GetGraphStatus())
+		if (speciesMotor.GetGraphStatus())
 			return;
 		//scrollModifyer = Mathf.Pow(cameraTransform.localPosition.y - (earthSize / 4f), 2) / -(earthSize * 20);
 		scrollModifyer = Mathf.Pow(cameraTransform.localPosition.y - (earthSize / 4), 2) / -(earthSize * 20);
@@ -78,7 +85,16 @@ public class UserMotor : MonoBehaviour {
 
 	void ManageGraph() {
 		if (Input.GetKeyDown(KeyCode.Tab)) {
-			history.ToggleGraph();
+			speciesMotor.ToggleGraph();
+			graphBufferTime = graphBufferInput;
+		}
+		if (graphWindow.gameObject.activeSelf && graphLastRefresh < speciesMotor.refreshCount) {
+			graphBufferTime -= Time.deltaTime;
+			if (graphBufferTime <= 0) {
+				graphWindow.RefreshGraphFromTime(graphLastRefresh);
+				graphBufferTime = graphBufferInput;
+                graphLastRefresh = (int)speciesMotor.refreshCount;
+			}
 		}
 	}
 

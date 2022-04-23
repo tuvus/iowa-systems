@@ -30,11 +30,14 @@ public class User : MonoBehaviour {
             PlayerPrefs.SetInt("RenderSkybox", 1); 
         if (!PlayerPrefs.HasKey("FramesPerSeccond"))
             PlayerPrefs.SetInt("FramesPerSeccond", 60);
+        if (!PlayerPrefs.HasKey("GraphBuffer"))
+            PlayerPrefs.SetFloat("GraphBuffer", 1);
+            PlayerPrefs.SetFloat("GraphBuffer", 1);
     }
 
-    public void StartSimulation() {
+    public void SetupSimulation() {
         GetUserMotor().enabled = true;
-        GetUserMotor().StartSimulation();
+        GetUserMotor().SetupSimulation(GetGraphBufferUserPref());
         OnChangedSettings();
     }
 
@@ -88,6 +91,10 @@ public class User : MonoBehaviour {
 
     public int GetFramesPerSeccondUserPref() {
         return PlayerPrefs.GetInt("FramesPerSeccond");
+    }
+
+    public float GetGraphBufferUserPref() {
+        return PlayerPrefs.GetFloat("GraphBuffer");
     }
     #endregion
 }

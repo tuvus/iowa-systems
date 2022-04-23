@@ -2186,7 +2186,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speciesName: Elk
   speciesDisplayName: Elk
-  speciesColor: {r: 0.30980393, g: 0.15686275, b: 0, a: 1}
+  speciesColor:
+    serializedVersion: 2
+    rgba: 0
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0
@@ -2262,7 +2264,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speciesName: TallGrass
   speciesDisplayName: TallGrass
-  speciesColor: {r: 0.62352943, g: 0.6392157, b: 0, a: 1}
+  speciesColor:
+    serializedVersion: 2
+    rgba: 4278233195
   startingPopulation: 24
   speciesIndex: 0
   specificSpeciesIndex: 0
@@ -3683,7 +3687,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speciesName: Wolf
   speciesDisplayName: Wolf
-  speciesColor: {r: 0.2627451, g: 0.21960784, b: 0.20784314, a: 1}
+  speciesColor:
+    serializedVersion: 2
+    rgba: 0
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0
@@ -4826,7 +4832,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speciesName: Grass
   speciesDisplayName: Grass
-  speciesColor: {r: 0.13960083, g: 0.754717, b: 0, a: 1}
+  speciesColor:
+    serializedVersion: 2
+    rgba: 4278242603
   startingPopulation: 80
   speciesIndex: 0
   specificSpeciesIndex: 0
@@ -8654,9 +8662,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ad22904dd8f24a109b9beaa7cc8aefd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  populaitonCountPrefab: {fileID: 1589352778045128, guid: 4ae62d2c6f3ac4b349f32dde56e6c8b1,
+  populationCountPrefab: {fileID: 1589352778045128, guid: 4ae62d2c6f3ac4b349f32dde56e6c8b1,
     type: 3}
   maxRefreshTime: 0
+  refreshCount: 0
 --- !u!114 &1409312982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9762,7 +9771,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speciesName: Fox
   speciesDisplayName: Fox
-  speciesColor: {r: 0.8509804, g: 0, b: 0, a: 1}
+  speciesColor:
+    serializedVersion: 2
+    rgba: 4278198711
   startingPopulation: 12
   speciesIndex: 0
   specificSpeciesIndex: 0
@@ -9888,7 +9899,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speciesName: CottontailRabbit
   speciesDisplayName: Cottontail
-  speciesColor: {r: 0.7529412, g: 0.49019608, b: 0.20392157, a: 1}
+  speciesColor:
+    serializedVersion: 2
+    rgba: 4282874818
   startingPopulation: 36
   speciesIndex: 0
   specificSpeciesIndex: 0
@@ -10405,7 +10418,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speciesName: Deer
   speciesDisplayName: Deer
-  speciesColor: {r: 0.48235294, g: 0.24313726, b: 0, a: 1}
+  speciesColor:
+    serializedVersion: 2
+    rgba: 0
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0
@@ -11205,7 +11220,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speciesName: Racoon
   speciesDisplayName: Racoon
-  speciesColor: {r: 0.2, g: 0.14117648, b: 0.078431375, a: 1}
+  speciesColor:
+    serializedVersion: 2
+    rgba: 0
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0
@@ -11645,7 +11662,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speciesName: Bush
   speciesDisplayName: Bush
-  speciesColor: {r: 0, g: 0.3018868, b: 0.009769872, a: 1}
+  speciesColor:
+    serializedVersion: 2
+    rgba: 0
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0
@@ -12302,7 +12321,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speciesName: Bison
   speciesDisplayName: Bison
-  speciesColor: {r: 0.24705882, g: 0.1254902, b: 0, a: 1}
+  speciesColor:
+    serializedVersion: 2
+    rgba: 0
   startingPopulation: 0
   speciesIndex: 0
   specificSpeciesIndex: 0

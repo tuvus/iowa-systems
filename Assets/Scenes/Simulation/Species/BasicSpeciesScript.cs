@@ -8,7 +8,7 @@ public abstract class BasicSpeciesScript : MonoBehaviour {
 	internal SunScript sun;
 	public string speciesName;
 	public string speciesDisplayName;
-	public Color speciesColor;
+	public Color32 speciesColor;
 	[SerializeField] internal int startingPopulation;
 	public int speciesIndex;
 	public int specificSpeciesIndex;

@@ -20,7 +20,7 @@ public class EarthScript : MonoBehaviour {
 
     #region EarthVariables
     public int size;
-	public float worldTime;
+	public long worldTime;
 	public int maxTime;
 	public float simulationDeltaTime;
 	public float tempeture;
@@ -143,7 +143,7 @@ public class EarthScript : MonoBehaviour {
     }
 
 	void UpdateWorldTime() {
-		worldTime += simulationDeltaTime;
+		worldTime++;
 	}
 
 	void UpdateHumidity() {

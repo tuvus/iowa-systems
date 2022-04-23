@@ -140,12 +140,9 @@ public class SpeciesMakerPanel : MonoBehaviour {
 	public void AddListOfSpecies(List<GameObject> _speciesList) {
 		for (int i = 0; i < _speciesList.Count; i++) {
 			GameObject newSpecies = Instantiate(_speciesList[i].GetComponent<SpeciesHolderScript>().gameObject, SpeciesManager.Instance.transform);
-
 			BasicSpeciesScript speciesScript = newSpecies.GetComponent<BasicSpeciesScript>();
-
 			newSpecies.transform.GetChild(1).GetComponent<Text>().text = speciesScript.speciesDisplayName;
 			newSpecies.transform.GetComponent<Image>().color = speciesScript.speciesColor;
-
 		}
 	}
 

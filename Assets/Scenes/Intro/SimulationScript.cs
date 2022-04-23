@@ -58,8 +58,8 @@ public class SimulationScript : MonoBehaviour {
 		SpeciesManager.Instance.GetSpeciesMotor().SetupSimulation(earth, sun);
         earth.SetUpEarth(earthSize,simulationSpeed);
 		sun.SetupSun(earth);
+		User.Instance.SetupSimulation();
 		SpeciesManager.Instance.GetSpeciesMotor().StartSimulation();
-        User.Instance.StartSimulation();
 		simulationInitialised = true;
 		earth.StartSimulation();
     }

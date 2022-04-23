@@ -116,14 +116,16 @@ Extra buttons are displayed on the bottom-right of the screen.
 #### Population Graph Panel
 The population graph panel displays the population count of each species over time. 
 On the left hand side you can see the scale of the populations and on the bottom you can see the time.
-
 As the graph expands to the right you will need to move the viewport over to see other parts of the graph.
+
+* The Left scrollbar controlls the scope of the graph. 
+Moving it up will show less points and moving it down will show more points.
+* The Bottom scrollbar controlls the position of the points.
+It is only interactable if the points are going off the graph
 
 The graph will automatically update the scale and all points on it if a population equals or is more than the max number.
 
 The simulation update rate can be changed in the simulation settings panel as shown above.
-
-Note: The graph has a few scaling issues with other screen sizes.
 
 Simulating Iowa's Prairie 
 -------------------------

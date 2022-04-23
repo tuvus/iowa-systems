@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class SpeciesMotor : MonoBehaviour {
 	[SerializeField]
-	GameObject populaitonCountPrefab;
+	GameObject populationCountPrefab;
 
 	EarthScript earth;
 	GameObject canvasUI;
 	GraphWindow graphWindow;
+	GraphFileManager graphFileManager;
 
-	float refreshTime;
+	int refreshTime;
 	public int maxRefreshTime;
-	int refreshCount;
+	public long refreshCount;
 
 	List<BasicSpeciesScript> allSpecies = new List<BasicSpeciesScript>();
 	List<AnimalSpecies> animalSpecies = new List<AnimalSpecies>();
@@ -22,9 +23,9 @@ public class SpeciesMotor : MonoBehaviour {
 		this.earth = earth;
 		canvasUI = GameObject.Find("Canvas");
 		graphWindow = canvasUI.transform.GetChild(0).GetComponent<GraphWindow>();
-		graphWindow.gameObject.SetActive(false);
+		graphFileManager = graphWindow.GetComponent<GraphFileManager>();
 		for (int i = 0; i < transform.childCount; i++) {
-			GameObject newCountPrefab = Instantiate(populaitonCountPrefab, GetPopulationCountParent());
+			GameObject newCountPrefab = Instantiate(populationCountPrefab, GetPopulationCountParent());
 			newCountPrefab.GetComponent<SpeciesPopulaitonCount>().SetSpecies(transform.GetChild(i).GetComponent<BasicSpeciesScript>(), i);
 		}
 		foreach (var speciesHolder in GetAllSpeciesHolders()) {
@@ -49,6 +50,13 @@ public class SpeciesMotor : MonoBehaviour {
 		foreach (var species in GetAllSpecies()) {
 			species.SetupSimulation(earth, sun);
 		}
+		graphWindow.SetupGraph(maxRefreshTime);
+		Color32[] speciesColors = new Color32[GetAllSpecies().Count];
+        for (int i = 0; i < GetAllSpecies().Count; i++) {
+			speciesColors[i] = GetAllSpecies()[i].speciesColor;
+        }
+		graphFileManager.SetupFileManager(GetAllSpecies().Count,speciesColors);
+		graphWindow.gameObject.SetActive(false);
 	}
 
 	public void StartSimulation() {
@@ -56,32 +64,24 @@ public class SpeciesMotor : MonoBehaviour {
 			species.StartBasicSimulation();
 		}
 		AddNewData();
-		refreshTime = maxRefreshTime;
+		refreshTime = 0;
 	}
 
 	public void UpdateSpeciesGraphData() {
-		if (refreshTime <= 0) {
-			refreshTime = maxRefreshTime;
+		if (refreshTime == maxRefreshTime) {
+			refreshTime = 0;
 			refreshCount++;
 			AddNewData();
-		}
-		refreshTime -= earth.simulationDeltaTime;
+        }
+		refreshTime++;
 	}
 
 	public void AddNewData() {
-		bool newYMaximum = false;
-		foreach (var species in GetAllSpecies()) {
-			if (graphWindow.SetPopulationMax(species.GetCurrentPopulation())) {
-				newYMaximum = true;
-			}
-			species.RefreshPopulationList();
-		}
-		if (newYMaximum) {
-			graphWindow.RefreshPopulationMax();
-		}
-		foreach (var species in GetAllSpecies()) {
-			graphWindow.AddNewDot(refreshCount, species.GetCurrentPopulation(), species.speciesColor, species);
-		}
+		int[] points = new int[GetAllSpecies().Count];
+        for (int i = 0; i < GetAllSpecies().Count; i++) {
+			points[i] = GetAllSpecies()[i].GetCurrentPopulation();
+        }
+		graphFileManager.AddPointsToFile(graphFileManager.GetPopulationFile(), points);
 	}
 
 	public void ToggleGraph() {
@@ -89,6 +89,7 @@ public class SpeciesMotor : MonoBehaviour {
 			graphWindow.gameObject.SetActive(false);
 		} else {
 			graphWindow.gameObject.SetActive(true);
+			graphWindow.DisplayGraph(graphFileManager.GetPopulationFile());
 		}
 	}
 

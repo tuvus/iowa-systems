@@ -10,7 +10,7 @@ public class SpeciesPopulaitonCount : MonoBehaviour {
 
 	public void SetSpecies(BasicSpeciesScript _speciesScript, int _index) {
 		speciesScript = _speciesScript;
-		GetComponent<Image>().color = new Color(speciesScript.speciesColor.r, speciesScript.speciesColor.g, speciesScript.speciesColor.b, 1);
+		GetComponent<Image>().color = speciesScript.speciesColor;
 		UpdateInitialText();
 
 		index = _index;
