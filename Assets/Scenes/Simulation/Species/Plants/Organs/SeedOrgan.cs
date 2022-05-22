@@ -16,39 +16,24 @@ public class SeedOrgan : BasicPlantOrganScript {
 	}
 
 	public override void SpawnOrganismAdult() {
-		if (plantScript.stage == PlantScript.GrowthStage.Adult) {
+		if (plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].growthStage == PlantScript.GrowthStage.Adult) {
 			if (UnityEngine.Random.Range(0, 10) < 4) {
 				awnsGrowth = UnityEngine.Random.Range(0, speciesSeeds.awnMaxGrowth);
 			} else {
 				awnsGrowth = speciesSeeds.awnMaxGrowth;
 				timeUntillDispersion = UnityEngine.Random.Range(0, speciesSeeds.awnSeedDispertionTime);
-
 			}
 		}
 	}
 
 	public override void OnPlantAddToZone(int zone, ZoneController.DataLocation dataLocation) {
-		if (plantScript.stage == PlantScript.GrowthStage.Seed)
+		if (plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].growthStage == PlantScript.GrowthStage.Seed)
 			Spawn();
     }
-
-
 
     public override void ResetOrgan() {
 		awnsGrowth = 0;
 		timeUntillDispersion = 0;
-	}
-
-	public override void UpdateGrowthPriority() {
-		growthPriority = 0f;
-		switch (plantScript.stage) {
-			case PlantScript.GrowthStage.Seed:
-				growthPriority = 0;
-				break;
-			case PlantScript.GrowthStage.Adult:
-				growthPriority = 1f;
-				break;
-		};
 	}
 
     public override void GrowOrgan(float growth) {
@@ -76,7 +61,7 @@ public class SeedOrgan : BasicPlantOrganScript {
 	}
 
 	public override float GetGrowth(float deltaTime) {
-		if (plantScript.stage == PlantScript.GrowthStage.Germinating || plantScript.stage == PlantScript.GrowthStage.Sprout) {
+		if (plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].growthStage == PlantScript.GrowthStage.Germinating || plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].growthStage == PlantScript.GrowthStage.Sprout) {
 			return deltaTime * speciesSeeds.seedEnergyAmount;
 		}
 		return base.GetGrowth(deltaTime);

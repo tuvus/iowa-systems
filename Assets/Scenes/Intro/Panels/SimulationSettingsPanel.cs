@@ -14,7 +14,7 @@ public class SimulationSettingsPanel : MonoBehaviour {
         GetEarthSizeSlider().maxValue = earthSizeArray.Length - 1;
         GetEarthSizeSlider().value = 6;
         GetGraphRefreshSlider().maxValue = graphRefreshRateArray.Length - 1;
-        GetGraphRefreshSlider().value = 2;
+        GetGraphRefreshSlider().value = 6;
         OnChangeEarthSizeChange();
         OnChangeGraphRefreshChange();
     }

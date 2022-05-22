@@ -106,7 +106,8 @@ public struct AnimalUpdateJob : IJobParallelFor {
         for (int i = 0; i < zonesInSightRange.Count; i++) {
             for (int j = 0; j < predatorFoodTypes.Length; j++) {
 				List<ZoneController.DataLocation> animalsInZone = ZoneCalculator.GetOrganismsInZoneByFoodType(organismsByFoodTypeInZones, zonesInSightRange[i], predatorFoodTypes[j]);
-                for (int f = 0; f < animalsInZone.Count; f++) {
+                
+				for (int f = 0; f < animalsInZone.Count; f++) {
 					if (animalsInZone[f].dataType == ZoneController.DataLocation.DataType.Animal) {
 						float directDistance = GetDistance(animalData.position, allAnimals[animalsInZone[f].dataIndex].position);
 						if (!(DistanceInSmellRange(directDistance) || DistanceInSightRange(GetClosestDistanceFromTwoPositions(animalData.animalEyePosition, allAnimals[animalsInZone[f].dataIndex].position))))

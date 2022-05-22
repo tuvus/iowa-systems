@@ -5,43 +5,13 @@ using UnityEngine;
 
 public class BladeOrgan : EddiblePlantOrganScript {
     public PlantSpeciesBlade speciesBlade;
-    public float bladeArea;
 
     internal override void SetUpSpecificOrgan() {
     }
 
-    public override void SpawnOrganismAdult() {
-        bladeArea = plantScript.plantSpecies.growthStages[(int)plantScript.stage].bladeArea;
-    }
-
     public override void OnPlantAddToZone(int zone, ZoneController.DataLocation dataLocation) {
-        if (bladeArea > 0)
-            GrowOrgan(0);
-    }
-
-    public override void ResetOrgan() {
-        base.ResetOrgan();
-        bladeArea = 0;
-    }
-
-    public override void UpdateGrowthPriority() {
-        switch (plantScript.stage) {
-            case PlantScript.GrowthStage.Germinating:
-                growthPriority = 0f;
-                break;
-            case PlantScript.GrowthStage.Sprout:
-                growthPriority = 1f;
-                break;
-            case PlantScript.GrowthStage.Seedling:
-                growthPriority = 1f;
-                break;
-            case PlantScript.GrowthStage.Youngling:
-                growthPriority = 1f;
-                break;
-            case PlantScript.GrowthStage.Adult:
-                growthPriority = 0f;
-                break;
-        };
+        if (plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].bladeArea > 0)
+            Spawn();
     }
 
     public override float EatPlantOrgan(AnimalScript animal, float biteSize) {
@@ -49,12 +19,13 @@ public class BladeOrgan : EddiblePlantOrganScript {
             return 0;
         for (int i = 0; i < animal.animalSpecies.eddibleFoodTypes.Length; i++) {
             if (animal.animalSpecies.eddibleFoodTypes[i] == speciesBlade.organFoodIndex) {
-                if (bladeArea > biteSize) {
-                    bladeArea -= biteSize;
+                if (plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].bladeArea > biteSize) {
+                    plantScript.ChangeBladeArea(plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].bladeArea - biteSize);
                     return biteSize;
                 }
-                float foodReturn = bladeArea;
+                float foodReturn = plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].bladeArea;
                 ResetOrgan();
+                plantScript.ChangeBladeArea(0);
                 return foodReturn;
 
             }
@@ -63,13 +34,9 @@ public class BladeOrgan : EddiblePlantOrganScript {
     }
 
     public override void GrowOrgan(float growth) {
-        bladeArea += growth;
-        if (!spawned && bladeArea > 0)
+        plantScript.ChangeBladeArea(plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].bladeArea + (growth * speciesBlade.growthModifier));
+        if (!spawned && plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].bladeArea > 0)
             Spawn();
-    }
-
-    public override float GetBladeArea() {
-        return bladeArea;
     }
 
     internal override int GetFoodIndex() {

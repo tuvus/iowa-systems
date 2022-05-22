@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
+using Unity.Mathematics;
 
 public class PlantSpecies : BasicSpeciesScript {
 	public GameObject plantPrefab;
 	PlantSpeciesSeeds plantSpeciesSeeds;
 
 	public List<BasicPlantSpeciesOrganScript> speciesOrgansOrder;
-	[SerializeField] List<Vector3> growthStagesInput = new List<Vector3>();
+	[Tooltip("x=bladeArea, y=stemHeight, z=rootDepth, int w=daysAfterGermination. " +
+		"The first element in this is the starting growth at seed. " +
+		"Each element in between shows how much growth is needed for the next stage." +
+		"The last element is the final growth wanted as an adult.")]
+	[SerializeField] List<GrowthStageData> growthStagesInput = new List<GrowthStageData>();
 
 	public enum ListType {
 		unlisted = -1,
@@ -37,17 +42,20 @@ public class PlantSpecies : BasicSpeciesScript {
 	PlantJobController plantJobController;
 	public NativeArray<GrowthStageData> growthStages;
 
+	[System.Serializable]
 	public struct GrowthStageData {
 		public PlantScript.GrowthStage stage;
 		public float bladeArea;
 		public float stemHeight;
-		public float rootDepth;
+		public float2 rootGrowth;
+		public int daysAfterGermination;
 
-		public GrowthStageData(PlantScript.GrowthStage stage, float bladeArea, float stemHeight, float rootDepth) {
+		public GrowthStageData(PlantScript.GrowthStage stage, float bladeArea, float stemHeight, float2 rootGrowth, int daysAfterGermination) {
 			this.stage = stage;
 			this.bladeArea = bladeArea;
 			this.stemHeight = stemHeight;
-			this.rootDepth = rootDepth;
+			this.rootGrowth = rootGrowth;
+			this.daysAfterGermination = daysAfterGermination;
 		}
 	}
 
@@ -59,7 +67,29 @@ public class PlantSpecies : BasicSpeciesScript {
 		plantSpeciesSeeds.SetupPlantSpeciesSeeds();
 		growthStages = new NativeArray<GrowthStageData>(growthStagesInput.Count, Allocator.Persistent);
         for (int i = 0; i < growthStagesInput.Count; i++) {
-			growthStages[i] = new GrowthStageData((PlantScript.GrowthStage)i,growthStagesInput[i].x,growthStagesInput[i].y,growthStagesInput[i].z);
+			growthStages[i] = growthStagesInput[i];
+        }
+        for (int i = 0; i < speciesOrgansOrder.Count; i++) {
+			speciesOrgansOrder[i].growthPriorities = new NativeArray<float>(growthStages.Length, Allocator.Persistent);
+        }
+        for (int i = 0; i < growthStages.Length; i++) {
+			float totalGrowthRequired = 0;
+			if (i == growthStages.Length - 1) {
+				//This is the adult growth stage, most organs should not want any growth at this point
+				for (int f = 0; f < speciesOrgansOrder.Count; f++) {
+					totalGrowthRequired += speciesOrgansOrder[f].GetGrowthRequirementForStage(growthStages[i].stage, growthStages[i], growthStages[i]);
+				}
+				for (int j = 0; j < speciesOrgansOrder.Count; j++) {
+					speciesOrgansOrder[j].growthPriorities[i] = speciesOrgansOrder[j].GetGrowthRequirementForStage(growthStages[i].stage, growthStages[i], growthStages[i]) / totalGrowthRequired;
+				}
+			} else {
+				for (int f = 0; f < speciesOrgansOrder.Count; f++) {
+					totalGrowthRequired += speciesOrgansOrder[f].GetGrowthRequirementForStage(growthStages[i].stage, growthStages[i + 1], growthStages[i]);
+				}
+				for (int j = 0; j < speciesOrgansOrder.Count; j++) {
+					speciesOrgansOrder[j].growthPriorities[i] = speciesOrgansOrder[j].GetGrowthRequirementForStage(growthStages[i].stage, growthStages[i+1], growthStages[i]) / totalGrowthRequired;
+				}
+			}
         }
     }
 
@@ -117,7 +147,7 @@ public class PlantSpecies : BasicSpeciesScript {
 		populationCount++;
 		RandomiseOrganismPosition(plantScript);
 		AddToFindZone(plantScript);
-		plantScript.SpawnPlantRandom(growthStages[Random.Range(0, growthStagesInput.Count)].stage);
+		plantScript.SpawnPlantRandom(growthStages[UnityEngine.Random.Range(1, growthStagesInput.Count)].stage);
 	}
 
 	public PlantScript SpawnRandomSeed() {
@@ -144,7 +174,7 @@ public class PlantSpecies : BasicSpeciesScript {
 		ActivatePlant(plantScript, ListType.unlisted);
 		RandomiseOrganismPosition(plantScript);
 		SetUpOrgans(plantScript);
-		plantScript.stage = PlantScript.GrowthStage.Germinating;
+		plantScript.SpawnPlantRandom(growthStages[UnityEngine.Random.Range(1, growthStagesInput.Count)].stage);
 		populationCount++;
 		return plantScript;
 	}
@@ -165,9 +195,7 @@ public class PlantSpecies : BasicSpeciesScript {
 
     #region PlantControlls
     public override void UpdateOrganismData() {
-        for (int i = 0; i < activePlants.Count; i++) {
-            earth.GetZoneController().allPlants[plants[activePlants[i]].plantDataIndex] = new PlantScript.PlantData(plants[activePlants[i]]);
-        }
+
     }
 
     public override void UpdateOrganismsBehavior() {
@@ -185,6 +213,10 @@ public class PlantSpecies : BasicSpeciesScript {
 	public void SeedGrownToPlant() {
 		populationCount++;
     }
+
+	public GrowthStageData GetGrowthStageData(PlantScript.GrowthStage stage) {
+		return growthStages[(int)stage];
+	}
 
 	public void AddToFindZone(PlantScript plant, int zone = -1, float range = 0) {
 		earth.GetZoneController().FindZoneController.AddFindZoneData(new FindZoneController.FindZoneData(new ZoneController.DataLocation(plant), zone, plant.position, range));

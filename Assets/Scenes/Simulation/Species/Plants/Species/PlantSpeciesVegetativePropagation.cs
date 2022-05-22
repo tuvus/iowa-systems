@@ -8,7 +8,11 @@ public class PlantSpeciesVegetativePropagation : BasicPlantSpeciesOrganScript {
 	public float newPlantGrowthCost;
 	public int newPlantGrowChance;
 
-	public override void MakeOrganism(BasicOrganismScript newOrganism) {
+    public override float GetGrowthRequirementForStage(PlantScript.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {
+        throw new System.NotImplementedException();
+    }
+
+    public override void MakeOrganism(BasicOrganismScript newOrganism) {
 		return;
 		//VegetativePropagationOrgan propagation = newOrganism.AddComponent<VegetativePropagationOrgan>();
 		//propagation.SetupBasicOrgan(this);

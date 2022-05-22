@@ -32,11 +32,6 @@ public class VegetativePropagationOrgan : BasicPlantOrganScript {
 	public override void ResetOrgan() {
 	}
 
-	public override void UpdateGrowthPriority() {
-		growthPriority = 0;
-    }
-
-
     public void Grow(float growth) {
 		if (growth > growthMax) {
 			growth = growthMax;

@@ -30,14 +30,14 @@ public struct PlantUpdateJob : IJobParallelFor {
 
     public void Execute(int plantIndex) {
         PlantScript.PlantData plant = allPlants[updatePlants[plantIndex]];
-        if (plant.stage == PlantScript.GrowthStage.Dead) {
+        if (plant.growthStage == PlantScript.GrowthStage.Dead) {
             return;
         }
         if (plant.zone == -1) {
-            Debug.LogError("The zone of this plant should not be " + plant.zone + ". Curent growth stage is " + plant.stage);
+            Debug.LogError("The zone of this plant should not be " + plant.zone + ". Curent growth stage is " + plant.growthStage);
             return;
         }
-        if (plant.stage == PlantScript.GrowthStage.Seed) {
+        if (plant.growthStage == PlantScript.GrowthStage.Seed) {
             plantGrowthStage[plantIndex] = GetSeedGerminationResults(plant);
             return;
         }
@@ -54,7 +54,7 @@ public struct PlantUpdateJob : IJobParallelFor {
     }
 
     float GetSunGain(PlantScript.PlantData plant) {
-        return plant.bladeArea * GetSunValue(plant.position) / 2;
+        return plant.bladeArea * GetSunValue(plant.position);
     }
 
     public float GetSunValue(float3 position) {
@@ -62,9 +62,7 @@ public struct PlantUpdateJob : IJobParallelFor {
             float objectDistanceFromSun = Vector3.Distance(position, earthState.sunPostion);
             float sunDistanceFromEarth = Vector3.Distance(new float3(0, 0, 0), earthState.sunPostion);
             float sunValue = (objectDistanceFromSun - sunDistanceFromEarth) / earthState.earthRadius * 2;
-            if (sunValue < 0)
-                return 0;
-            return sunValue;
+            return Mathf.Max(sunValue,0);
         } else {
             return 0.5f;
         }
@@ -101,12 +99,9 @@ public struct PlantUpdateJob : IJobParallelFor {
             } while (neiboringZones.TryGetNextValue(out zoneNumber, ref iterator2));
         }
 
-        rootArea = rootArea - overLapingRootArea;
+        rootArea = rootArea - (overLapingRootArea / 2);
         float rootUnderWaterPercent = 1 - (zones[plant.zone].waterDepth / plant.rootGrowth.y);
-        if (rootUnderWaterPercent < 0) {
-            return 0;
-        }
-        return rootUnderWaterPercent * rootArea * plant.rootDensity * .01f;
+        return Mathf.Max(rootUnderWaterPercent * rootArea * plant.rootDensity * .01f,0);
     }
 
     float GetDistanceToPlant(PlantScript.PlantData from, PlantScript.PlantData to) {
@@ -118,12 +113,12 @@ public struct PlantUpdateJob : IJobParallelFor {
     }
 
     PlantScript.GrowthStage GetGrowthStage(PlantScript.PlantData plant) {
-        int stageIndex = (int)plant.stage;
+        int stageIndex = (int)plant.growthStage;
         if (stageIndex == growthStages.Length - 1)
-            return plant.stage;
-        if (plant.bladeArea >= growthStages[stageIndex].bladeArea && plant.stemHeight >= growthStages[stageIndex].stemHeight && plant.rootGrowth.y >= growthStages[stageIndex].rootDepth) {
+            return plant.growthStage;
+        if (plant.bladeArea >= growthStages[stageIndex].bladeArea && plant.stemHeight >= growthStages[stageIndex].stemHeight && plant.rootGrowth.y >= growthStages[stageIndex].rootGrowth.y) {
             return growthStages[stageIndex + 1].stage;
         }
-        return plant.stage;
+        return plant.growthStage;
     }
 }

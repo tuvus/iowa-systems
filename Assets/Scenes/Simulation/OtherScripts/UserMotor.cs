@@ -22,7 +22,6 @@ public class UserMotor : MonoBehaviour {
 	int graphLastRefresh;
 
 	public void SetupSimulation(float graphBufferInput) {
-		GameObject.Find("Canvas");
 		speciesMotor = SpeciesManager.Instance.GetComponent<SpeciesMotor>();
 		Transform canvas = GameObject.Find("Canvas").transform;
 		graphWindow = canvas.GetChild(0).GetComponent<GraphWindow>();
@@ -131,6 +130,10 @@ public class UserMotor : MonoBehaviour {
 		if (Input.GetKeyDown(KeyCode.Slash)) {
 			timeUI.Pause();
 		}
+	}
+
+	public void DebugPause() {
+		timeUI.Pause();
 	}
 
 	void ManageEndSimulation() {

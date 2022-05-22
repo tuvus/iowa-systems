@@ -15,7 +15,9 @@ public abstract class BasicPlantOrganScript : BasicOrganScript {
         plantScript.organs.Add(this);
     }
 
-    public abstract void SpawnOrganismAdult();
+    public virtual void SpawnOrganismAdult() {
+        return;
+    }
 
     public override void ResetOrgan() {
         Despawn();
@@ -45,20 +47,6 @@ public abstract class BasicPlantOrganScript : BasicOrganScript {
     }
 
     public abstract void GrowOrgan(float growth);
-
-    public abstract void UpdateGrowthPriority();
-
-    public virtual float GetBladeArea() {
-        return 0;
-    }
-    
-    public virtual float2 GetRootGrowth() {
-        return new float2(0,0);
-    }
-
-    public virtual float GetStemheight() {
-        return 0;
-    }
     
     /// <summary>
     /// Raw growth gained from the organ.
@@ -72,8 +60,8 @@ public abstract class BasicPlantOrganScript : BasicOrganScript {
     /// Returns a value from 0 to 1 depending on how much growth should be spend in this organ.
     /// </summary>
     /// <returns>float</returns>
-    public float GetGrowthPriority() {
-        return growthPriority;
+    public float GetGrowthPriority(PlantScript.GrowthStage stage) {
+        return basicPlantSpeciesOrganScript.growthPriorities[(int)stage];
     }
 
 }

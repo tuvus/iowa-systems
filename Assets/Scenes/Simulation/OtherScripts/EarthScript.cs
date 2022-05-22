@@ -22,6 +22,7 @@ public class EarthScript : MonoBehaviour {
     public int size;
 	public long worldTime;
 	public int maxTime;
+	//The acuracy of the simulation 1f = 1 hour
 	public float simulationDeltaTime;
 	public float tempeture;
 	public float humidity;
@@ -50,7 +51,7 @@ public class EarthScript : MonoBehaviour {
 	}
 
 	public void SetUpEarth(int size, float simulationSpeed) {
-		this.simulationDeltaTime = simulationSpeed / 10;
+		this.simulationDeltaTime = simulationSpeed;
 		this.size = size;
 		transform.localScale = new Vector3(size, size, size);
 		SetupFoodTypeIndex();

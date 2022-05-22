@@ -583,6 +583,11 @@ PrefabInstance:
       propertyPath: scrollFactor
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1466373069548362098, guid: e47f82997fd05d34d867f84d5ba70895,
+        type: 3}
+      propertyPath: graphBufferInput
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1466373069548362099, guid: e47f82997fd05d34d867f84d5ba70895,
         type: 3}
       propertyPath: m_RootOrder
@@ -2233,6 +2238,22 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1256545074}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &456575637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 456575634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac9b9331e47e1bb4883b9198cb2f12db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  organType: Stem
+  organFoodIndex: 0
+  growthModifier: 0.2
+  maxStemHeight: 8
 --- !u!114 &456575638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2242,14 +2263,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 456575634}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 580515522c3d74722bf9fd4e21038bbe, type: 3}
+  m_Script: {fileID: 11500000, guid: 3b949b328fad520498bfcd968e642710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  organType: 
+  organType: Root
   organFoodIndex: 0
-  growthMax: 9.89
-  newPlantGrowthCost: 6.13
-  newPlantGrowChance: 20
+  growthModifier: 0.12
+  rootDensity: 0.6
 --- !u!114 &456575640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2274,7 +2294,49 @@ MonoBehaviour:
   plantPrefab: {fileID: 1992517119343582, guid: a3e7fae49ee31442aac03db2a66b47b5,
     type: 3}
   speciesOrgansOrder: []
-  growthStagesInput: []
+  growthStagesInput:
+  - stage: 0
+    bladeArea: 0
+    stemHeight: -2
+    rootGrowth:
+      x: 1
+      y: 0
+    daysAfterGermination: 0
+  - stage: 1
+    bladeArea: 0
+    stemHeight: -2
+    rootGrowth:
+      x: 1
+      y: 6
+    daysAfterGermination: 6
+  - stage: 2
+    bladeArea: 5
+    stemHeight: 0
+    rootGrowth:
+      x: 1
+      y: 14
+    daysAfterGermination: 12
+  - stage: 3
+    bladeArea: 7
+    stemHeight: 10
+    rootGrowth:
+      x: 1
+      y: 60
+    daysAfterGermination: 30
+  - stage: 4
+    bladeArea: 10
+    stemHeight: 30
+    rootGrowth:
+      x: 1
+      y: 100
+    daysAfterGermination: 70
+  - stage: 5
+    bladeArea: 25
+    stemHeight: 300
+    rootGrowth:
+      x: 1
+      y: 160
+    daysAfterGermination: 120
   plants: []
   activePlants: 
   inactivePlants: 
@@ -2290,19 +2352,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350de5468c2b46f1821fb5cb6d36ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  organType: 
+  organType: Seed
   organFoodIndex: 0
+  growthModifier: 0.1
   startingSeedCount: 12
   humidityRequirement: 64
   tempetureRequirement: 50
   seedDispertionRange: 40
-  timeRequirement: 18
-  timeMaximum: 36
+  timeRequirement: 5760
+  timeMaximum: 17520
   awnMaxGrowth: 24
   awnMaxSeedAmount: 6
   awnSeedDispertionTime: 1000
   awnSeedDispersalSuccessChance: 30
   seedEnergyAmount: 0.01
+--- !u!114 &456575643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 456575634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c1231416625e854ab7c6720b77b1115, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  organType: Blade
+  organFoodIndex: 0
+  growthModifier: 0.2
 --- !u!1 &496184813
 GameObject:
   m_ObjectHideFlags: 0
@@ -4784,7 +4862,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   organType: Blade
   organFoodIndex: 0
-  maxBladeArea: 30
+  growthModifier: 0.2
 --- !u!114 &809522555
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4799,6 +4877,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   organType: Stem
   organFoodIndex: 0
+  growthModifier: 0.15
   maxStemHeight: 8
 --- !u!114 &809522557
 MonoBehaviour:
@@ -4814,9 +4893,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   organType: Root
   organFoodIndex: 0
-  rootGrowthMax:
-    x: 1
-    y: 100
+  growthModifier: 0.1
   rootDensity: 0.6
 --- !u!114 &809522558
 MonoBehaviour:
@@ -4847,11 +4924,48 @@ MonoBehaviour:
   - {fileID: 809522554}
   - {fileID: 809522560}
   growthStagesInput:
-  - {x: 0, y: -100, z: 4}
-  - {x: 5, y: 0, z: 4}
-  - {x: 10, y: 10, z: 80}
-  - {x: 15, y: 60, z: 120}
-  - {x: 30, y: 100, z: 120}
+  - stage: 0
+    bladeArea: 0
+    stemHeight: -2
+    rootGrowth:
+      x: 1
+      y: 0
+    daysAfterGermination: 0
+  - stage: 1
+    bladeArea: 0
+    stemHeight: -2
+    rootGrowth:
+      x: 1
+      y: 4
+    daysAfterGermination: 4
+  - stage: 2
+    bladeArea: 5
+    stemHeight: 0
+    rootGrowth:
+      x: 1
+      y: 10
+    daysAfterGermination: 8
+  - stage: 3
+    bladeArea: 7
+    stemHeight: 10
+    rootGrowth:
+      x: 1
+      y: 40
+    daysAfterGermination: 20
+  - stage: 4
+    bladeArea: 10
+    stemHeight: 20
+    rootGrowth:
+      x: 1
+      y: 70
+    daysAfterGermination: 50
+  - stage: 5
+    bladeArea: 15
+    stemHeight: 100
+    rootGrowth:
+      x: 1
+      y: 120
+    daysAfterGermination: 90
   plants: []
   activePlants: 
   inactivePlants: 
@@ -4869,6 +4983,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   organType: Seed
   organFoodIndex: 0
+  growthModifier: 0.1
   startingSeedCount: 40
   humidityRequirement: 52
   tempetureRequirement: 45
@@ -4879,7 +4994,7 @@ MonoBehaviour:
   awnMaxSeedAmount: 6
   awnSeedDispertionTime: 720
   awnSeedDispersalSuccessChance: 30
-  seedEnergyAmount: 0.1
+  seedEnergyAmount: 0.2
 --- !u!1 &835355319
 GameObject:
   m_ObjectHideFlags: 0
@@ -9774,7 +9889,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4278198711
-  startingPopulation: 12
+  startingPopulation: 8
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
@@ -11645,6 +11760,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   organType: 
   organFoodIndex: 0
+  growthModifier: 0
   growthMax: 13.59
   newPlantGrowthCost: 7.87
   newPlantGrowChance: 20

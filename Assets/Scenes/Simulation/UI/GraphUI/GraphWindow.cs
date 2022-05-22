@@ -38,8 +38,7 @@ public class GraphWindow : MonoBehaviour {
         graphFile = null;
         speciesColors = null;
         graphContainer = GetGraphTransform().GetChild(0).GetChild(0).GetComponent<RectTransform>();
-        yMaximum = Mathf.CeilToInt(yMaximum / 10.0f) * 10;
-        SetYAxisLabel(yMaximum);
+        SetPopulationMax(10);
         SetXAxisLabel(refreshHours);
         GetColumnTransform().localPosition = new Vector2(0, distanceFromBottomLeft + GetColumnTransform().localPosition.y);
         rows = new List<RectTransform>(rowCount);
@@ -57,7 +56,7 @@ public class GraphWindow : MonoBehaviour {
         this.graphFile = graphFile;
         if (graphFile == null)
             return;
-        yMaximum = graphFile.GetMax();
+        SetPopulationMax(graphFile.GetMax());
         speciesColors = graphFile.GetSpeciesColors();
         RefreshGraphPoints();
         RefreshColumnWidth();
@@ -128,14 +127,13 @@ public class GraphWindow : MonoBehaviour {
     }
 
     /// <summary>
-    /// If population is greater than yMaximum refreshes the yMaximum value and sets the YAxisLabel to the new yMaximum 
+    /// Sets the yMaximum to the population value rounded to the highest divisble number by 10, whichever is greater.
+    /// Refreshes the yMaximum label
     /// </summary>
     /// <param name="population"></param>
     public void SetPopulationMax(int population) {
-        if (population > yMaximum) {
-            yMaximum = Mathf.CeilToInt(population / 10.0f) * 10;
-            SetYAxisLabel(yMaximum);
-        }
+        yMaximum = Mathf.Max(Mathf.CeilToInt(population / 10.0f) * 10, 10);
+        SetYAxisLabel(yMaximum);
     }
     #endregion
 
