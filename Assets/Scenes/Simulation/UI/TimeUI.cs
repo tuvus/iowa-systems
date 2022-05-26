@@ -54,7 +54,7 @@ public class TimeUI : MonoBehaviour {
         if (GetFrameManager().GetWantedIterationsPerSeccond() == 0) {
             timeStepText.text = "Paused";
         } else {
-            int totalHours = GetFrameManager().GetIterationsOverLastSeccond();
+            int totalHours = GetFrameManager().GetIterationsOverSecondProjection();
             if (totalHours >= 8640) {
                 int years = totalHours / 8640;
                 totalHours = totalHours % 8640;

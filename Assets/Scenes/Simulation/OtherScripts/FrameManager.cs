@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class FrameManager : MonoBehaviour {
-    int wantedIterationsPerSeccond;
+    int wantedIterationsPerSecond;
     int[] iterationsOverSecond;
     int iterationsOverSecondIndex;
     int iterationsOverSecondCount;
-    int iterationHistoryLength;
+
+    float[] frameTimesOverSecond;
+    int frameIterationsOverSecondIndex;
+    int framesOverSecondCount;
+    float timeOverFrames;
 
     float frameStartTime;
     float iterationStartTime;
@@ -15,33 +19,43 @@ public class FrameManager : MonoBehaviour {
 
     #region CalculatingTime
     public int GetWantedIterationsPerSeccond() {
-        return wantedIterationsPerSeccond;
+        return wantedIterationsPerSecond;
     }
 
     public int GetWantedIterationsThisFrame() {
-
-        float index = iterationsOverSecondIndex % ((float)iterationsOverSecond.Length / (float)(wantedIterationsPerSeccond % iterationsOverSecond.Length));
-        if (wantedIterationsPerSeccond % iterationsOverSecond.Length > 0 &&
+        float index = iterationsOverSecondIndex % ((float)iterationsOverSecond.Length / (float)(wantedIterationsPerSecond % iterationsOverSecond.Length));
+        if (wantedIterationsPerSecond % iterationsOverSecond.Length > 0 &&
             index <= 1 && index != 0) {
-            return Mathf.Max(wantedIterationsPerSeccond / iterationsOverSecond.Length, 0) + 1;
+            return Mathf.Max(wantedIterationsPerSecond / iterationsOverSecond.Length, 0) + 1;
         }
-        return Mathf.Max(wantedIterationsPerSeccond / iterationsOverSecond.Length, 0);
+        return Mathf.Max(wantedIterationsPerSecond / iterationsOverSecond.Length, 0);
+    }
+
+    public bool ShouldStartNewIteration() {
+        if (iterationsOverSecond.Length <= 30)
+            return IsInIterationTimePeriod();
+        return CanStartNewIterationBeforeNextFrame();
+    }
+
+    public bool IsInIterationTimePeriod() {
+        return GetTimeRemainingInFrame() <= 0;
     }
 
     public bool CanStartNewIterationBeforeNextFrame() {
-        if (GetTimeRemainingInFrame() > GetIterationTimeEstimate() * 1.4f) {
-            return true;
-        }
-        return false;
+        return GetTimeRemainingInFrame() > GetIterationTimeEstimate();
     }
 
     float GetTimeRemainingInFrame() {
-        return GetTimePerFrame() - (GetTimeSinceStartup() - frameStartTime);
+        return GetTimePerFrame() - GetTimeSinceStartOfFrame();
     }
 
     float GetTimePerFrame() {
         float timePerFrame = 1f / iterationsOverSecond.Length;
-         return timePerFrame;
+        return timePerFrame;
+    }
+
+    float GetTimeSinceStartOfFrame() {
+        return GetTimeSinceStartup() - frameStartTime;
     }
 
     float GetIterationTimeEstimate() {
@@ -55,14 +69,29 @@ public class FrameManager : MonoBehaviour {
         return iterationsOverSecond[iterationsOverSecond.Length - 1];
     }
 
-    public int GetIterationsOverLastSeccond() {
-        return iterationsOverSecondCount;
+    public int GetIterationsOverSecondProjection() {
+        return Mathf.RoundToInt(iterationsOverSecondCount / GetTimeOverSeccond());
+    }
+
+    public float GetTimeOverSeccond() {
+        if (framesOverSecondCount == 0)
+            return 0;
+        return timeOverFrames / (frameTimesOverSecond.Length / framesOverSecondCount);
     }
     #endregion
 
     #region LogingTime
     public void UpdateFrameStartTime() {
-        frameStartTime = GetTimeSinceStartup();
+        if (wantedIterationsPerSecond > 0) {
+            timeOverFrames -= frameTimesOverSecond[iterationsOverSecondIndex];
+            frameTimesOverSecond[frameIterationsOverSecondIndex] = Time.deltaTime;
+            timeOverFrames += frameTimesOverSecond[frameIterationsOverSecondIndex];
+
+            frameIterationsOverSecondIndex++;
+            if (frameIterationsOverSecondIndex >= frameTimesOverSecond.Length)
+                frameIterationsOverSecondIndex = 0;
+            framesOverSecondCount = Mathf.Min(framesOverSecondCount + 1, frameTimesOverSecond.Length);
+        }
     }
 
     public void LogSimulationItterationStart() {
@@ -79,26 +108,27 @@ public class FrameManager : MonoBehaviour {
         iterationsOverSecondCount -= iterationsOverSecond[iterationsOverSecondIndex];
         iterationsOverSecond[iterationsOverSecondIndex] = iterations;
         iterationsOverSecondCount += iterations;
+
         iterationsOverSecondIndex++;
         if (iterationsOverSecondIndex >= iterationsOverSecond.Length)
             iterationsOverSecondIndex = 0;
-        iterationHistoryLength++;
     }
 
     public void SetWantedIterationsPerSeccond(int wantedIterationsPerSeccond) {
-        this.wantedIterationsPerSeccond = wantedIterationsPerSeccond;
-        iterationHistoryLength = 0;
+        this.wantedIterationsPerSecond = wantedIterationsPerSeccond;
     }
 
     public void SetFramesPerSeccond(int fps) {
         iterationsOverSecond = new int[fps];
-        iterationHistoryLength = 0;
+        frameTimesOverSecond = new float[fps];
         iterationsOverSecondIndex = 0;
         iterationsOverSecondCount = 0;
+        timeOverFrames = 0;
+        framesOverSecondCount = 0;
     }
     #endregion
 
-    float GetTimeSinceStartup () {
+    float GetTimeSinceStartup() {
         return Time.realtimeSinceStartup;
     }
 

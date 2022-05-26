@@ -5345,7 +5345,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Prarie Simulation
+  m_Text: Prairie Simulation
 --- !u!222 &879959915
 CanvasRenderer:
   m_ObjectHideFlags: 0
