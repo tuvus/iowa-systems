@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 public class SpeciesPopulaitonCount : MonoBehaviour {
 
-	private BasicSpeciesScript speciesScript;
+	private Species speciesScript;
 	private int index;
 
-	public void SetSpecies(BasicSpeciesScript _speciesScript, int _index) {
+	public void SetSpecies(Species _speciesScript, int _index) {
 		speciesScript = _speciesScript;
 		GetComponent<Image>().color = speciesScript.speciesColor;
 		UpdateInitialText();

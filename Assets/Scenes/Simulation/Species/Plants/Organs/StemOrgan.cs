@@ -3,15 +3,10 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class StemOrgan : EddiblePlantOrganScript {
-    public PlantSpeciesStem speciesStem;
-
-    internal override void SetUpSpecificOrgan() {
-        plantScript = basicOrganismScript.GetComponent<PlantScript>();
-    }
+public class StemOrgan : EddiblePlantOrgan {
 
     public override void OnPlantAddToZone(int zone, ZoneController.DataLocation dataLocation) {
-        if (plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].stemHeight > 0)
+        if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].stemHeight > 0)
             Spawn();
     }
 
@@ -19,18 +14,18 @@ public class StemOrgan : EddiblePlantOrganScript {
         base.ResetOrgan();
     }
 
-    public override float EatPlantOrgan(AnimalScript animal, float biteSize) {
+    public override float EatPlantOrgan(Animal animal, float biteSize) {
         if (!spawned)
             return 0;
         for (int i = 0; i < animal.animalSpecies.eddibleFoodTypes.Length; i++) {
-            if (animal.animalSpecies.eddibleFoodTypes[i] == speciesStem.organFoodIndex) {
-                if (plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].stemHeight > biteSize) {
-                    plantScript.ChangeStemHeight(plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].stemHeight - biteSize);
+            if (animal.animalSpecies.eddibleFoodTypes[i] == GetPlantSpeciesStem().organFoodIndex) {
+                if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].stemHeight > biteSize) {
+                    GetPlant().ChangeStemHeight(GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].stemHeight - biteSize);
                     return biteSize;
                 }
-                float foodReturn = plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].stemHeight;
+                float foodReturn = GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].stemHeight;
                 ResetOrgan();
-                plantScript.KillOrganism();
+                GetPlant().KillOrganism();
                 return foodReturn;
 
             }
@@ -39,13 +34,17 @@ public class StemOrgan : EddiblePlantOrganScript {
     }
 
     public override void GrowOrgan(float growth) {
-        plantScript.ChangeStemHeight(plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].stemHeight + (growth * speciesStem.growthModifier));
-        if (!spawned && plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].stemHeight > 0) { 
+        GetPlant().ChangeStemHeight(GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].stemHeight + (growth * GetPlantSpeciesStem().growthModifier));
+        if (!spawned && GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].stemHeight > 0) { 
             Spawn();
         }
     }
 
     internal override int GetFoodIndex() {
-        return speciesStem.organFoodIndex;
+        return GetPlantSpeciesStem().organFoodIndex;
+    }
+
+    public PlantSpeciesStem GetPlantSpeciesStem() {
+        return (PlantSpeciesStem)GetPlantSpeciesOrgan();
     }
 }

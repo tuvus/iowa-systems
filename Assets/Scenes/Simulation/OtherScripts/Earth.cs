@@ -5,7 +5,7 @@ using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
 
-public class EarthScript : MonoBehaviour {
+public class Earth : MonoBehaviour {
 	enum SimulationUpdateStatus {
 		Intializing = 0,
 		SettingUp = 1,
@@ -41,7 +41,7 @@ public class EarthScript : MonoBehaviour {
 		public float earthRadius;
 		public float humidity;
 		public float temperature;
-		public EarthState SetEarthState(EarthScript earthScript) {
+		public EarthState SetEarthState(Earth earthScript) {
 			sunPostion = earthScript.GetSunPosition();
 			earthRadius = earthScript.GetRadius();
 			humidity = earthScript.humidity;
@@ -184,7 +184,7 @@ public class EarthScript : MonoBehaviour {
     }
 
 	void StartOrganismJobs() {
-		List<BasicSpeciesScript> allSpecies = SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
+		List<Species> allSpecies = SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
         for (int i = 0; i < allSpecies.Count; i++) {
 			activeJobs.Add(allSpecies[i].GetBasicJobController().StartUpdateJob());
         }
@@ -208,21 +208,21 @@ public class EarthScript : MonoBehaviour {
 	}
 
 	void UpdateOrganismsBehavior() {
-		List<BasicSpeciesScript> allSpecies = GetAllSpecies();
+		List<Species> allSpecies = GetAllSpecies();
 		for (int i = 0; i < allSpecies.Count; i++) {
 			allSpecies[i].UpdateOrganismsBehavior();
         }
     }
 
 	void UpdateOrganisms() {
-		List<BasicSpeciesScript> allSpecies = GetAllSpecies();
+		List<Species> allSpecies = GetAllSpecies();
 		for (int i = 0; i < allSpecies.Count; i++) {
 			allSpecies[i].UpdateOrganisms();
 		}
 	}
 
 	void UpdateOrganismLists() {
-		List<BasicSpeciesScript> allSpecies = GetAllSpecies();
+		List<Species> allSpecies = GetAllSpecies();
 		for (int i = 0; i < allSpecies.Count; i++) {
 			allSpecies[i].UpdateOrganismLists();
 		}
@@ -282,7 +282,7 @@ public class EarthScript : MonoBehaviour {
     #endregion
 
     #region GetMethods
-    public List<BasicSpeciesScript> GetAllSpecies() {
+    public List<Species> GetAllSpecies() {
 		return SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
     }
 
@@ -294,8 +294,8 @@ public class EarthScript : MonoBehaviour {
 		return SpeciesManager.Instance.GetSpeciesMotor().GetAllAnimalSpecies();
 	}
 
-	public List<BasicJobController> GetAllJobControllers() {
-		List<BasicJobController> jobControllers = new List<BasicJobController>();
+	public List<JobController> GetAllJobControllers() {
+		List<JobController> jobControllers = new List<JobController>();
         foreach (var animalSpecies in SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()) {
 			jobControllers.Add(animalSpecies.GetBasicJobController());
         }

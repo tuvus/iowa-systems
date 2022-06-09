@@ -14,7 +14,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 		speciesPresetHolder = GameObject.Find("SpeciesPresetHolder").transform;
 		color.a = 1;
         for (int i = 0; i < speciesPresetHolder.childCount; i++) {
-			GetSpieciesDropDown().options.Add(new Dropdown.OptionData(speciesPresetHolder.GetChild(i).GetComponent<BasicSpeciesScript>().speciesName));
+			GetSpieciesDropDown().options.Add(new Dropdown.OptionData(speciesPresetHolder.GetChild(i).GetComponent<Species>().speciesName));
         }
 	}
 	
@@ -36,7 +36,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 		selectedSpecies = null;
 		string speciesName = GetSpieciesDropDown().options[GetSpieciesDropDown().value].text;
 		for (int i = 0; i < speciesPresetHolder.childCount; i++) {
-			BasicSpeciesScript targetSpecies = speciesPresetHolder.GetChild(i).GetComponent<BasicSpeciesScript>();
+			Species targetSpecies = speciesPresetHolder.GetChild(i).GetComponent<Species>();
 			if (targetSpecies.speciesName == speciesName) {
 				selectedSpecies = targetSpecies.gameObject;
 				color = targetSpecies.speciesColor;
@@ -59,7 +59,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 
 	public void EditSpecies(SpeciesHolderScript _speciesHolder) {
 		selectedSpecies = _speciesHolder.gameObject;
-		BasicSpeciesScript species = selectedSpecies.GetComponent<BasicSpeciesScript>();
+		Species species = selectedSpecies.GetComponent<Species>();
         for (int i = 0; i < GetSpieciesDropDown().options.Count; i++) {
 			if (GetSpieciesDropDown().options[i].text == species.speciesName) {
 				GetSpieciesDropDown().SetValueWithoutNotify(i);
@@ -82,7 +82,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 
 	public void CreateSpecies () {
 		if (editingSpecies) {
-			BasicSpeciesScript speciesScript = selectedSpecies.GetComponent<BasicSpeciesScript>();
+			Species speciesScript = selectedSpecies.GetComponent<Species>();
 			speciesScript.speciesDisplayName = GetSpieciesNameInputField().text;
 			speciesScript.startingPopulation = Mathf.RoundToInt(GetSpeciesPopulationCountSlider().value);
 			speciesScript.speciesColor = color;
@@ -93,7 +93,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 		} else {
 			GameObject newSpecies = Instantiate(selectedSpecies, SpeciesManager.Instance.transform);
 
-			BasicSpeciesScript speciesScript = newSpecies.GetComponent<BasicSpeciesScript>();
+			Species speciesScript = newSpecies.GetComponent<Species>();
 			speciesScript.speciesDisplayName = GetSpieciesNameInputField().text;
 			speciesScript.startingPopulation = Mathf.RoundToInt(GetSpeciesPopulationCountSlider().value);
 			speciesScript.speciesColor = color;
@@ -108,7 +108,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 
 	public void ResetFieldInputName() {
 		//GetSpieciesNameInputField().text = GetSpieciesDropDown().options[GetSpieciesDropDown().value].text;
-		GetSpieciesNameInputField().text =	selectedSpecies.GetComponent<BasicSpeciesScript>().speciesDisplayName;
+		GetSpieciesNameInputField().text =	selectedSpecies.GetComponent<Species>().speciesDisplayName;
 	}
 
 	public void RefreshOrganismCount() {
@@ -140,7 +140,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 	public void AddListOfSpecies(List<GameObject> _speciesList) {
 		for (int i = 0; i < _speciesList.Count; i++) {
 			GameObject newSpecies = Instantiate(_speciesList[i].GetComponent<SpeciesHolderScript>().gameObject, SpeciesManager.Instance.transform);
-			BasicSpeciesScript speciesScript = newSpecies.GetComponent<BasicSpeciesScript>();
+			Species speciesScript = newSpecies.GetComponent<Species>();
 			newSpecies.transform.GetChild(1).GetComponent<Text>().text = speciesScript.speciesDisplayName;
 			newSpecies.transform.GetComponent<Image>().color = speciesScript.speciesColor;
 		}

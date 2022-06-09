@@ -41,23 +41,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1992517119343582}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3976062d6396242068b237bdcc1eb09e, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f22621cf6aff8946930e9fe0580181c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  organismIndex: 0
+  specificOrganismIndex: 0
+  spawned: 0
   age: 0
   position: {x: 0, y: 0, z: 0}
-  plantSpecies: {fileID: 0}
-  plantIndex: 0
-  plantDataIndex: 0
   zone: 0
+  plantSpecies: {fileID: 0}
+  plantDataIndex: 0
   growth: 0
-  bladeArea: 0
-  stemHeight: 0
-  rootGrowth:
-    x: 0
-    y: 0
-  stage: -2
   organs: []
+  eddibleOrgans: []
 --- !u!1 &1314572327634962358
 GameObject:
   m_ObjectHideFlags: 0

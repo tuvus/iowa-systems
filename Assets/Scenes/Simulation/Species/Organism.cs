@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class BasicOrganismScript : MonoBehaviour {
-	internal BasicSpeciesScript species;
-	internal BasicOrganismScript parent;
+public abstract class Organism : MonoBehaviour {
+	internal Species species;
+	internal Organism parent;
 
 	public int organismIndex;
 	public int specificOrganismIndex;
@@ -17,11 +17,11 @@ public abstract class BasicOrganismScript : MonoBehaviour {
 	internal MeshRenderer meshRenderer;
 
 	#region OrganismSetup
-	internal void SetUpOrganism(BasicSpeciesScript species) {
+	public void SetupOrganism(Species species) {
 		this.species = species;
 		meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
 		GetMeshRenderer().material.color = species.speciesColor;
-		GetOrganismMotor().SetupOrganismMotor(species.earth,this);
+		GetOrganismMotor().SetupOrganismMotor(this);
 	}
 
 	public void OnAddOrganism(object sender, System.EventArgs info) {
@@ -69,8 +69,8 @@ public abstract class BasicOrganismScript : MonoBehaviour {
 		return transform.GetChild(0).GetComponent<OrganismMotor>();
 	}
 
-	public EarthScript GetEarthScript() {
-		return species.GetEarthScript();
+	public Earth GetEarthScript() {
+		return species.GetEarth();
     }
 
 	public ZoneController GetZoneController() {

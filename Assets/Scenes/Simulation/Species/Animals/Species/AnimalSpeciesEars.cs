@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimalSpeciesEars : BasicAnimalSpeciesOrganScript {
-
+public class AnimalSpeciesEars : AnimalSpeciesOrgan {
 	public GameObject ears;
-
 	public float hearRange;
 
-	public override void MakeOrganism(BasicOrganismScript newOrganism) {
-		EarsScript earsScript = speciesScript.InstantiateNewOrgan(ears, newOrganism).GetComponent<EarsScript>();
-		earsScript.hearRange = hearRange;
-		earsScript.SetupBasicOrgan(this, newOrganism);
+	public override void MakeOrganism(Animal animal) {
+		EarsOrgan earsScript = GetAnimalSpecies().InstantiateNewOrgan(ears, animal).GetComponent<EarsOrgan>();
+		earsScript.SetupOrgan(this, animal);
 	}
 }

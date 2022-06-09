@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
 
-public class FindZoneController : BasicJobController {
+public class FindZoneController : JobController {
 
     private NativeArray<FindZoneData> findZones;
     private int findZoneCount;
@@ -31,7 +31,7 @@ public class FindZoneController : BasicJobController {
     }
 
     public override JobHandle StartUpdateJob() {
-        job = FindZonesJob.BeginJob(findZones, findZoneCount, earth.GetZoneController().zones, earth.GetZoneController().neiboringZones);
+        job = FindZonesJob.BeginJob(findZones, findZoneCount, GetEarth().GetZoneController().zones, GetEarth().GetZoneController().neiboringZones);
         return job;
     }
 
@@ -39,7 +39,7 @@ public class FindZoneController : BasicJobController {
         for (int i = 0; i < findZoneCount; i++) {
             if (findZones[i].zone == -1)
                 Debug.LogError("error");
-            earth.GetZoneController().GetOrganismFromDataLocation(findZones[i].dataLocation).SetOrganismZone(findZones[i].zone);
+            GetEarth().GetZoneController().GetOrganismFromDataLocation(findZones[i].dataLocation).SetOrganismZone(findZones[i].zone);
         }
         findZoneCount = 0;
     }

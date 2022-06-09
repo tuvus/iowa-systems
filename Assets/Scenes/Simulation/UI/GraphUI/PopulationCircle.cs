@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class PopulationCircle : MonoBehaviour {
     public int population;
-    public BasicSpeciesScript species;
+    public Species species;
 }

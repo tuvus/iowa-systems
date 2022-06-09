@@ -5,11 +5,11 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
 
-public class PlantSpecies : BasicSpeciesScript {
+public class PlantSpecies : Species {
 	public GameObject plantPrefab;
 	PlantSpeciesSeeds plantSpeciesSeeds;
 
-	public List<BasicPlantSpeciesOrganScript> speciesOrgansOrder;
+	public List<PlantSpeciesOrgan> speciesOrgansOrder;
 	[Tooltip("x=bladeArea, y=stemHeight, z=rootDepth, int w=daysAfterGermination. " +
 		"The first element in this is the starting growth at seed. " +
 		"Each element in between shows how much growth is needed for the next stage." +
@@ -22,7 +22,7 @@ public class PlantSpecies : BasicSpeciesScript {
 		activePlants = 1,
 	}
 
-	[SerializeField] List<PlantScript> plants;
+	[SerializeField] List<Plant> plants;
 	[SerializeField] List<int> activePlants;
 	[SerializeField] List<int> inactivePlants;
 	[SerializeField] List<ChangePlantList> changePlantList;
@@ -44,13 +44,13 @@ public class PlantSpecies : BasicSpeciesScript {
 
 	[System.Serializable]
 	public struct GrowthStageData {
-		public PlantScript.GrowthStage stage;
+		public Plant.GrowthStage stage;
 		public float bladeArea;
 		public float stemHeight;
 		public float2 rootGrowth;
 		public int daysAfterGermination;
 
-		public GrowthStageData(PlantScript.GrowthStage stage, float bladeArea, float stemHeight, float2 rootGrowth, int daysAfterGermination) {
+		public GrowthStageData(Plant.GrowthStage stage, float bladeArea, float stemHeight, float2 rootGrowth, int daysAfterGermination) {
 			this.stage = stage;
 			this.bladeArea = bladeArea;
 			this.stemHeight = stemHeight;
@@ -60,9 +60,10 @@ public class PlantSpecies : BasicSpeciesScript {
 	}
 
 	#region StartSimulation
-	internal override void SetupSpecificSimulation() {
+	public override void SetupSimulation(Earth earth) {
 		plantJobController = gameObject.AddComponent<PlantJobController>();
-		plantJobController.SetUpJobController(this,earth);
+		plantJobController.SetUpJobController(this);
+		base.SetupSimulation(earth);
 		plantSpeciesSeeds = GetComponent<PlantSpeciesSeeds>();
 		plantSpeciesSeeds.SetupPlantSpeciesSeeds();
 		growthStages = new NativeArray<GrowthStageData>(growthStagesInput.Count, Allocator.Persistent);
@@ -99,7 +100,7 @@ public class PlantSpecies : BasicSpeciesScript {
         }
     }
 
-    internal override void StartSimulation() {
+    public override void StartSimulation() {
 		Populate();
 		UpdateOrganismData();
 	}
@@ -108,15 +109,15 @@ public class PlantSpecies : BasicSpeciesScript {
 	#region SpawnOrganisms
 	public override void PreSpawn(int spawnNumber) {
         for (int i = 0; i < spawnNumber; i++) {
-			PlantScript plant = SpawnOrganism(plantPrefab).GetComponent<PlantScript>();
-			plant.organs = new List<BasicPlantOrganScript>(speciesOrgansOrder.Count);
-			plant.eddibleOrgans = new List<EddiblePlantOrganScript>(speciesOrgansOrder.Count);
+			Plant plant = SpawnOrganism(plantPrefab).GetComponent<Plant>();
+			plant.organs = new List<PlantOrgan>(speciesOrgansOrder.Count);
+			plant.eddibleOrgans = new List<EddiblePlantOrgan>(speciesOrgansOrder.Count);
 			AddOrganism(plant);
-			earth.GetZoneController().AddPlant(plant);
+			GetEarth().GetZoneController().AddPlant(plant);
 			for (int f = 0; f < speciesOrgansOrder.Count; f++) {
 				speciesOrgansOrder[f].MakeOrganism(plant);
 			}
-			plant.SetUpPlantOrganism(this);
+			plant.SetupOrganism(this);
 			DeactivatePlant(plant, ListType.unlisted, true);
 		}
 	}
@@ -124,7 +125,7 @@ public class PlantSpecies : BasicSpeciesScript {
 	#region OnSimulationStart
 	public override void Populate() {
 		int organismsToSpawn = startingPopulation;
-		plants = new List<PlantScript>(startingPopulation * 2);
+		plants = new List<Plant>(startingPopulation * 2);
 		activePlants = new List<int>(startingPopulation * 2);
 		inactivePlants = new List<int>(startingPopulation * 2);
 		changePlantList = new List<ChangePlantList>(startingPopulation * 2);
@@ -136,66 +137,65 @@ public class PlantSpecies : BasicSpeciesScript {
             plantSpeciesSeeds.Populate();
         }
 		UpdateOrganismLists();
-		earth.StartFindZoneJobs();
-		earth.CompleteFindZoneJobs();
+		GetEarth().StartFindZoneJobs();
+		GetEarth().CompleteFindZoneJobs();
 
 	}
 
 	public override void SpawnRandomOrganism() {
-		PlantScript plantScript = GetInactivePlant();
-		ActivatePlant(plantScript, ListType.inactivePlants, true);
+		Plant plant = GetInactivePlant();
+		ActivatePlant(plant, ListType.inactivePlants, true);
 		populationCount++;
-		RandomiseOrganismPosition(plantScript);
-		AddToFindZone(plantScript);
-		plantScript.SpawnPlantRandom(growthStages[UnityEngine.Random.Range(1, growthStagesInput.Count)].stage);
+		RandomiseOrganismPosition(plant);
+		AddToFindZone(plant);
+		plant.SpawnPlantRandom(growthStages[UnityEngine.Random.Range(1, growthStagesInput.Count)].stage);
 	}
 
-	public PlantScript SpawnRandomSeed() {
-		PlantScript plantScript = GetInactivePlant();
-		ActivatePlant(plantScript, ListType.inactivePlants, true);
-		RandomiseOrganismPosition(plantScript);
-		AddToFindZone(plantScript);
-		return plantScript;
+	public Plant SpawnRandomSeed() {
+		Plant plant = GetInactivePlant();
+		ActivatePlant(plant, ListType.inactivePlants, true);
+		RandomiseOrganismPosition(plant);
+		AddToFindZone(plant);
+		return plant;
 	}
 	#endregion
 
-	public PlantScript SpawnSeed(PlantScript parent, float range) {
-		PlantScript plantScript = GetInactivePlant();
-		RemovePlantFromList(ListType.inactivePlants, plantScript.specificOrganismIndex);
-		ActivatePlant(plantScript, ListType.unlisted);
-		RandomiseOrganismChildPosition(plantScript, parent, range);
-		AddToFindZone(plantScript, parent.zone, range);
-		return plantScript;
+	public Plant SpawnSeed(Plant parent, float range) {
+		Plant plant = GetInactivePlant();
+		RemovePlantFromList(ListType.inactivePlants, plant.specificOrganismIndex);
+		ActivatePlant(plant, ListType.unlisted);
+		RandomiseOrganismChildPosition(plant, parent, range);
+		AddToFindZone(plant, parent.zone, range);
+		return plant;
 	}
 
-	public PlantScript SpawnPlant() {
-		PlantScript plantScript = GetInactivePlant();
-		RemovePlantFromList(ListType.inactivePlants, plantScript.specificOrganismIndex);
-		ActivatePlant(plantScript, ListType.unlisted);
-		RandomiseOrganismPosition(plantScript);
-		SetUpOrgans(plantScript);
-		plantScript.SpawnPlantRandom(growthStages[UnityEngine.Random.Range(1, growthStagesInput.Count)].stage);
+	public Plant SpawnPlant() {
+		Plant plant = GetInactivePlant();
+		RemovePlantFromList(ListType.inactivePlants, plant.specificOrganismIndex);
+		ActivatePlant(plant, ListType.unlisted);
+		RandomiseOrganismPosition(plant);
+		SetUpOrgans(plant);
+		plant.SpawnPlantRandom(growthStages[UnityEngine.Random.Range(1, growthStagesInput.Count)].stage);
 		populationCount++;
-		return plantScript;
+		return plant;
 	}
 
-	PlantScript GetInactivePlant() {
+	Plant GetInactivePlant() {
 		if (inactivePlants.Count == 0) {
 			PreSpawn(1);
 		}
 		return plants[inactivePlants[0]];
 	}
 
-	void SetUpOrgans(PlantScript plantScript) {
+	void SetUpOrgans(Plant plant) {
 		for (int i = 0; i < speciesOrgansOrder.Count; i++) {
-			speciesOrgansOrder[i].MakeOrganism(plantScript);
+			speciesOrgansOrder[i].MakeOrganism(plant);
 		}
 	}
     #endregion
 
     #region PlantControlls
     public override void UpdateOrganismData() {
-
     }
 
     public override void UpdateOrganismsBehavior() {
@@ -214,12 +214,12 @@ public class PlantSpecies : BasicSpeciesScript {
 		populationCount++;
     }
 
-	public GrowthStageData GetGrowthStageData(PlantScript.GrowthStage stage) {
+	public GrowthStageData GetGrowthStageData(Plant.GrowthStage stage) {
 		return growthStages[(int)stage];
 	}
 
-	public void AddToFindZone(PlantScript plant, int zone = -1, float range = 0) {
-		earth.GetZoneController().FindZoneController.AddFindZoneData(new FindZoneController.FindZoneData(new ZoneController.DataLocation(plant), zone, plant.position, range));
+	public void AddToFindZone(Plant plant, int zone = -1, float range = 0) {
+		GetEarth().GetZoneController().FindZoneController.AddFindZoneData(new FindZoneController.FindZoneData(new ZoneController.DataLocation(plant), zone, plant.position, range));
 	}
 
 	public override void OnSettingsChanged(bool renderOrganisms) {
@@ -230,13 +230,14 @@ public class PlantSpecies : BasicSpeciesScript {
 	#endregion
 
 	#region PlantListControls
-	internal override void AddSpecificOrganism(BasicOrganismScript newOrganism) {
-		PlantScript newPlant = (PlantScript)newOrganism;
+	public void AddOrganism(Plant newOrganism) {
+		base.AddOrganism(newOrganism);
+		Plant newPlant = newOrganism;
 		plants.Add(newPlant);
 		newPlant.specificOrganismIndex = plants.Count - 1;
 	}
 
-	public void ActivatePlant(PlantScript plant, ListType fromList, bool imediatly = false) {
+	public void ActivatePlant(Plant plant, ListType fromList, bool imediatly = false) {
 		if (imediatly) {
 			AddAndRemovePlantToList(new ChangePlantList(ListType.activePlants, fromList, plant.specificOrganismIndex));
 		} else {
@@ -245,7 +246,7 @@ public class PlantSpecies : BasicSpeciesScript {
 		plant.spawned = true;
 	}
 
-	public void DeactivatePlant(PlantScript plant, ListType fromList, bool imediatly = false) {
+	public void DeactivatePlant(Plant plant, ListType fromList, bool imediatly = false) {
 		plant.ResetPlant();
 		if (imediatly) {
 			AddAndRemovePlantToList(new ChangePlantList(ListType.inactivePlants, fromList, plant.specificOrganismIndex));
@@ -295,7 +296,7 @@ public class PlantSpecies : BasicSpeciesScript {
 
 	#region GetMethods
 
-	public PlantScript GetPlant(int plantIndex) {
+	public Plant GetPlant(int plantIndex) {
 		return plants[plantIndex];
 	}
 

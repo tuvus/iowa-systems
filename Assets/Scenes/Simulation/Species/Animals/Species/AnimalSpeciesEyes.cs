@@ -2,17 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimalSpeciesEyes : BasicAnimalSpeciesOrganScript {
-
+public class AnimalSpeciesEyes : AnimalSpeciesOrgan {
 	public GameObject eyes;
-
 	public float sightRange;
-	public EyesScript.EyeTypes eyeType;
+	public EyesOrgan.EyeTypes eyeType;
 
-	public override void MakeOrganism(BasicOrganismScript newOrganism) {
-		GameObject newEyes = speciesScript.InstantiateNewOrgan(eyes,newOrganism);
-		EyesScript eyesScript = newEyes.GetComponent<EyesScript>();
-		eyesScript.speciesEyes = this;
-		eyesScript.SetupBasicOrgan(this, newOrganism);
+	public override void MakeOrganism(Animal animal) {
+		EyesOrgan eyesScript = GetAnimalSpecies().InstantiateNewOrgan(eyes, animal).GetComponent<EyesOrgan>();
+		eyesScript.SetupOrgan(this, animal);
 	}
 }

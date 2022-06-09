@@ -2,23 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlantSpeciesVegetativePropagation : BasicPlantSpeciesOrganScript {
+public class PlantSpeciesVegetativePropagation : PlantSpeciesOrgan {
 
 	public float growthMax;
 	public float newPlantGrowthCost;
 	public int newPlantGrowChance;
 
-    public override float GetGrowthRequirementForStage(PlantScript.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {
+    public override float GetGrowthRequirementForStage(Plant.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {
         throw new System.NotImplementedException();
     }
 
-    public override void MakeOrganism(BasicOrganismScript newOrganism) {
-		return;
-		//VegetativePropagationOrgan propagation = newOrganism.AddComponent<VegetativePropagationOrgan>();
-		//propagation.SetupBasicOrgan(this);
-		//propagation.plantSpeciesVegetativePropagation = this;
-		//propagation.growthMax = growthMax;
-		//propagation.newPlantGrowthCost = newPlantGrowthCost;
-		//propagation.newPlantGrowChance = newPlantGrowChance;
+    public override void MakeOrganism(Plant plant) {
+		VegetativePropagationOrgan propagation = plant.gameObject.AddComponent<VegetativePropagationOrgan>();
+		propagation.SetupOrgan(this, plant);
 	}
 }

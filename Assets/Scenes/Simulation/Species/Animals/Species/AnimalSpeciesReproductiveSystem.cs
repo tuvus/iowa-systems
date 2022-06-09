@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimalSpeciesReproductiveSystem : BasicAnimalSpeciesOrganScript {
-
+public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
 	public GameObject reproductiveSystemPrefab;
 
 	[Tooltip("The time to birth after conception in hours")]
@@ -13,16 +12,14 @@ public class AnimalSpeciesReproductiveSystem : BasicAnimalSpeciesOrganScript {
 	public int reproducionAmount;
 	public float birthSuccessPercent;
 
-	public override void MakeOrganism(BasicOrganismScript newOrganism) {
-		GameObject newReproductiveSystem = speciesScript.InstantiateNewOrgan(reproductiveSystemPrefab, newOrganism);
-		ReproductiveSystem reproductiveSystemScript = newReproductiveSystem.GetComponent<ReproductiveSystem>();
-		reproductiveSystemScript.animalSpeciesReproductive = this;
-		reproductiveSystemScript.SetupBasicOrgan(this,newOrganism);
+	public override void MakeOrganism(Animal animal) {
+		ReproductiveSystemOrgan reproductiveSystemScript = GetAnimalSpecies().InstantiateNewOrgan(reproductiveSystemPrefab, animal).GetComponent<ReproductiveSystemOrgan>();
+		reproductiveSystemScript.SetupOrgan(this, animal);
 	}
 
-	public void MakeChildOrganism (int amount, AnimalScript parent) {
+	public void MakeChildOrganism (int amount, Animal parent) {
 		for (int i = 0; i < amount; i++) {
-			animalSpecies.SpawnOrganism(parent);
+			GetAnimalSpecies().SpawnOrganism(parent);
 		}
 	}
 }

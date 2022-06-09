@@ -4,7 +4,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using System;
 
-public class PlantScript : BasicOrganismScript {
+public class Plant : Organism {
     public enum GrowthStage {
         Dead = -1,
         Seed = 0,
@@ -15,13 +15,13 @@ public class PlantScript : BasicOrganismScript {
         Adult = 5,
     }
     public PlantSpecies plantSpecies;
-    PlantScript plantParent;
+    Plant plantParent;
 
     public int plantDataIndex;
     public float growth;
 
-    public List<BasicPlantOrganScript> organs;
-    public List<EddiblePlantOrganScript> eddibleOrgans;
+    public List<PlantOrgan> organs;
+    public List<EddiblePlantOrgan> eddibleOrgans;
 
     public struct PlantData {
         public float age;
@@ -36,13 +36,13 @@ public class PlantScript : BasicOrganismScript {
         public float rootDensity;
         public GrowthStage growthStage;
 
-        public PlantData(PlantScript plantScript, float bladeArea, float stemHeight, float2 rootGrowth, GrowthStage stage) {
-            age = plantScript.age;
-            speciesIndex = plantScript.species.speciesIndex;
-            specificSpeciesIndex = plantScript.species.specificSpeciesIndex;
-            plantIndex = plantScript.specificOrganismIndex;
-            zone = plantScript.zone;
-            position = plantScript.position;
+        public PlantData(Plant plant, float bladeArea, float stemHeight, float2 rootGrowth, GrowthStage stage) {
+            age = plant.age;
+            speciesIndex = plant.species.speciesIndex;
+            specificSpeciesIndex = plant.species.specificSpeciesIndex;
+            plantIndex = plant.specificOrganismIndex;
+            zone = plant.zone;
+            position = plant.position;
             this.bladeArea = bladeArea;
             this.stemHeight = stemHeight;
             this.rootGrowth = rootGrowth;
@@ -80,8 +80,8 @@ public class PlantScript : BasicOrganismScript {
     }
 
     #region setup
-    public void SetUpPlantOrganism(PlantSpecies plantSpecies) {
-        SetUpOrganism(plantSpecies);
+    public void SetupOrganism(PlantSpecies plantSpecies) {
+        base.SetupOrganism(plantSpecies);
         this.plantSpecies = plantSpecies;
         position = transform.position;
         gameObject.name = plantSpecies + "Organism";
@@ -167,7 +167,7 @@ public class PlantScript : BasicOrganismScript {
         }
     }
 
-    public float EatPlant(AnimalScript animal, float biteAmount) {
+    public float EatPlant(Animal animal, float biteAmount) {
         if (!spawned)
             return 0;
         float foodReturn = 0;

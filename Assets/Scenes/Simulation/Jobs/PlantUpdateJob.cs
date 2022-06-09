@@ -5,22 +5,22 @@ using UnityEngine;
 
 public struct PlantUpdateJob : IJobParallelFor {
     [WriteOnly] NativeArray<float2> plantReasourceGain;
-    [WriteOnly] NativeArray<PlantScript.GrowthStage> plantGrowthStage;
+    [WriteOnly] NativeArray<Plant.GrowthStage> plantGrowthStage;
     [ReadOnly] NativeArray<int> updatePlants;
 
-    [ReadOnly] NativeArray<PlantScript.PlantData> allPlants;
+    [ReadOnly] NativeArray<Plant.PlantData> allPlants;
     [ReadOnly] NativeArray<ZoneController.ZoneData> zones;
     [ReadOnly] NativeMultiHashMap<int, int> neiboringZones;
     [ReadOnly] NativeMultiHashMap<int, int> plantsInZones;
 
-    [ReadOnly] EarthScript.EarthState earthState;
+    [ReadOnly] Earth.EarthState earthState;
     [ReadOnly] NativeArray<PlantSpecies.GrowthStageData> growthStages;
     [ReadOnly] PlantSpeciesSeeds.SeedGerminationRequirement seedGerminationRequirement;
 
 
-    public static JobHandle BeginJob(NativeArray<float2> plantReasourceGain, NativeArray<PlantScript.GrowthStage> plantGrowthStage, 
-        NativeArray<int> plants, int plantCount, NativeArray<PlantScript.PlantData> allPlants , NativeArray<ZoneController.ZoneData> zones, 
-        NativeMultiHashMap<int, int> neiboringZones, NativeMultiHashMap<int, int> plantsInZones, EarthScript.EarthState earthState, 
+    public static JobHandle BeginJob(NativeArray<float2> plantReasourceGain, NativeArray<Plant.GrowthStage> plantGrowthStage, 
+        NativeArray<int> plants, int plantCount, NativeArray<Plant.PlantData> allPlants , NativeArray<ZoneController.ZoneData> zones, 
+        NativeMultiHashMap<int, int> neiboringZones, NativeMultiHashMap<int, int> plantsInZones, Earth.EarthState earthState, 
         NativeArray<PlantSpecies.GrowthStageData> growthStages, PlantSpeciesSeeds.SeedGerminationRequirement seedGerminationRequirement) {
         PlantUpdateJob job = new PlantUpdateJob { plantReasourceGain = plantReasourceGain, plantGrowthStage = plantGrowthStage, 
             updatePlants = plants, allPlants = allPlants, zones = zones, neiboringZones = neiboringZones, plantsInZones = plantsInZones, earthState = earthState, 
@@ -29,15 +29,15 @@ public struct PlantUpdateJob : IJobParallelFor {
     }
 
     public void Execute(int plantIndex) {
-        PlantScript.PlantData plant = allPlants[updatePlants[plantIndex]];
-        if (plant.growthStage == PlantScript.GrowthStage.Dead) {
+        Plant.PlantData plant = allPlants[updatePlants[plantIndex]];
+        if (plant.growthStage == Plant.GrowthStage.Dead) {
             return;
         }
         if (plant.zone == -1) {
             Debug.LogError("The zone of this plant should not be " + plant.zone + ". Curent growth stage is " + plant.growthStage);
             return;
         }
-        if (plant.growthStage == PlantScript.GrowthStage.Seed) {
+        if (plant.growthStage == Plant.GrowthStage.Seed) {
             plantGrowthStage[plantIndex] = GetSeedGerminationResults(plant);
             return;
         }
@@ -45,15 +45,15 @@ public struct PlantUpdateJob : IJobParallelFor {
         plantGrowthStage[plantIndex] = GetGrowthStage(plant);
     }
 
-    PlantScript.GrowthStage GetSeedGerminationResults(PlantScript.PlantData plant) {
+    Plant.GrowthStage GetSeedGerminationResults(Plant.PlantData plant) {
         if (plant.age > seedGerminationRequirement.timeMaximum)
-            return PlantScript.GrowthStage.Dead;
+            return Plant.GrowthStage.Dead;
         if (plant.age > seedGerminationRequirement.timeRequirement && earthState.humidity > seedGerminationRequirement.humidityRequirement && earthState.temperature > seedGerminationRequirement.tempetureRequirement)
-            return PlantScript.GrowthStage.Germinating;
-        return PlantScript.GrowthStage.Seed;
+            return Plant.GrowthStage.Germinating;
+        return Plant.GrowthStage.Seed;
     }
 
-    float GetSunGain(PlantScript.PlantData plant) {
+    float GetSunGain(Plant.PlantData plant) {
         return plant.bladeArea * GetSunValue(plant.position);
     }
 
@@ -68,7 +68,7 @@ public struct PlantUpdateJob : IJobParallelFor {
         }
     }
 
-    float GetWaterGain(PlantScript.PlantData plant) {
+    float GetWaterGain(Plant.PlantData plant) {
         float rootArea = (math.PI * plant.rootGrowth.x * plant.rootGrowth.y) + (math.pow(plant.rootGrowth.x / 2, 2) * 2);
         float overLapingRootArea = 0f;
         if (plantsInZones.TryGetFirstValue(plant.zone, out int targetPlant, out var iterator)) {
@@ -104,15 +104,15 @@ public struct PlantUpdateJob : IJobParallelFor {
         return Mathf.Max(rootUnderWaterPercent * rootArea * plant.rootDensity * .01f,0);
     }
 
-    float GetDistanceToPlant(PlantScript.PlantData from, PlantScript.PlantData to) {
+    float GetDistanceToPlant(Plant.PlantData from, Plant.PlantData to) {
         return math.distance(from.position, to.position);
     }
 
-    float GetRootSize(PlantScript.PlantData plant) {
+    float GetRootSize(Plant.PlantData plant) {
         return plant.rootGrowth.x;
     }
 
-    PlantScript.GrowthStage GetGrowthStage(PlantScript.PlantData plant) {
+    Plant.GrowthStage GetGrowthStage(Plant.PlantData plant) {
         int stageIndex = (int)plant.growthStage;
         if (stageIndex == growthStages.Length - 1)
             return plant.growthStage;

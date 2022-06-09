@@ -6,7 +6,7 @@ public class SpeciesMotor : MonoBehaviour {
 	[SerializeField]
 	GameObject populationCountPrefab;
 
-	EarthScript earth;
+	Earth earth;
 	GameObject canvasUI;
 	GraphWindow graphWindow;
 	GraphFileManager graphFileManager;
@@ -15,25 +15,25 @@ public class SpeciesMotor : MonoBehaviour {
 	public int maxRefreshTime;
 	public long refreshCount;
 
-	List<BasicSpeciesScript> allSpecies = new List<BasicSpeciesScript>();
+	List<Species> allSpecies = new List<Species>();
 	List<AnimalSpecies> animalSpecies = new List<AnimalSpecies>();
 	List<PlantSpecies> plantSpecies = new List<PlantSpecies>();
 
-	public void SetupSimulation(EarthScript earth, SunScript sun) {
+	public void SetupSimulation(Earth earth, Sun sun) {
 		this.earth = earth;
 		canvasUI = GameObject.Find("Canvas");
 		graphWindow = canvasUI.transform.GetChild(0).GetComponent<GraphWindow>();
 		graphFileManager = graphWindow.GetComponent<GraphFileManager>();
 		for (int i = 0; i < transform.childCount; i++) {
 			GameObject newCountPrefab = Instantiate(populationCountPrefab, GetPopulationCountParent());
-			newCountPrefab.GetComponent<SpeciesPopulaitonCount>().SetSpecies(transform.GetChild(i).GetComponent<BasicSpeciesScript>(), i);
+			newCountPrefab.GetComponent<SpeciesPopulaitonCount>().SetSpecies(transform.GetChild(i).GetComponent<Species>(), i);
 		}
 		foreach (var speciesHolder in GetAllSpeciesHolders()) {
 			speciesHolder.Destroy();
 		}
 		for (int i = 0; i < transform.childCount; i++) {
-			allSpecies.Add(transform.GetChild(i).GetComponent<BasicSpeciesScript>());
-			transform.GetChild(i).GetComponent<BasicSpeciesScript>().speciesIndex = i;
+			allSpecies.Add(transform.GetChild(i).GetComponent<Species>());
+			transform.GetChild(i).GetComponent<Species>().speciesIndex = i;
 		}
 		for (int i = 0; i < GetAllSpecies().Count; i++) {
 			if (GetAllSpecies()[i].GetComponent<AnimalSpecies>() != null) {
@@ -48,7 +48,7 @@ public class SpeciesMotor : MonoBehaviour {
 			}
 		}
 		foreach (var species in GetAllSpecies()) {
-			species.SetupSimulation(earth, sun);
+			species.SetupSimulation(earth);
 		}
 		graphWindow.SetupGraph(maxRefreshTime);
 		Color32[] speciesColors = new Color32[GetAllSpecies().Count];
@@ -61,7 +61,7 @@ public class SpeciesMotor : MonoBehaviour {
 
 	public void StartSimulation() {
 		foreach (var species in GetAllSpecies()) {
-			species.StartBasicSimulation();
+			species.StartSimulation();
 		}
 		AddNewData();
 		refreshTime = 0;
@@ -121,7 +121,7 @@ public class SpeciesMotor : MonoBehaviour {
 		return speciesHolders;
 	}
 
-	public List<BasicSpeciesScript> GetAllSpecies() {
+	public List<Species> GetAllSpecies() {
 		return allSpecies;
 	}
 

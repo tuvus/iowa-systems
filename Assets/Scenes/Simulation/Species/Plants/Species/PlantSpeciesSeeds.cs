@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
-    //public GameObject seedPrefab;
-
+public class PlantSpeciesSeeds : PlantSpeciesOrgan {
     public int startingSeedCount;
     public float humidityRequirement;
     public float tempetureRequirement;
@@ -41,27 +39,22 @@ public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
         seedGerminationRequirement = new SeedGerminationRequirement(this);
     }
 
-    public override void MakeOrganism(BasicOrganismScript newOrganism) {
-        SeedOrgan seeds = newOrganism.gameObject.AddComponent<SeedOrgan>();
-        seeds.speciesSeeds = this;
-        seeds.SetupBasicOrgan(this, newOrganism);
-    }
-
-    public void MakePlant(PlantScript plant, float growth) {
-
+    public override void MakeOrganism(Plant plant) {
+        SeedOrgan seeds = plant.gameObject.AddComponent<SeedOrgan>();
+        seeds.SetupOrgan(this, plant);
     }
 
     public void Populate() {
-        plantSpecies.PreSpawn(startingSeedCount);
+        GetPlantSpecies().PreSpawn(startingSeedCount);
         for (int i = 0; i < startingSeedCount; i++) {
-            PlantScript newseed = plantSpecies.SpawnRandomSeed();
+            Plant newseed = GetPlantSpecies().SpawnRandomSeed();
             newseed.SpawnSeedRandom(Random.Range(0, seedGerminationRequirement.timeRequirement));
             AddSeed();
         }
     }
 
-    public void SpreadSeed(PlantScript parent) {
-        PlantScript newSeed = plantSpecies.SpawnSeed(parent, seedDispertionRange);
+    public void SpreadSeed(Plant parent) {
+        Plant newSeed = GetPlantSpecies().SpawnSeed(parent, seedDispertionRange);
         newSeed.SpawnSeed();
         AddSeed();
     }
@@ -75,7 +68,7 @@ public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
     }
 
     public void GrowSeed() {
-        plantSpecies.SeedGrownToPlant();
+        GetPlantSpecies().SeedGrownToPlant();
         seedCount--;
     }
 
@@ -83,10 +76,12 @@ public class PlantSpeciesSeeds : BasicPlantSpeciesOrganScript {
         return organType;
     }
 
-    public override float GetGrowthRequirementForStage(PlantScript.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {
-        if (stage == PlantScript.GrowthStage.Adult) {
+    public override float GetGrowthRequirementForStage(Plant.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {
+        if (stage == Plant.GrowthStage.Adult) {
             return awnMaxGrowth / growthModifier;
         }
         return 0;
     }
+
+
 }

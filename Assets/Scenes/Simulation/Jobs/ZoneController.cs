@@ -11,12 +11,12 @@ public class ZoneController : MonoBehaviour {
         Distance = 2,
     }
 
-    EarthScript earth;
+    Earth earth;
     public FindZoneController FindZoneController { private set; get; }
     public NativeArray<ZoneData> zones;
-    public NativeArray<PlantScript.PlantData> allPlants;
+    public NativeArray<Plant.PlantData> allPlants;
     public int allPlantsCount;
-    public NativeArray<AnimalScript.AnimalData> allAnimals;
+    public NativeArray<Animal.AnimalData> allAnimals;
     public int allAnimalsCount;
     public NativeMultiHashMap<int, int> neiboringZones;
     public NativeMultiHashMap<int, int> plantsInZones;
@@ -38,12 +38,12 @@ public class ZoneController : MonoBehaviour {
             this.dataIndex = dataIndex;
         }
 
-        public DataLocation(AnimalScript animal) {
+        public DataLocation(Animal animal) {
             this.dataType = DataType.Animal;
             this.dataIndex = animal.animalDataIndex;
         }
 
-        public DataLocation(PlantScript plant) {
+        public DataLocation(Plant plant) {
             this.dataType = DataType.Plant;
             this.dataIndex = plant.plantDataIndex;
         }
@@ -70,10 +70,10 @@ public class ZoneController : MonoBehaviour {
     }
 
     #region SetupAndWrapup
-    public void SetupZoneController(EarthScript earth) {
+    public void SetupZoneController(Earth earth) {
         this.earth = earth;
         FindZoneController = GetComponent<FindZoneController>();
-        FindZoneController.SetUpJobController(earth);
+        FindZoneController.SetUpJobController(null);
     }
     
     public void SpawnZones(float radius, int numberOfZones, int maxNeiboringZones, int numberOfPlants, int numberOfAnimals, ZoneSetupType zoneSetup) {
@@ -107,8 +107,8 @@ public class ZoneController : MonoBehaviour {
 
     void Allocate(int numberOfZones,int maxNeibroingZones,int numberOfPlants, int numberOfAnimals) {
         zones = new NativeArray<ZoneData>(numberOfZones, Allocator.Persistent);
-        allPlants = new NativeArray<PlantScript.PlantData>(SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() * 5, Allocator.Persistent);
-        allAnimals = new NativeArray<AnimalScript.AnimalData>(SpeciesManager.Instance.GetAllStartingAnimals() * 5, Allocator.Persistent);
+        allPlants = new NativeArray<Plant.PlantData>(SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() * 5, Allocator.Persistent);
+        allAnimals = new NativeArray<Animal.AnimalData>(SpeciesManager.Instance.GetAllStartingAnimals() * 5, Allocator.Persistent);
         neiboringZones = new NativeMultiHashMap<int, int>(numberOfZones * maxNeibroingZones, Allocator.Persistent);
         plantsInZones = new NativeMultiHashMap<int, int>(numberOfPlants, Allocator.Persistent);
         animalsInZones = new NativeMultiHashMap<int, int>(numberOfAnimals, Allocator.Persistent);
@@ -137,13 +137,13 @@ public class ZoneController : MonoBehaviour {
     #endregion
 
     #region Runtime
-    public void AddPlants(List<PlantScript> plants) {
+    public void AddPlants(List<Plant> plants) {
         for (int i = 0; i < plants.Count; i++) {
             AddPlant(plants[i]);
         }
     }
 
-    public void AddPlant(PlantScript plant) {
+    public void AddPlant(Plant plant) {
         if (allPlantsCount == allPlants.Length)
             IncreaceAllPlantLength(1);
         plant.plantDataIndex = allPlantsCount;
@@ -151,19 +151,19 @@ public class ZoneController : MonoBehaviour {
     }
 
     public void IncreaceAllPlantLength(int length) {
-        NativeArray<PlantScript.PlantData> oldAllPlants = allPlants;
-        allPlants = new NativeArray<PlantScript.PlantData>(oldAllPlants.Length + length, Allocator.Persistent);
-        NativeArray<PlantScript.PlantData>.Copy(oldAllPlants, allPlants, oldAllPlants.Length);
+        NativeArray<Plant.PlantData> oldAllPlants = allPlants;
+        allPlants = new NativeArray<Plant.PlantData>(oldAllPlants.Length + length, Allocator.Persistent);
+        NativeArray<Plant.PlantData>.Copy(oldAllPlants, allPlants, oldAllPlants.Length);
         oldAllPlants.Dispose();
     }
 
-    public void AddAnimals(List<AnimalScript> animals) {
+    public void AddAnimals(List<Animal> animals) {
         for (int i = 0; i < animals.Count; i++) {
             AddAnimal(animals[i]);
         }
     }
 
-    public void AddAnimal(AnimalScript animal) {
+    public void AddAnimal(Animal animal) {
         if (allAnimalsCount == allAnimals.Length)
             IncreaceAllAnimalLength(1);
         animal.animalDataIndex = allAnimalsCount;
@@ -171,9 +171,9 @@ public class ZoneController : MonoBehaviour {
     }
 
     public void IncreaceAllAnimalLength(int length) {
-        NativeArray<AnimalScript.AnimalData> oldAllAnimals = allAnimals;
-        allAnimals = new NativeArray<AnimalScript.AnimalData>(oldAllAnimals.Length + length, Allocator.Persistent);
-        NativeArray<AnimalScript.AnimalData>.Copy(oldAllAnimals, allAnimals, oldAllAnimals.Length);
+        NativeArray<Animal.AnimalData> oldAllAnimals = allAnimals;
+        allAnimals = new NativeArray<Animal.AnimalData>(oldAllAnimals.Length + length, Allocator.Persistent);
+        NativeArray<Animal.AnimalData>.Copy(oldAllAnimals, allAnimals, oldAllAnimals.Length);
         oldAllAnimals.Dispose();
     }
 
@@ -195,7 +195,7 @@ public class ZoneController : MonoBehaviour {
         }
     }
 
-    public BasicOrganismScript GetOrganismFromDataLocation(DataLocation location) {
+    public Organism GetOrganismFromDataLocation(DataLocation location) {
         if (location.dataType == DataLocation.DataType.Animal) {
             return GetAnimalFromDataLocation(location);
         }
@@ -206,7 +206,7 @@ public class ZoneController : MonoBehaviour {
         return null;
     }
 
-    public AnimalScript GetAnimalFromDataLocation(DataLocation location) {
+    public Animal GetAnimalFromDataLocation(DataLocation location) {
         if (location.dataType != DataLocation.DataType.Animal)
             Debug.LogError("location datatype did was not of type animal.");
         if (location.dataIndex == -1)
@@ -214,7 +214,7 @@ public class ZoneController : MonoBehaviour {
         return earth.GetAllAnimalSpecies()[allAnimals[location.dataIndex].specificSpeciesIndex].GetAnimal(allAnimals[location.dataIndex].animalIndex);
     }
 
-    public PlantScript GetPlantFromDataLocation(DataLocation location) {
+    public Plant GetPlantFromDataLocation(DataLocation location) {
         if (location.dataType != DataLocation.DataType.Plant)
             Debug.LogError("location datatype did was not of type plant.");
         if (location.dataIndex == -1)

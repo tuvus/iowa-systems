@@ -4,32 +4,27 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
 
-public class PlantJobController : BasicJobController {
-    PlantSpecies plantSpecies;
-
+public class PlantJobController : JobController {
     public NativeArray<float2> plantReasourceGain;
-    public NativeArray<PlantScript.GrowthStage> plantGrowthStage;
+    public NativeArray<Plant.GrowthStage> plantGrowthStage;
     NativeArray<int> updatePlants;
     
 
     JobHandle zoneJob;
-    internal override void SetUpSpecificJobController(BasicSpeciesScript speciesScript) {
-        plantSpecies = (PlantSpecies)speciesScript;
-    }
 
     public override JobHandle StartUpdateJob() {
         SetUpdateNativeArrays();
-        job = PlantUpdateJob.BeginJob(plantReasourceGain,plantGrowthStage,updatePlants,plantSpecies.GetActivePlantCount(),earth.GetZoneController().allPlants,
-            earth.GetZoneController().zones,earth.GetZoneController().neiboringZones, earth.GetZoneController().plantsInZones,
-            earth.earthState,plantSpecies.growthStages,plantSpecies.GetSpeciesSeeds().seedGerminationRequirement);
+        job = PlantUpdateJob.BeginJob(plantReasourceGain,plantGrowthStage,updatePlants,GetPlantSpecies().GetActivePlantCount(),GetSpecies().GetEarth().GetZoneController().allPlants,
+            GetSpecies().GetEarth().GetZoneController().zones,GetSpecies().GetEarth().GetZoneController().neiboringZones, GetSpecies().GetEarth().GetZoneController().plantsInZones,
+            GetSpecies().GetEarth().earthState,GetPlantSpecies().growthStages,GetPlantSpecies().GetSpeciesSeeds().seedGerminationRequirement);
         return job;
     }
 
     void SetUpdateNativeArrays() {
-        if (plantSpecies.GetActivePlantCount() > updatePlants.Length)
-            SetUpdatePlantsLength(plantSpecies.GetActivePlantCount() * 2);
-        for (int i = 0; i < plantSpecies.GetActivePlantCount(); i++) {
-            updatePlants[i] = plantSpecies.GetPlant(plantSpecies.GetActivePlant(i)).plantDataIndex;
+        if (GetPlantSpecies().GetActivePlantCount() > updatePlants.Length)
+            SetUpdatePlantsLength(GetPlantSpecies().GetActivePlantCount() * 2);
+        for (int i = 0; i < GetPlantSpecies().GetActivePlantCount(); i++) {
+            updatePlants[i] = GetPlantSpecies().GetPlant(GetPlantSpecies().GetActivePlant(i)).plantDataIndex;
         }
     }
 
@@ -41,12 +36,12 @@ public class PlantJobController : BasicJobController {
         plantReasourceGain = new NativeArray<float2>(length, Allocator.Persistent);
 
         plantGrowthStage.Dispose();
-        plantGrowthStage = new NativeArray<PlantScript.GrowthStage>(length, Allocator.Persistent);
+        plantGrowthStage = new NativeArray<Plant.GrowthStage>(length, Allocator.Persistent);
     }
 
     public override void Allocate() {
         plantReasourceGain = new NativeArray<float2>(500, Allocator.Persistent);
-        plantGrowthStage = new NativeArray<PlantScript.GrowthStage>(500, Allocator.Persistent);
+        plantGrowthStage = new NativeArray<Plant.GrowthStage>(500, Allocator.Persistent);
         updatePlants = new NativeArray<int>(500, Allocator.Persistent);
     }
     
@@ -59,5 +54,9 @@ public class PlantJobController : BasicJobController {
         updatePlants.Dispose();
 
         zoneJob.Complete();
+    }
+
+    public PlantSpecies GetPlantSpecies() {
+        return (PlantSpecies)GetSpecies();
     }
 }

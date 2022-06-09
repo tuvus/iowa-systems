@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4959404041129638}
-  - component: {fileID: 114840308466920854}
+  - component: {fileID: 244344387421393125}
   m_Layer: 9
   m_Name: BasicAnimal
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114840308466920854
+--- !u!114 &244344387421393125
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,23 +41,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 1935006318196538}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea3e00205ebbb42c688e5a97ef194536, type: 3}
+  m_Script: {fileID: 11500000, guid: 5517c729e018ecf48b51e1f4ce4f7faf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   organismIndex: 0
   specificOrganismIndex: 0
+  spawned: 0
   age: 0
   position: {x: 0, y: 0, z: 0}
   zone: 0
   animalSpecies: {fileID: 0}
-  behavior: {fileID: 0}
+  reproductive: {fileID: 0}
   animalParent: {fileID: 0}
   animalDataIndex: 0
   waitTime: 0
   food: 0
   mate: {fileID: 0}
   health: 0
-  stage: -2
+  stage: 0
 --- !u!1 &7263993166501292513
 GameObject:
   m_ObjectHideFlags: 0

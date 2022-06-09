@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SunScript : MonoBehaviour {
-	EarthScript earth;
+public class Sun : MonoBehaviour {
+	Earth earth;
 	public float sunSpeed;
 	LensFlare lensFlare;
 	Light sunLight;
 
-	public void SetupSun(EarthScript earth) {
+	public void SetupSun(Earth earth) {
 		this.earth = earth;
 		lensFlare = GetComponentInChildren<LensFlare>();
 		sunLight = GetComponentInChildren<Light>();

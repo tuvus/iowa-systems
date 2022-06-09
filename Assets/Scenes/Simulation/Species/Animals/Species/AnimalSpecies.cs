@@ -4,7 +4,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
-public class AnimalSpecies : BasicSpeciesScript {
+public class AnimalSpecies : Species {
 	public GameObject basicOrganism;
 
 	public Color corpseColor;
@@ -32,7 +32,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 		activeAnimals = 2,
 	}
 
-	[SerializeField] List<AnimalScript> animals;
+	[SerializeField] List<Animal> animals;
 	[SerializeField] List<int> activeAnimals;
 	[SerializeField] List<int> activeCorpses;
 	[SerializeField] List<int> inactiveAnimals;
@@ -55,18 +55,19 @@ public class AnimalSpecies : BasicSpeciesScript {
 	public NativeArray<int> predatorFoodTypes;
 
     #region StartSimulation
-    internal override void SetupSpecificSimulation() {
+    public override void SetupSimulation(Earth earth) {
 		animalJobController = gameObject.AddComponent<AnimalJobController>();
-		animalJobController.SetUpJobController(this,earth);
+		animalJobController.SetUpJobController(this);
+		base.SetupSimulation(earth);
 		fullFood = maxFood * .7f;
     }
 
     public override void SetupSpeciesFoodType() {
-		foodIndex = earth.GetIndexOfFoodType(speciesName);
+		foodIndex = GetEarth().GetIndexOfFoodType(speciesName);
 		List<int> tempEddibleFoodTypes = new List<int>();
 		for (int i = 0; i < eddibleFoodTypesInput.Count; i++) {
-			if (earth.GetIndexOfFoodType(eddibleFoodTypesInput[i]) != -1) {
-				tempEddibleFoodTypes.Add(earth.GetIndexOfFoodType(eddibleFoodTypesInput[i]));
+			if (GetEarth().GetIndexOfFoodType(eddibleFoodTypesInput[i]) != -1) {
+				tempEddibleFoodTypes.Add(GetEarth().GetIndexOfFoodType(eddibleFoodTypesInput[i]));
 			}
 		}
 		eddibleFoodTypes = new NativeArray<int>(tempEddibleFoodTypes.Count, Allocator.Persistent);
@@ -89,7 +90,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 		}
 	}
 
-	internal override void StartSimulation() {
+	public override void StartSimulation() {
 		Populate();
 		UpdateOrganismData();
 	}
@@ -97,13 +98,13 @@ public class AnimalSpecies : BasicSpeciesScript {
 
     #region SpawnOrganisms
     public override void PreSpawn(int spawnNumber) {
-		AnimalScript animal = SpawnOrganism(basicOrganism).GetComponent<AnimalScript>();
+		Animal animal = SpawnOrganism(basicOrganism).GetComponent<Animal>();
         AddOrganism(animal);
-		earth.GetZoneController().AddAnimal(animal);
-		foreach (var organ in GetComponents<BasicSpeciesOrganScript>()) {
-			organ.MakeOrganism(animal);
+		GetEarth().GetZoneController().AddAnimal(animal);
+		foreach (var animalSpeciesOrgan in GetComponents<AnimalSpeciesOrgan>()) {
+			animalSpeciesOrgan.MakeOrganism(animal);
 		}
-		animal.SetupAnimalOrganism(this);
+		animal.SetupOrganism(this);
 		DeactivateAnimal(animal, ListType.unlisted, true);
 	}
 
@@ -111,7 +112,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 
     public override void Populate() {
 		int organismsToSpawn = startingPopulation;
-		animals = new List<AnimalScript>(startingPopulation * 2);
+		animals = new List<Animal>(startingPopulation * 2);
 		activeAnimals = new List<int>(startingPopulation * 2);
 		activeCorpses = new List<int>(startingPopulation * 2);
 		inactiveAnimals = new List<int>(startingPopulation * 2);
@@ -121,12 +122,12 @@ public class AnimalSpecies : BasicSpeciesScript {
 			SpawnRandomOrganism();
 		}
 		UpdateOrganismLists();
-		earth.StartFindZoneJobs();
-		earth.CompleteFindZoneJobs();
+		GetEarth().StartFindZoneJobs();
+		GetEarth().CompleteFindZoneJobs();
 	}
 
 	public override void SpawnRandomOrganism() {
-		AnimalScript animal = GetInactiveAnimal();
+		Animal animal = GetInactiveAnimal();
 		ActivateAnimal(animal, ListType.inactiveAnimals, true);
 		populationCount++;
 		RandomiseOrganismPosition(animal);
@@ -135,8 +136,8 @@ public class AnimalSpecies : BasicSpeciesScript {
 	}
     #endregion
 
-    public AnimalScript SpawnOrganism(AnimalScript parent) {
-		AnimalScript animal = GetInactiveAnimal();
+    public Animal SpawnOrganism(Animal parent) {
+		Animal animal = GetInactiveAnimal();
 		RemoveAnimalFromList(ListType.inactiveAnimals, animal.specificOrganismIndex);
 		ActivateAnimal(animal, ListType.unlisted);
 		populationCount++;
@@ -146,7 +147,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 		return animal;
 	}
 
-	AnimalScript GetInactiveAnimal() {
+	Animal GetInactiveAnimal() {
 		if (inactiveAnimals.Count == 0) {
 			PreSpawn(1);
 		}
@@ -157,21 +158,21 @@ public class AnimalSpecies : BasicSpeciesScript {
     #region AnimalControls
     public override void UpdateOrganismData() {
 		for (int i = 0; i < activeAnimals.Count; i++) {
-			earth.GetZoneController().allAnimals[animals[activeAnimals[i]].animalDataIndex] = new AnimalScript.AnimalData(animals[activeAnimals[i]]);
+			GetEarth().GetZoneController().allAnimals[animals[activeAnimals[i]].animalDataIndex] = new Animal.AnimalData(animals[activeAnimals[i]]);
 		}
 	}
 
 	public override void UpdateOrganismsBehavior() {
 		for (int i = 0; i < activeAnimals.Count; i++) {
-			AnimalScript.AnimalActions animalAction = GetAnimalJobController().animalActions[i];
-			AnimalScript animal = animals[activeAnimals[i]];
+			Animal.AnimalActions animalAction = GetAnimalJobController().animalActions[i];
+			Animal animal = animals[activeAnimals[i]];
 			switch (animalAction.actionType) {
-				case AnimalScript.AnimalActions.ActionType.Idle:
+				case Animal.AnimalActions.ActionType.Idle:
 					animal.Idle();
 					User.Instance.PrintState("SittingStill", speciesDisplayName, 1);
 					break;
-				case AnimalScript.AnimalActions.ActionType.RunFromPredator:
-					BasicOrganismScript targetPredatorOrganism = earth.GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation);
+				case Animal.AnimalActions.ActionType.RunFromPredator:
+					Organism targetPredatorOrganism = GetEarth().GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation);
 					if (targetPredatorOrganism.spawned) {
 						animal.RunFromOrganism(targetPredatorOrganism);
 						User.Instance.PrintState("PredatorFound", speciesDisplayName, 2);
@@ -180,19 +181,19 @@ public class AnimalSpecies : BasicSpeciesScript {
 					animal.Explore();
 					User.Instance.PrintState("Exploring", speciesDisplayName, 1);
 					break;
-				case AnimalScript.AnimalActions.ActionType.EatFood:
+				case Animal.AnimalActions.ActionType.EatFood:
 					if (animalAction.dataLocation.dataType == ZoneController.DataLocation.DataType.Animal) {
-						AnimalScript targetAnimal = earth.GetZoneController().GetAnimalFromDataLocation(animalAction.dataLocation);
+						Animal targetAnimal = GetEarth().GetZoneController().GetAnimalFromDataLocation(animalAction.dataLocation);
 						if (targetAnimal.spawned && animal.Eat(targetAnimal)) {
-							animal.LookAtPoint(earth.GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation).position);
+							animal.LookAtPoint(GetEarth().GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation).position);
 							User.Instance.PrintState("Eating", speciesDisplayName, 2);
 							break;
 						}
 					}
 					if (animalAction.dataLocation.dataType == ZoneController.DataLocation.DataType.Plant) {
-						PlantScript targetPlant = earth.GetZoneController().GetPlantFromDataLocation(animalAction.dataLocation);
+						Plant targetPlant = GetEarth().GetZoneController().GetPlantFromDataLocation(animalAction.dataLocation);
 						if (targetPlant.spawned && animal.Eat(targetPlant)) {
-							animal.LookAtPoint(earth.GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation).position);
+							animal.LookAtPoint(GetEarth().GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation).position);
 							User.Instance.PrintState("Eating", speciesDisplayName, 2);
 							break;
 						}
@@ -200,8 +201,8 @@ public class AnimalSpecies : BasicSpeciesScript {
 					animal.Explore();
 					User.Instance.PrintState("Exploring", speciesDisplayName, 1);
 					break;
-				case AnimalScript.AnimalActions.ActionType.GoToFood:
-					BasicOrganismScript targetGoToOrganism = earth.GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation);
+				case Animal.AnimalActions.ActionType.GoToFood:
+					Organism targetGoToOrganism = GetEarth().GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation);
 					if (targetGoToOrganism.spawned) {
 						animal.GoToPoint(targetGoToOrganism.position);
 						User.Instance.PrintState("GoingToFood", speciesDisplayName, 1);
@@ -210,7 +211,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 						User.Instance.PrintState("Exploring", speciesDisplayName, 1);
 					}
 					break;
-				case AnimalScript.AnimalActions.ActionType.AttemptReproduction:
+				case Animal.AnimalActions.ActionType.AttemptReproduction:
 					if (animal.mate.spawned && animal.GetReproductive().AttemptReproduction()) {
 						animal.LookAtPoint(animal.mate.position);
 						User.Instance.PrintState("AttemptReproduction", speciesDisplayName, 2);
@@ -219,8 +220,8 @@ public class AnimalSpecies : BasicSpeciesScript {
 						User.Instance.PrintState("SittingStill", speciesDisplayName, 1);
 					}
 					break;
-				case AnimalScript.AnimalActions.ActionType.AttemptToMate:
-					AnimalScript targetMate = earth.GetZoneController().GetAnimalFromDataLocation(animalAction.dataLocation);
+				case Animal.AnimalActions.ActionType.AttemptToMate:
+					Animal targetMate = GetEarth().GetZoneController().GetAnimalFromDataLocation(animalAction.dataLocation);
 					if (targetMate.spawned && animal.AttemptToMate(targetMate)) {
 						animal.LookAtPoint(targetMate.position);
 						User.Instance.PrintState("FoundMate", speciesDisplayName, 2);
@@ -229,7 +230,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 						User.Instance.PrintState("Exploring", speciesDisplayName, 1);
 					}
 					break;
-				case AnimalScript.AnimalActions.ActionType.Explore:
+				case Animal.AnimalActions.ActionType.Explore:
 					animal.Explore();
 					User.Instance.PrintState("Exploring", speciesDisplayName, 1);
 					break;
@@ -290,15 +291,15 @@ public class AnimalSpecies : BasicSpeciesScript {
 		return foodConsumption / 2;
 	}
 
-	public void AddToFindZone(AnimalScript animal, int zone = -1, float range = 0) {
-		earth.GetZoneController().FindZoneController.AddFindZoneData(new FindZoneController.FindZoneData(new ZoneController.DataLocation(animal), zone, animal.position, range));
+	public void AddToFindZone(Animal animal, int zone = -1, float range = 0) {
+		GetEarth().GetZoneController().FindZoneController.AddFindZoneData(new FindZoneController.FindZoneData(new ZoneController.DataLocation(animal), zone, animal.position, range));
 	}
 
-	public void SpawnCorpse(AnimalScript animal) {
+	public void SpawnCorpse(Animal animal) {
 		ActivateCorpse(animal, ListType.activeAnimals);
     }
 
-	public void DespawnCorpse(AnimalScript animal) {
+	public void DespawnCorpse(Animal animal) {
 		DeactivateAnimal(animal, ListType.activeCorpses);
     }
 
@@ -313,13 +314,14 @@ public class AnimalSpecies : BasicSpeciesScript {
     #endregion
 
     #region AnimalListControls
-    internal override void AddSpecificOrganism(BasicOrganismScript newOrganism) {
-		AnimalScript newAnimal = (AnimalScript)newOrganism;
+    public void AddOrganism(Animal newOrganism) {
+		base.AddOrganism(newOrganism);
+		Animal newAnimal = newOrganism;
 		animals.Add(newAnimal);
 		newAnimal.specificOrganismIndex = animals.Count - 1;
     }
 	
-	public void ActivateAnimal(AnimalScript animal, ListType fromList, bool imediatly = false) {
+	public void ActivateAnimal(Animal animal, ListType fromList, bool imediatly = false) {
 		if (imediatly) {
 			AddAndRemoveAnimalToList(new ChangeAnimalList(ListType.activeAnimals, fromList, animal.specificOrganismIndex));
 		} else {
@@ -329,7 +331,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 		animal.GetMeshRenderer().enabled = User.Instance.GetRenderWorldUserPref();
 	}
 
-	public void ActivateCorpse(AnimalScript animal, ListType fromList, bool imediatly = false) {
+	public void ActivateCorpse(Animal animal, ListType fromList, bool imediatly = false) {
 		if (imediatly) {
 			AddAndRemoveAnimalToList(new ChangeAnimalList(ListType.activeCorpses, fromList, animal.specificOrganismIndex));
 		} else { 
@@ -339,7 +341,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 		animal.GetMeshRenderer().enabled = User.Instance.GetRenderWorldUserPref();
 	}
 
-	public void DeactivateAnimal(AnimalScript animal, ListType fromList, bool imediatly = false) {
+	public void DeactivateAnimal(Animal animal, ListType fromList, bool imediatly = false) {
 		animal.ResetAnimal();
 		if (imediatly) {
 			AddAndRemoveAnimalToList(new ChangeAnimalList(ListType.inactiveAnimals, fromList, animal.specificOrganismIndex));
@@ -347,7 +349,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 			changeAnimalList.Add(new ChangeAnimalList(ListType.inactiveAnimals, fromList, animal.specificOrganismIndex));
 		}
 		animal.spawned = false;
-		//earth.GetZoneController().allAnimals[animal.animalDataIndex] = new AnimalScript.AnimalData(animal);
+		//GetEarth().GetZoneController().allAnimals[animal.animalDataIndex] = new AnimalScript.AnimalData(animal);
 		animal.GetMeshRenderer().enabled = false;
 	}
 	#endregion
@@ -357,7 +359,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 		return animals.Count;
 	}
 
-	public AnimalScript GetAnimal(int animalIndex) {
+	public Animal GetAnimal(int animalIndex) {
 		return animals[animalIndex];
 	}
 
@@ -373,7 +375,7 @@ public class AnimalSpecies : BasicSpeciesScript {
 		return GetComponent<AnimalSpeciesEyes>().sightRange;
     }
 
-	public EyesScript.EyeTypes GetEyeType() {
+	public EyesOrgan.EyeTypes GetEyeType() {
 		return GetComponent<AnimalSpeciesEyes>().eyeType;
 	}
 

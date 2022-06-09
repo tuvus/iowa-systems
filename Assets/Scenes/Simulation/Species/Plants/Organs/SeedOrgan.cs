@@ -4,30 +4,24 @@ using Unity.Mathematics;
 using UnityEngine;
 
 
-public class SeedOrgan : BasicPlantOrganScript {
-
-	public PlantSpeciesSeeds speciesSeeds;
+public class SeedOrgan : PlantOrgan {
 
 	public float awnsGrowth;
 	public float timeUntillDispersion;
 
-
-	internal override void SetUpSpecificOrgan() {
-	}
-
 	public override void SpawnOrganismAdult() {
-		if (plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].growthStage == PlantScript.GrowthStage.Adult) {
+		if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == Plant.GrowthStage.Adult) {
 			if (UnityEngine.Random.Range(0, 10) < 4) {
-				awnsGrowth = UnityEngine.Random.Range(0, speciesSeeds.awnMaxGrowth);
+				awnsGrowth = UnityEngine.Random.Range(0, GetPlantSpeciesSeeds().awnMaxGrowth);
 			} else {
-				awnsGrowth = speciesSeeds.awnMaxGrowth;
-				timeUntillDispersion = UnityEngine.Random.Range(0, speciesSeeds.awnSeedDispertionTime);
+				awnsGrowth = GetPlantSpeciesSeeds().awnMaxGrowth;
+				timeUntillDispersion = UnityEngine.Random.Range(0, GetPlantSpeciesSeeds().awnSeedDispertionTime);
 			}
 		}
 	}
 
 	public override void OnPlantAddToZone(int zone, ZoneController.DataLocation dataLocation) {
-		if (plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].growthStage == PlantScript.GrowthStage.Seed)
+		if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == Plant.GrowthStage.Seed)
 			Spawn();
     }
 
@@ -38,45 +32,49 @@ public class SeedOrgan : BasicPlantOrganScript {
 
     public override void GrowOrgan(float growth) {
 		if (timeUntillDispersion > 0) {
-			timeUntillDispersion -= plantScript.GetEarthScript().simulationDeltaTime;
+			timeUntillDispersion -= GetPlant().GetEarthScript().simulationDeltaTime;
 			if (timeUntillDispersion <= 0) {
 				timeUntillDispersion = 0;
 				awnsGrowth = 0;
-				SpreadNewSeed(speciesSeeds.awnMaxSeedAmount);
+				SpreadNewSeed(GetPlantSpeciesSeeds().awnMaxSeedAmount);
 			}
 			return;
 		}
 		awnsGrowth += growth / 100;
-		if (awnsGrowth >= speciesSeeds.awnMaxGrowth) {
-			awnsGrowth = speciesSeeds.awnMaxGrowth;
-			timeUntillDispersion = speciesSeeds.awnSeedDispertionTime;
+		if (awnsGrowth >= GetPlantSpeciesSeeds().awnMaxGrowth) {
+			awnsGrowth = GetPlantSpeciesSeeds().awnMaxGrowth;
+			timeUntillDispersion = GetPlantSpeciesSeeds().awnSeedDispertionTime;
 		}
 	}
 
 	public void SpreadNewSeed(int seedCount) {
 		for (int i = 0; i < seedCount; i++) {
-			if (UnityEngine.Random.Range(0,100) < speciesSeeds.awnSeedDispersalSuccessChance)
-				speciesSeeds.SpreadSeed(plantScript);
+			if (UnityEngine.Random.Range(0,100) < GetPlantSpeciesSeeds().awnSeedDispersalSuccessChance)
+				GetPlantSpeciesSeeds().SpreadSeed(GetPlant());
 		}
 	}
 
 	public override float GetGrowth(float deltaTime) {
-		if (plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].growthStage == PlantScript.GrowthStage.Germinating || plantScript.GetEarthScript().GetZoneController().allPlants[plantScript.plantDataIndex].growthStage == PlantScript.GrowthStage.Sprout) {
-			return deltaTime * speciesSeeds.seedEnergyAmount;
+		if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == Plant.GrowthStage.Germinating || GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == Plant.GrowthStage.Sprout) {
+			return deltaTime * GetPlantSpeciesSeeds().seedEnergyAmount;
 		}
 		return base.GetGrowth(deltaTime);
     }
 
     public override void OnOrganismGermination() {
-		speciesSeeds.GrowSeed();
+		GetPlantSpeciesSeeds().GrowSeed();
 		Despawn();
     }
 
 	public override void AddToZone(int zoneIndex, ZoneController.DataLocation dataLocation) {
-		GetZoneController().AddFoodTypeToZone(zoneIndex, speciesSeeds.organFoodIndex, dataLocation);
+		GetZoneController().AddFoodTypeToZone(zoneIndex, GetPlantSpeciesSeeds().organFoodIndex, dataLocation);
 	}
 
 	public override void RemoveFromZone(int zoneIndex, ZoneController.DataLocation dataLocation) {
-		GetZoneController().RemoveFoodTypeFromZone(zoneIndex, speciesSeeds.organFoodIndex, dataLocation);
+		GetZoneController().RemoveFoodTypeFromZone(zoneIndex, GetPlantSpeciesSeeds().organFoodIndex, dataLocation);
 	}
+
+	public PlantSpeciesSeeds GetPlantSpeciesSeeds() {
+		return (PlantSpeciesSeeds)GetPlantSpeciesOrgan();
+    }
 }

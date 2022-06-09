@@ -4,7 +4,7 @@ using UnityEngine;
 using Unity.Collections;
 using Unity.Mathematics;
 
-public class AnimalScript : BasicOrganismScript {
+public class Animal : Organism {
 
 	public enum GrowthStage {
 		Dead = -2,
@@ -14,8 +14,8 @@ public class AnimalScript : BasicOrganismScript {
 	}
 
 	public AnimalSpecies animalSpecies;
-	public ReproductiveSystem reproductive;
-	[SerializeField] internal AnimalScript animalParent;
+	public ReproductiveSystemOrgan reproductive;
+	[SerializeField] internal Animal animalParent;
 
 	public struct AnimalData {
 		public float age;
@@ -32,7 +32,7 @@ public class AnimalScript : BasicOrganismScript {
 		public bool2 animalReproductionReady;
 		public GrowthStage stage;
 
-        public AnimalData(AnimalScript animal) {
+        public AnimalData(Animal animal) {
 			age = animal.age;
 			speciesIndex = animal.species.speciesIndex;
 			specificSpeciesIndex = animal.species.specificSpeciesIndex;
@@ -48,34 +48,34 @@ public class AnimalScript : BasicOrganismScript {
 			stage = animal.stage;
 		}
 
-		public static float3x2 GetAnimalEyePositions(AnimalScript animal, EyesScript eyes) {
+		public static float3x2 GetAnimalEyePositions(Animal animal, EyesOrgan eyes) {
 			if (eyes != null) {
 				float3x2 eyePostions;
-				if (eyes.GetEyeType() == EyesScript.EyeTypes.Foward) {
-					eyePostions = new float3x2(eyes.eyes[0].position, eyes.eyes[0].position);
+				if (eyes.GetEyeType() == EyesOrgan.EyeTypes.Foward) {
+					eyePostions = new float3x2(eyes.GetEyes()[0].position, eyes.GetEyes()[0].position);
 				} else {
-					eyePostions = new float3x2(eyes.eyes[0].position, eyes.eyes[1].position);
+					eyePostions = new float3x2(eyes.GetEyes()[0].position, eyes.GetEyes()[1].position);
 				}
 				return eyePostions;
 			}
 			return new float3x2(animal.position, animal.position);
 		}
 
-		public static float3 GetMouthPosition(AnimalScript animal,MouthScript mouth) {
+		public static float3 GetMouthPosition(Animal animal,MouthOrgan mouth) {
 			if (mouth != null) {
 				return mouth.mouth.position;
 			}
 			return animal.position;
         }
 
-		public static bool AnimalHasMate(AnimalScript animal) {
+		public static bool AnimalHasMate(Animal animal) {
 			if (animal.mate != null) {
 				return true;
 			}
 			return false;
 		}
 
-		public static bool2 ReadyToReproduce(AnimalScript animal) {
+		public static bool2 ReadyToReproduce(Animal animal) {
 			if (AnimalHasMate(animal)) {
 				return new bool2(animal.GetReproductive().ReadyToAttemptReproduction(),
 						animal.mate.GetReproductive().ReadyToAttemptReproduction());
@@ -112,20 +112,20 @@ public class AnimalScript : BasicOrganismScript {
 	public float waitTime;
 	public float food;
 
-	public AnimalScript mate;
+	public Animal mate;
     public float health;
 	public GrowthStage stage;
 
-    List<BasicAnimalOrganScript> organs = new List<BasicAnimalOrganScript>();
+    List<AnimalOrgan> organs = new List<AnimalOrgan>();
 	
-	public void SetupAnimalOrganism(AnimalSpecies animalSpecies) {
-		SetUpOrganism(animalSpecies);
+	public void SetupOrganism(AnimalSpecies animalSpecies) {
+		base.SetupOrganism(animalSpecies);
 		this.animalSpecies = animalSpecies;
 		gameObject.name = animalSpecies + "Organism";
 	}
 
 	public void SpawnAnimalRandom() {
-		age = UnityEngine.Random.Range(reproductive.animalSpeciesReproductive.reproductionAge / 2, animalSpecies.maxAge / 1.2f);
+		age = UnityEngine.Random.Range(reproductive.GetAnimalSpeciesReproductiveSystem().reproductionAge / 2, animalSpecies.maxAge / 1.2f);
 		stage = GrowthStage.Juvinile;
 		ManageAge();
 		health = animalSpecies.maxHealth;
@@ -133,7 +133,7 @@ public class AnimalScript : BasicOrganismScript {
 		reproductive.SpawnReproductive();
 	}
 
-	public void SpawnAnimal(AnimalScript parent) {
+	public void SpawnAnimal(Animal parent) {
 		this.parent = parent;
 		age = 0;
 		stage = GrowthStage.Juvinile;
@@ -263,7 +263,7 @@ public class AnimalScript : BasicOrganismScript {
 		SetMoving(true);
 	}
 
-	public void FollowOrganism(BasicOrganismScript organism) {
+	public void FollowOrganism(Organism organism) {
 		GoToPoint(organism.position);
 	}
 
@@ -276,30 +276,30 @@ public class AnimalScript : BasicOrganismScript {
 		SetMoving(true);
 	}
 
-	public void RunFromOrganism(BasicOrganismScript organism) {
+	public void RunFromOrganism(Organism organism) {
 		GetAnimalMotor().LookAwayFromPoint(organism.position);
 		SetMoving(true);
 	}
 
-	public bool Eat(PlantScript plant) {
+	public bool Eat(Plant plant) {
 		if (Full()) {
 			return false;
 		}
-		AddFood(plant.EatPlant(this,math.min(GetMouth().biteSize * GetBiteAmmount(),animalSpecies.maxFood - food)));
+		AddFood(plant.EatPlant(this,math.min(GetBiteAmmount(),animalSpecies.maxFood - food)));
 		return true;
 	}
 
 
-	public bool Eat(AnimalScript animal) {
+	public bool Eat(Animal animal) {
 		if (Full()) {
 			return false;
 		}
-		AddFood(animal.Eaten(this, math.min(GetMouth().biteSize * GetBiteAmmount(), animalSpecies.maxFood - food)));
+		AddFood(animal.Eaten(this, math.min(GetBiteAmmount(), animalSpecies.maxFood - food)));
 		return true;
 	}
 
 	private float GetBiteAmmount() {
-		return species.GetEarthScript().simulationDeltaTime / GetMouth().eatTime;
+		return GetMouth().GetBiteSize() * species.GetEarth().simulationDeltaTime / GetMouth().GetEatTime();
 	}
 
 	public void AddFood(float food) {
@@ -309,7 +309,7 @@ public class AnimalScript : BasicOrganismScript {
 		}
 	}
 
-    public float Eaten(AnimalScript biter, float biteSize) {
+    public float Eaten(Animal biter, float biteSize) {
 		if (!spawned)
 			Debug.LogError("Trying to eat an organism that is not spawned.");
 		if (stage == GrowthStage.Juvinile || stage == GrowthStage.Adult) {
@@ -348,7 +348,7 @@ public class AnimalScript : BasicOrganismScript {
 		GetMeshRenderer().material.color = animalSpecies.GetCorpseColor();
 	}
 
-	public bool AttemptToMate(AnimalScript potentialMate) {
+	public bool AttemptToMate(Animal potentialMate) {
 		if (mate == null && potentialMate.mate == null && GetReproductive().CheckMate(potentialMate)) {
 			MateWithAnimal(potentialMate);
 			return true;
@@ -356,7 +356,7 @@ public class AnimalScript : BasicOrganismScript {
 		return false;
 	}
 
-	public void MateWithAnimal(AnimalScript newMate) {
+	public void MateWithAnimal(Animal newMate) {
 		mate = newMate;
 		newMate.mate = this;
 	}
@@ -403,30 +403,30 @@ public class AnimalScript : BasicOrganismScript {
     #endregion
 
     #region OrganControlls
-	public void AddOrgan(BasicAnimalOrganScript organ) {
+	public void AddOrgan(AnimalOrgan organ) {
 		organs.Add(organ);
-    } 
+    }
 
-	public MouthScript GetMouth() {
+	public MouthOrgan GetMouth() {
         for (int i = 0; i < organs.Count; i++) {
-			if (organs[i].GetType() == typeof(MouthScript))
-				return (MouthScript)organs[i];
+			if (organs[i].GetType() == typeof(MouthOrgan))
+				return (MouthOrgan)organs[i];
         }
 		return null;
     }
 
-	public EyesScript GetEyes() {
+	public EyesOrgan GetEyes() {
 		for (int i = 0; i < organs.Count; i++) {
-			if (organs[i].GetType() == typeof(EyesScript))
-				return (EyesScript)organs[i];
+			if (organs[i].GetType() == typeof(EyesOrgan))
+				return (EyesOrgan)organs[i];
 		}
 		return null;
 	}
 
-	public NoseScript GetNose() {
+	public NoseOrgan GetNose() {
 		for (int i = 0; i < organs.Count; i++) {
-			if (organs[i].GetType() == typeof(NoseScript))
-				return (NoseScript)organs[i];
+			if (organs[i].GetType() == typeof(NoseOrgan))
+				return (NoseOrgan)organs[i];
 		}
 		return null;
 	}
@@ -441,7 +441,7 @@ public class AnimalScript : BasicOrganismScript {
 		return GetOrganismMotor().GetComponent<AnimalMotor>();
     }
 
-	public ReproductiveSystem GetReproductive() {
+	public ReproductiveSystemOrgan GetReproductive() {
 		return reproductive;
     }
 	#endregion

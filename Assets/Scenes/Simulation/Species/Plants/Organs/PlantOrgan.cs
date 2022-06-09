@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-public abstract class BasicPlantOrganScript : BasicOrganScript {
-    internal BasicPlantSpeciesOrganScript basicPlantSpeciesOrganScript;
-    internal PlantScript plantScript;
+public abstract class PlantOrgan : Organ {
     internal float growthPriority;
     internal bool spawned;
 
-    internal override void SetupOrgan(BasicSpeciesOrganScript basicSpeciesOrganScript) {
-        basicPlantSpeciesOrganScript = (BasicPlantSpeciesOrganScript)basicSpeciesOrganScript;
-        plantScript = basicOrganismScript.GetComponent<PlantScript>();
-        plantScript.organs.Add(this);
+    public void SetupOrgan(PlantSpeciesOrgan plantSpeciesOrgan, Plant plant) {
+        base.SetupOrgan(plantSpeciesOrgan, plant);
+        plant.organs.Add(this);
     }
 
     public virtual void SpawnOrganismAdult() {
@@ -26,14 +23,14 @@ public abstract class BasicPlantOrganScript : BasicOrganScript {
     internal void Spawn() {
         if (!spawned) {
             spawned = true;
-            AddToZone(plantScript.zone, new ZoneController.DataLocation(plantScript));
+            AddToZone(GetPlant().zone, new ZoneController.DataLocation(GetPlant()));
         }
     }
 
     internal void Despawn() {
         if (spawned) {
             spawned = false;
-            RemoveFromZone(plantScript.zone, new ZoneController.DataLocation(plantScript));
+            RemoveFromZone(GetPlant().zone, new ZoneController.DataLocation(GetPlant()));
         }
     }
 
@@ -60,8 +57,16 @@ public abstract class BasicPlantOrganScript : BasicOrganScript {
     /// Returns a value from 0 to 1 depending on how much growth should be spend in this organ.
     /// </summary>
     /// <returns>float</returns>
-    public float GetGrowthPriority(PlantScript.GrowthStage stage) {
-        return basicPlantSpeciesOrganScript.growthPriorities[(int)stage];
+    public float GetGrowthPriority(Plant.GrowthStage stage) {
+        return GetPlantSpeciesOrgan().growthPriorities[(int)stage];
+    }
+
+    public PlantSpeciesOrgan GetPlantSpeciesOrgan() {
+        return (PlantSpeciesOrgan)GetSpeciesOrgan();
+    }
+
+    public Plant GetPlant() {
+        return (Plant)GetOrganism();
     }
 
 }

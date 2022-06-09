@@ -14,8 +14,8 @@ public class SimulationScript : MonoBehaviour {
 	public ZoneController.ZoneSetupType zoneSetup;
 
 	public static SimulationScript Instance { get; private set; }
-	EarthScript earth;
-	SunScript sun;
+	Earth earth;
+	Sun sun;
 
 	public bool simulationInitialised = false;
 
@@ -51,8 +51,8 @@ public class SimulationScript : MonoBehaviour {
 	}
 
 	public void OnFinishedLoadingAllScene() {
-		earth = GameObject.Find("Earth").GetComponent<EarthScript>();
-		sun = GameObject.Find("Sun").GetComponent<SunScript>();
+		earth = GameObject.Find("Earth").GetComponent<Earth>();
+		sun = GameObject.Find("Sun").GetComponent<Sun>();
 
 		SpeciesManager.Instance.GetSpeciesMotor().enabled = true;
 		SpeciesManager.Instance.GetSpeciesMotor().SetupSimulation(earth, sun);
@@ -73,11 +73,11 @@ public class SimulationScript : MonoBehaviour {
 		Application.Quit();
 	}
 
-	public SunScript GetSun() {
+	public Sun GetSun() {
 		return sun;
     }
 
-	public EarthScript GetEarth() {
+	public Earth GetEarth() {
 		return earth;
     }
 }

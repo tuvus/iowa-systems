@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class EddiblePlantSpeciesOrganScript : BasicPlantSpeciesOrganScript {
+public abstract class EddiblePlantSpeciesOrganScript : PlantSpeciesOrgan {
     
-    internal void MakeEddibleOrganism(EddiblePlantOrganScript eddiblePlantOrgan, BasicOrganismScript organismScript) {
-        organismScript.GetComponent<PlantScript>().eddibleOrgans.Add(eddiblePlantOrgan);
+    internal void MakeEddibleOrganism(EddiblePlantOrgan eddiblePlantOrgan, Plant plant) {
+        plant.eddibleOrgans.Add(eddiblePlantOrgan);
     }
 
     public override string GetOrganType() {
