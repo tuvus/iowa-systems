@@ -4912,7 +4912,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4278242603
-  startingPopulation: 80
+  startingPopulation: 200
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
@@ -9822,8 +9822,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
-  birthTime: 70
-  reproductionDelay: 20
+  birthTime: 1440
+  reproductionDelay: 24
   reproductionAge: 8760
   reproducionAmount: 5
   birthSuccessPercent: 60
@@ -9889,7 +9889,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4278198711
-  startingPopulation: 8
+  startingPopulation: 1
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
@@ -9899,7 +9899,7 @@ MonoBehaviour:
   bodyWeight: 13
   maxHealth: 3
   speed: 50
-  foodConsumption: 1.2
+  foodConsumption: 0.5
   fullFood: 0
   maxFood: 12
   maxAge: 61320
@@ -9950,8 +9950,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
-  birthTime: 50
-  reproductionDelay: 10
+  birthTime: 720
+  reproductionDelay: 12
   reproductionAge: 2184
   reproducionAmount: 8
   birthSuccessPercent: 30
@@ -10017,7 +10017,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4282874818
-  startingPopulation: 36
+  startingPopulation: 120
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
@@ -10027,7 +10027,7 @@ MonoBehaviour:
   bodyWeight: 2.5
   maxHealth: 1
   speed: 28
-  foodConsumption: 1
+  foodConsumption: 0.2
   fullFood: 0
   maxFood: 7
   maxAge: 52560

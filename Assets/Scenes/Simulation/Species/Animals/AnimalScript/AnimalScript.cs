@@ -202,17 +202,21 @@ public class AnimalScript : BasicOrganismScript {
 		}
 		if (food > 0) {
 			if (GetMoving()) {
-				food -= animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime / 24;
+				food -= animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime;
 
 			} else {
-				float restingFoodReduction = 0.6f;
-				food -= animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime * restingFoodReduction / 24;
+				float restingFoodReduction = 1;
+				//float restingFoodReduction = 0.6f;
+				food -= animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime * restingFoodReduction;
+			}
+			if (health < animalSpecies.maxHealth) {
+				health = math.max(animalSpecies.maxHealth, health + GetEarthScript().simulationDeltaTime / 24);
 			}
 			return false;
 		}
 		if (food <= 0) {
 			food = 0;
-			health -= animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime / 24 / 5;
+			health = math.min(0, health - animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime / 24);
 			if (CheckIfDead("Starvation")) {
 				return true;
 			}
@@ -335,7 +339,7 @@ public class AnimalScript : BasicOrganismScript {
 	internal override void OrganismDied() {
 		animalSpecies.SpawnCorpse(this);
 		stage = GrowthStage.Corpse;
-		food = animalSpecies.bodyWeight * (food / animalSpecies.fullFood + 1);
+		food = animalSpecies.bodyWeight * (food / animalSpecies.fullFood + .5f);
 		age = animalSpecies.deteriationTime;
         if (mate != null) {
 			mate.mate = null;

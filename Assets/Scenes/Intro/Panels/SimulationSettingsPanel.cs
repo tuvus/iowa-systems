@@ -12,9 +12,9 @@ public class SimulationSettingsPanel : MonoBehaviour {
         simulation = SimulationScript.Instance;
         GetSimulationSpeedInputField().text = simulation.simulationSpeed.ToString();
         GetEarthSizeSlider().maxValue = earthSizeArray.Length - 1;
-        GetEarthSizeSlider().value = 6;
+        GetEarthSizeSlider().value = 9;
         GetGraphRefreshSlider().maxValue = graphRefreshRateArray.Length - 1;
-        GetGraphRefreshSlider().value = 6;
+        GetGraphRefreshSlider().value = 4;
         OnChangeEarthSizeChange();
         OnChangeGraphRefreshChange();
     }

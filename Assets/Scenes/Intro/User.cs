@@ -58,6 +58,8 @@ public class User : MonoBehaviour {
     internal void PrintState(string text, string speciesDisplayName, int printLevel) {
         if (Application.isEditor && printLevel > debugLogg)
             Debug.Log(speciesDisplayName + ":" + text);
+        //Debug.Log(speciesDisplayName + ":" + text + " time" + SimulationScript.Instance.GetEarth().worldTime);
+
     }
 
     #region GetMethods

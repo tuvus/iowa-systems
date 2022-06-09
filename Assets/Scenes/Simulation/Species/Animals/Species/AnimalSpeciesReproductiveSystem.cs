@@ -6,6 +6,7 @@ public class AnimalSpeciesReproductiveSystem : BasicAnimalSpeciesOrganScript {
 
 	public GameObject reproductiveSystemPrefab;
 
+	[Tooltip("The time to birth after conception in hours")]
 	public float birthTime;
 	public float reproductionDelay;
 	public float reproductionAge;
