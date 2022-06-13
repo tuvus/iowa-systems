@@ -14,7 +14,7 @@ public class AnimalSpecies : Species {
 	public float maxHealth;
 	public float speed;
 	[Tooltip("foodConsumption is daily food eaten in kilograms")]
-	public float foodConsumption;
+    public float foodConsumption;
 	public float fullFood;
 	[Tooltip("maxFood is food stored in kilograms")]
 	public float maxFood;
@@ -288,7 +288,7 @@ public class AnimalSpecies : Species {
 	}
 
 	public float GetFoodConsumption() {
-		return foodConsumption / 2;
+		return foodConsumption / 24;
 	}
 
 	public void AddToFindZone(Animal animal, int zone = -1, float range = 0) {

@@ -73,6 +73,7 @@ public struct PlantUpdateJob : IJobParallelFor {
         float overLapingRootArea = 0f;
         if (plantsInZones.TryGetFirstValue(plant.zone, out int targetPlant, out var iterator)) {
             do {
+                    Debug.Log(1);
                 float distance = GetDistanceToPlant(plant, allPlants[targetPlant]);
                 float rootDistance = GetRootSize(plant) + GetRootSize(allPlants[targetPlant]);
                 if (distance < rootDistance) {
@@ -86,6 +87,7 @@ public struct PlantUpdateJob : IJobParallelFor {
         if (neiboringZones.TryGetFirstValue(plant.zone, out zoneNumber, out var iterator2)) {
             do {
                 if (plantsInZones.TryGetFirstValue(zoneNumber, out targetPlant, out var iterator3)) {
+                            Debug.Log(2);
                     do {
                         float distance = GetDistanceToPlant(plant, allPlants[targetPlant]);
                         float rootDistance = GetRootSize(plant) + GetRootSize(allPlants[targetPlant]);
