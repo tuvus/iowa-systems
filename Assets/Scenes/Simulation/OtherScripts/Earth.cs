@@ -33,7 +33,7 @@ public class Earth : MonoBehaviour {
 	public event EventHandler<EventArgs> OnEndFrame;
 
     List<JobHandle> activeJobs = new List<JobHandle>();
-	SimulationUpdateStatus simulationUpdateStatus = SimulationUpdateStatus.Intializing;
+	SimulationUpdateStatus simulationUpdateStatus;
 	List<string> typeIndex;
 
 	public struct EarthState {
@@ -68,18 +68,31 @@ public class Earth : MonoBehaviour {
     }
 
     #region Runtime
+	/// <summary>
+	/// Finishes any previous half updates that might have occured.
+	/// Then updates the simulation a number of times based on input and preformance capabilities of the computer.
+	/// </summary>
     private void Update() {
 		if (!SimulationScript.Instance.simulationInitialised)
 			return;
 		frameManager.UpdateFrameStartTime();
+		if (simulationUpdateStatus != SimulationUpdateStatus.Intializing && simulationUpdateStatus != SimulationUpdateStatus.SettingUp) {
+			UpdateSimualtionWithDelay();
+		}
 		int iterationsThisFrame = 0;
 		if (frameManager.GetWantedIterationsPerSeccond() > 0) {
 			int wantedIterationsThisFrame = frameManager.GetWantedIterationsThisFrame();
 			if (wantedIterationsThisFrame > 0) {
 				do {
-					frameManager.LogSimulationItterationStart();
-					UpdateSimulationWithoutDelay();
-					frameManager.LogSimulationItterationEnd();
+					if (iterationsThisFrame == 0 || frameManager.CanStartNewIterationBeforeNextFrame()) {
+						frameManager.LogSimulationIterationStart();
+						UpdateSimulationWithoutDelay();
+						frameManager.LogSimulationIterationEnd();
+					} else {
+						UpdateSimualtionWithDelay();
+						iterationsThisFrame++;
+						break;
+					}
 					iterationsThisFrame++;
 				} while (iterationsThisFrame < wantedIterationsThisFrame && frameManager.ShouldStartNewIteration());
 			}
@@ -87,7 +100,10 @@ public class Earth : MonoBehaviour {
 		}
 	}
 
-	void UpdateSimualtion() {
+	/// <summary>
+	/// Updates the simulation until frameManager.IsInIterationTimePeriod is false or the calculation is complete.
+	/// </summary>
+	void UpdateSimualtionWithDelay() {
 		if (simulationUpdateStatus == SimulationUpdateStatus.SettingUp) {
 			StartFindZoneJobs();
 			UpdateWorldTime();
@@ -98,19 +114,24 @@ public class Earth : MonoBehaviour {
 			UpdateOrganismData();
 			StartOrganismJobs();
 			simulationUpdateStatus = SimulationUpdateStatus.Calculating;
-			return;
+			if (!frameManager.IsInIterationTimePeriod())
+				return;
         }
 		if (simulationUpdateStatus == SimulationUpdateStatus.Calculating) {
 			UpdateJobList();
 			if (activeJobs.Count == 0) {
 				simulationUpdateStatus = SimulationUpdateStatus.Updating;
 			}
+			if (!frameManager.IsInIterationTimePeriod())
+				return;
 		}
 		if (simulationUpdateStatus == SimulationUpdateStatus.Updating) {
 			UpdateOrganismsBehavior();
 			UpdateOrganisms();
 			simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
-        }
+			if (!frameManager.IsInIterationTimePeriod())
+				return;
+		}
 		if (simulationUpdateStatus == SimulationUpdateStatus.CleaningUp) {
 			UpdateOrganismLists();
 			OnEndFrame?.Invoke(this, new EventArgs { });
@@ -118,6 +139,9 @@ public class Earth : MonoBehaviour {
         }
 	}
 
+	/// <summary>
+	/// Updates the simulation without any delay.
+	/// </summary>
 	void UpdateSimulationWithoutDelay() {
 		StartFindZoneJobs();
 		UpdateWorldTime();
@@ -330,4 +354,8 @@ public class Earth : MonoBehaviour {
 		return sunTransform.position;
     }
     #endregion
+
+    public void OnDestroy() {
+		CompleteJobs();
+    }
 }

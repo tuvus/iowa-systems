@@ -102,11 +102,11 @@ public class FrameManager : MonoBehaviour {
         }
     }
 
-    public void LogSimulationItterationStart() {
+    public void LogSimulationIterationStart() {
         iterationStartTime = GetTimeSinceStartup();
     }
 
-    public void LogSimulationItterationEnd() {
+    public void LogSimulationIterationEnd() {
         iterationEndTime = GetTimeSinceStartup();
     }
     #endregion
