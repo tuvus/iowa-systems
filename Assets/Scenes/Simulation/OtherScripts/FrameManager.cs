@@ -32,13 +32,13 @@ public class FrameManager : MonoBehaviour {
     }
 
     public bool ShouldStartNewIteration() {
-        if (iterationsOverSecond.Length <= 30)
+        if (QualitySettings.GetQualityLevel() == 0)
             return IsInIterationTimePeriod();
         return CanStartNewIterationBeforeNextFrame();
     }
 
     public bool IsInIterationTimePeriod() {
-        return GetTimeRemainingInFrame() <= 0;
+        return GetTimeRemainingInFrame() >= 0;
     }
 
     public bool CanStartNewIterationBeforeNextFrame() {
@@ -50,8 +50,7 @@ public class FrameManager : MonoBehaviour {
     }
 
     float GetTimePerFrame() {
-        float timePerFrame = 1f / iterationsOverSecond.Length;
-        return timePerFrame;
+        return 1f / iterationsOverSecond.Length;
     }
 
     float GetTimeSinceStartOfFrame() {
@@ -69,6 +68,14 @@ public class FrameManager : MonoBehaviour {
         return iterationsOverSecond[iterationsOverSecond.Length - 1];
     }
 
+    public int GetIterationsOverLastSecond() {
+        return iterationsOverSecondCount;
+    }
+
+    /// <summary>
+    /// Not working
+    /// </summary>
+    /// <returns></returns>
     public int GetIterationsOverSecondProjection() {
         return Mathf.RoundToInt(iterationsOverSecondCount / GetTimeOverSeccond());
     }
@@ -82,6 +89,7 @@ public class FrameManager : MonoBehaviour {
 
     #region LogingTime
     public void UpdateFrameStartTime() {
+        frameStartTime = GetTimeSinceStartup();
         if (wantedIterationsPerSecond > 0) {
             timeOverFrames -= frameTimesOverSecond[iterationsOverSecondIndex];
             frameTimesOverSecond[frameIterationsOverSecondIndex] = Time.deltaTime;

@@ -81,7 +81,7 @@ public class Earth : MonoBehaviour {
 					UpdateSimulationWithoutDelay();
 					frameManager.LogSimulationItterationEnd();
 					iterationsThisFrame++;
-				} while (iterationsThisFrame < wantedIterationsThisFrame && frameManager.CanStartNewIterationBeforeNextFrame());
+				} while (iterationsThisFrame < wantedIterationsThisFrame && frameManager.ShouldStartNewIteration());
 			}
 			frameManager.EndFrame(iterationsThisFrame);
 		}
