@@ -183,7 +183,7 @@ public class Plant : Organism {
 
     void SeedGerminated() {
         GetMeshRenderer().enabled = User.Instance.GetRenderWorldUserPref();
-        SetPlantToStage(GrowthStage.Seed);
+        SetPlantToStage(GrowthStage.Germinating);
         for (int i = 0; i < organs.Count; i++) {
             organs[i].OnOrganismGermination();
         }

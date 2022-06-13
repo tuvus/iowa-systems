@@ -196,27 +196,19 @@ public class Animal : Organism {
 	}
 
 	bool ManageFood () {
-		if (food > animalSpecies.maxFood) {
-			food = animalSpecies.maxFood;
-			return false;
-		}
 		if (food > 0) {
 			if (GetMoving()) {
-				food -= animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime;
-
+				food = math.max(0, food - animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime);
 			} else {
-				float restingFoodReduction = 1;
-				//float restingFoodReduction = 0.6f;
-				food -= animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime * restingFoodReduction;
+				float restingFoodReduction = .8f;
+				food = math.max(0, food - animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime * restingFoodReduction);
 			}
 			if (health < animalSpecies.maxHealth) {
-				health = math.max(animalSpecies.maxHealth, health + GetEarthScript().simulationDeltaTime / 24);
+				health = math.min(animalSpecies.maxHealth, health + GetEarthScript().simulationDeltaTime / 24);
 			}
-			return false;
-		}
-		if (food <= 0) {
+		} else {
 			food = 0;
-			health = math.min(0, health - animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime / 24);
+			health = math.max(0, health - animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime);
 			if (CheckIfDead("Starvation")) {
 				return true;
 			}
@@ -303,10 +295,7 @@ public class Animal : Organism {
 	}
 
 	public void AddFood(float food) {
-		this.food += food;
-		if (this.food > animalSpecies.maxFood) {
-			this.food = animalSpecies.maxFood;
-		}
+		this.food = math.min(animalSpecies.maxFood, this.food + food);
 	}
 
     public float Eaten(Animal biter, float biteSize) {
