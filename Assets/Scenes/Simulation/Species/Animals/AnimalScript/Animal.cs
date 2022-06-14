@@ -111,11 +111,10 @@ public class Animal : Organism {
 
 	public float waitTime;
 	public float food;
-
-	public Animal mate;
     public float health;
+	public Animal mate;
 	public GrowthStage stage;
-
+    private bool hasMoved;
     List<AnimalOrgan> organs = new List<AnimalOrgan>();
 	
 	public void SetupOrganism(AnimalSpecies animalSpecies) {
@@ -157,7 +156,7 @@ public class Animal : Organism {
 		ManageWaitTime();
 		if (ManageFood())
 			return;
-		ManageMovement();
+		hasMoved = false;
 	}
 
 	public void UpdateCorpse() {
@@ -186,21 +185,15 @@ public class Animal : Organism {
 	}
 
 	void ManageWaitTime() {
-		if (waitTime > 0) {
-			waitTime -= GetEarthScript().simulationDeltaTime;
-			SetMoving(false);
-		}
-		if (waitTime < 0) {
-			waitTime = 0;
-		}
+		waitTime = math.max(0, waitTime - GetEarthScript().simulationDeltaTime);
 	}
 
 	bool ManageFood () {
 		if (food > 0) {
-			if (GetMoving()) {
+			if (hasMoved) {
 				food = math.max(0, food - animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime);
 			} else {
-				float restingFoodReduction = .8f;
+				float restingFoodReduction = .6f;
 				food = math.max(0, food - animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime * restingFoodReduction);
 			}
 			if (health < animalSpecies.maxHealth) {
@@ -214,12 +207,6 @@ public class Animal : Organism {
 			}
 		}
 		return false;
-	}
-
-	void ManageMovement() {
-		if (GetMoving())
-			GetAnimalMotor().SetSpeed(animalSpecies.speed * (health / animalSpecies.maxHealth / 2) + 0.5f);
-		GetAnimalMotor().MoveOrganism();
 	}
 
 	void ManageCorpse() {
@@ -241,36 +228,39 @@ public class Animal : Organism {
 		base.RemoveFromZone();
 	}
 
-    public void SetMoving(bool _moving) {
-		GetAnimalMotor().SetMoving(_moving);
+    public void SetMoving() {
+		hasMoved = true;
     }
 	
 	public void Idle() {
-		SetMoving(false);
+		hasMoved = false;
     }
 
+	/// <summary>
+	/// Changes the rotation of the model randomly and moves the model foward by the movement speed. Also sets the animal as moving.
+	/// </summary>
 	public void Explore() {
-		float random = UnityEngine.Random.Range(0, 100f);
-		GetAnimalMotor().TurnReletive(UnityEngine.Random.Range(-random * GetEarthScript().simulationDeltaTime, random * GetEarthScript().simulationDeltaTime));
-		SetMoving(true);
+		float random = UnityEngine.Random.Range(0, 30f);
+		GetAnimalMotor().TurnModel(UnityEngine.Random.Range(-random * GetEarthScript().simulationDeltaTime, random * GetEarthScript().simulationDeltaTime));
+		GetAnimalMotor().MoveForward(GetMovementSpeed());
+		SetMoving();
 	}
 
-	public void FollowOrganism(Organism organism) {
-		GoToPoint(organism.position);
-	}
+	/// <summary>
+	/// Moves the animal towards the point with an offset of dsitanceFromPosition
+	/// </summary>
+	/// <param name="position">Point to move to</param>
+	/// <param name="distanceFromPosition">The distance to stop at from the point</param>
+	public void GoToPoint(Vector3 position, float distanceFromPosition = 0) {
+		GetAnimalMotor().GoToPoint(position, GetMovementSpeed(), distanceFromPosition);
+    }
 
-	public void LookAtPoint(Vector3 position) {
-		GetAnimalMotor().LookAtPoint(position);
-	}
-
-	public void GoToPoint(Vector3 position) {
-		LookAtPoint(position);
-		SetMoving(true);
-	}
-
-	public void RunFromOrganism(Organism organism) {
-		GetAnimalMotor().LookAwayFromPoint(organism.position);
-		SetMoving(true);
+	/// <summary>
+	/// Moves the animal away from the point
+	/// </summary>
+	/// <param name="position">Point to move away from</param>
+	public void MoveAwayFromPoint(Vector3 position) {
+		GetAnimalMotor().MoveAwayFromPoint(position, GetMovementSpeed() * GetEarthScript().simulationDeltaTime);
 	}
 
 	public bool Eat(Plant plant) {
@@ -377,10 +367,6 @@ public class Animal : Organism {
 		return false;
     }
 
-	public bool GetMoving() {
-		return GetAnimalMotor().GetMoving();
-    }
-
 	bool CheckIfDead(string causeOfDeath) {
 		if (health <= 0) {
 			User.Instance.PrintState("Death:" + causeOfDeath, animalSpecies.speciesDisplayName, 3);
@@ -422,6 +408,10 @@ public class Animal : Organism {
 	#endregion
 
 	#region GetMethods
+	public float GetMovementSpeed() {
+		return animalSpecies.speed * (((health / animalSpecies.maxHealth) / 2) + 0.5f);
+	}
+
 	public AnimalSpecies GetAnimalSpecies() {
 		return animalSpecies;
 	}

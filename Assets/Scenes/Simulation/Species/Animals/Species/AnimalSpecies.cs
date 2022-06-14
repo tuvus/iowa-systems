@@ -174,7 +174,8 @@ public class AnimalSpecies : Species {
 				case Animal.AnimalActions.ActionType.RunFromPredator:
 					Organism targetPredatorOrganism = GetEarth().GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation);
 					if (targetPredatorOrganism.spawned) {
-						animal.RunFromOrganism(targetPredatorOrganism);
+						animal.MoveAwayFromPoint(targetPredatorOrganism.position);
+						animal.SetMoving();
 						User.Instance.PrintState("PredatorFound", speciesDisplayName, 2);
 						break;
 					}
@@ -185,7 +186,8 @@ public class AnimalSpecies : Species {
 					if (animalAction.dataLocation.dataType == ZoneController.DataLocation.DataType.Animal) {
 						Animal targetAnimal = GetEarth().GetZoneController().GetAnimalFromDataLocation(animalAction.dataLocation);
 						if (targetAnimal.spawned && animal.Eat(targetAnimal)) {
-							animal.LookAtPoint(GetEarth().GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation).position);
+							animal.GetAnimalMotor().LookAtPoint(targetAnimal.position);
+							animal.Idle();
 							User.Instance.PrintState("Eating", speciesDisplayName, 2);
 							break;
 						}
@@ -193,7 +195,8 @@ public class AnimalSpecies : Species {
 					if (animalAction.dataLocation.dataType == ZoneController.DataLocation.DataType.Plant) {
 						Plant targetPlant = GetEarth().GetZoneController().GetPlantFromDataLocation(animalAction.dataLocation);
 						if (targetPlant.spawned && animal.Eat(targetPlant)) {
-							animal.LookAtPoint(GetEarth().GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation).position);
+							animal.GetAnimalMotor().LookAtPoint(targetPlant.position);
+							animal.Idle();
 							User.Instance.PrintState("Eating", speciesDisplayName, 2);
 							break;
 						}
@@ -204,7 +207,8 @@ public class AnimalSpecies : Species {
 				case Animal.AnimalActions.ActionType.GoToFood:
 					Organism targetGoToOrganism = GetEarth().GetZoneController().GetOrganismFromDataLocation(animalAction.dataLocation);
 					if (targetGoToOrganism.spawned) {
-						animal.GoToPoint(targetGoToOrganism.position);
+						animal.GoToPoint(targetGoToOrganism.position, animal.GetMouth().GetEatRange() / 2);
+						animal.SetMoving();
 						User.Instance.PrintState("GoingToFood", speciesDisplayName, 1);
 					} else {
 						animal.Explore();
@@ -213,7 +217,8 @@ public class AnimalSpecies : Species {
 					break;
 				case Animal.AnimalActions.ActionType.AttemptReproduction:
 					if (animal.mate.spawned && animal.GetReproductive().AttemptReproduction()) {
-						animal.LookAtPoint(animal.mate.position);
+						animal.GoToPoint(animal.mate.position, animal.GetMouth().GetEatRange() / 2);
+						animal.SetMoving();
 						User.Instance.PrintState("AttemptReproduction", speciesDisplayName, 2);
 					} else {
 						animal.Idle();
@@ -223,7 +228,8 @@ public class AnimalSpecies : Species {
 				case Animal.AnimalActions.ActionType.AttemptToMate:
 					Animal targetMate = GetEarth().GetZoneController().GetAnimalFromDataLocation(animalAction.dataLocation);
 					if (targetMate.spawned && animal.AttemptToMate(targetMate)) {
-						animal.LookAtPoint(targetMate.position);
+						animal.GoToPoint(animal.mate.position, animal.GetMouth().GetEatRange() / 2);
+						animal.SetMoving();
 						User.Instance.PrintState("FoundMate", speciesDisplayName, 2);
 					} else {
 						animal.Explore();

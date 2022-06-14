@@ -4,12 +4,10 @@ using UnityEngine;
 
 public class MouthOrgan : AnimalOrgan {
 
-	private AnimalSpeciesMouth animalSpeciesMouth;
 	public Transform mouth { private set; get; }
 
 	public void SetupOrgan(AnimalSpeciesMouth animalSpeciesMouth, Animal animal) {
 		base.SetupOrgan(animalSpeciesMouth, animal);
-		this.animalSpeciesMouth = animalSpeciesMouth;
 		mouth = new GameObject("Mouth").transform;
 		mouth.SetParent(GetAnimal().GetAnimalMotor().GetModelTransform());
 		mouth.localScale = Vector3.one;
@@ -26,11 +24,19 @@ public class MouthOrgan : AnimalOrgan {
     }
 
 	public float GetEatTime() {
-		return animalSpeciesMouth.eatTime;
+		return GetSpeciesMouth().eatTime;
 	}
 
 	public float GetBiteSize() {
-		return animalSpeciesMouth.biteSize;
+		return GetSpeciesMouth().biteSize;
     }
 
+
+	public float GetEatRange() {
+		return GetSpeciesMouth().eatRange;
+	}
+
+	public AnimalSpeciesMouth GetSpeciesMouth() {
+		return (AnimalSpeciesMouth)GetSpeciesOrgan();
+    }
 }

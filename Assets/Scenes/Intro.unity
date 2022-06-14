@@ -2304,7 +2304,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4278233195
-  startingPopulation: 24
+  startingPopulation: 40
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
@@ -2372,7 +2372,7 @@ MonoBehaviour:
   organType: Seed
   organFoodIndex: 0
   growthModifier: 0.1
-  startingSeedCount: 12
+  startingSeedCount: 20
   humidityRequirement: 64
   tempetureRequirement: 50
   seedDispertionRange: 40
@@ -4955,7 +4955,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4278242603
-  startingPopulation: 200
+  startingPopulation: 100
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
@@ -9990,7 +9990,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4278198711
-  startingPopulation: 1
+  startingPopulation: 5
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
@@ -10118,7 +10118,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4282874818
-  startingPopulation: 2
+  startingPopulation: 30
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
