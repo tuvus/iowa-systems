@@ -37,7 +37,7 @@ To Exit the simulation click the red "Quit" Button.
 #### Default Simulations
 There are two default simulations. 
 * To simulate only plants click the "SetPlantSimulation" button.
-* To simulate foxes, bunnies and grass click the "SetDefaultSimulation" button.
+* To simulate foxes, rabbits and grass click the "SetDefaultSimulation" button.
 
 #### Species Customisation Panel
 To add a custom species click the "AddSpecies" button. To edit a species click on the species button to edit it.
@@ -66,7 +66,8 @@ Earth Size:
 
 The size of the Earth does not greatly affect the performance of the simulation.
 
-The recommended earth size is 2000.
+The recommended earth size is 2000 or greater.
+A bigger earth size requires higher food populations for animals because they encounter food less often.
 
 ---
 
@@ -139,16 +140,17 @@ General problems with the accuracy of the simulation:
 Grass will scale infinitely.
 Foxes move too quickly and over hunt rabbits and then die off.
 Foxes and rabbits always move at a running speed instead of a normal walking speed.
+Plants die off completely when fully eaten when in reality they would have a chance to grow back with thier stored resources.
 
 ---
 
 #### Time scale
-The current time scale that the simulation is running on is each update at a simulation speed of 1 is equal to 1 hour.
-Decreasing the simulation speed will (in theory) result in a more accurate simulation but uses more processing power per unit of time.
+Each update of the simulation equals one hour.
+Decreasing the simulation speed will in the simulation settings panel (in theory) result in a more accurate simulation but uses more processing power per unit of time.
 
 #### Zones
 The earth is split up somewhat evenly into zones, by default this is 20. 
-Plants only check in thier zone and neighboring zones for resource competition. (not implemented yet)
+Plants will only check in thier zone and neighboring zones for resource competition. (not implemented yet)
 In the future each zone will have its own temperature, water and sunlight.
 
 Animals only check for prey in their zone and neighboring zones.
@@ -157,7 +159,8 @@ When an animal moves it only checks feasible neighboring zones to see if it has 
 #### Simulating Plants
 Plants are simulated by accumulating growth from the sun according to how much sun it gathers. 
 Once they reach a certain growth they can grow their awns, which then spread their seeds around.
-Plants can be eaten by bunnies.
+Plants can be eaten by rabbits but thier seeds can't.
+When a plants stem is fully eaten it dies off.
 
 Note: Plants are not affected by bottom-up regulation. 
 Meaning they don't really compete for resources and will scale infinitely.
@@ -165,7 +168,8 @@ Meaning they don't really compete for resources and will scale infinitely.
 ---
 Seeds:
 
-Seeds are spawned by a separate variable at start that can be edited. 
+The initial starting seed population is governed by a separate variable at start that can be edited.
+Seeds will form a seed bank protecting the species from overgrasing from the rabbits
 The humidity on the earth is randomly changed each calculation. 
 Seeds will germinate after a certain time and above a certain humidity.
 
@@ -207,6 +211,7 @@ Then after all calculations are completed the animals will update on the main th
 Animals have a set age that they will die at.
 
 When animals die they spawn a corpse that will deteriorate after some time.
+Corpses can be eaten by a predetor species.
 
 Here is a list of behaviors that the animals can display in the order of their priority:
 * Check if there are predators nearby the animal, if so run away.
@@ -219,7 +224,7 @@ Here is a list of behaviors that the animals can display in the order of their p
 Note: Wait time in animals is no longer implemented except for eating but may be readded in the future. 
 Also animals might move past their food target as they don't move to a point instead they move a distance in a direction.
 
-An animal that tries to eat an organism or mate but was beaten by another animal in the same frame the animal will explore or sit still.
+An animal that tries to eat an organism or find a mate but was beaten by another animal in the same frame the animal will explore or sit still instead.
 
 ---
 
@@ -230,7 +235,8 @@ The movement speed of the animal being bitten is reduced after each bite.
 This makes it so that after the first bite the animal is much easier to catch and will surely get bitten again.
 How many bites it takes to kill an animal depends on the prey's health and the predator's bite size.
 
-Animals will prioritize the corpses of their prey over living prey in order to reduce overhunting. They will also target closer food sources rather than farther away ones.
+Animals will prioritize the corpses of their prey over living prey in order to reduce overhunting. 
+They will also target closer food sources rather than farther away ones.
 
 ---
 Reproduction:
@@ -253,9 +259,9 @@ Animals will not eat food in front of them if they are over 90% of their stored 
 
 The fullFood variable determines whether or not the animal will actively search for food.
 
-Once an animal starts starving it will lose  health and slow down until it dies.
+Once an animal starts starving it will lose health and slow down until it dies.
 
-The amount  of food in a corpse varies on how much food the animal had while it was living.
+The amount of food in a corpse varies on how much food the animal had while it was living and it's body weight.
 
 ---
 
