@@ -216,24 +216,14 @@ public class AnimalSpecies : Species {
 					}
 					break;
 				case Animal.AnimalActions.ActionType.AttemptReproduction:
-					if (animal.mate.spawned && animal.GetReproductive().AttemptReproduction()) {
-						animal.GoToPoint(animal.mate.position, animal.GetMouth().GetEatRange() / 2);
+					Animal targetMate = GetEarth().GetZoneController().GetAnimalFromDataLocation(animalAction.dataLocation);
+					if (targetMate.spawned && animal.GetReproductive().AttemptReproduction(targetMate)) {
+						animal.GoToPoint(targetMate.position, animal.GetMouth().GetEatRange() / 2);
 						animal.SetMoving();
 						User.Instance.PrintState("AttemptReproduction", speciesDisplayName, 2);
 					} else {
 						animal.Idle();
 						User.Instance.PrintState("SittingStill", speciesDisplayName, 1);
-					}
-					break;
-				case Animal.AnimalActions.ActionType.AttemptToMate:
-					Animal targetMate = GetEarth().GetZoneController().GetAnimalFromDataLocation(animalAction.dataLocation);
-					if (targetMate.spawned && animal.AttemptToMate(targetMate)) {
-						animal.GoToPoint(animal.mate.position, animal.GetMouth().GetEatRange() / 2);
-						animal.SetMoving();
-						User.Instance.PrintState("FoundMate", speciesDisplayName, 2);
-					} else {
-						animal.Explore();
-						User.Instance.PrintState("Exploring", speciesDisplayName, 1);
 					}
 					break;
 				case Animal.AnimalActions.ActionType.Explore:
@@ -418,7 +408,7 @@ public class AnimalSpecies : Species {
 
 	public void OnDestroy() {
 		if (eddibleFoodTypes.IsCreated)
-			eddibleFoodTypes.Dispose(); 
+			eddibleFoodTypes.Dispose();
 		if (predatorFoodTypes.IsCreated)
 			predatorFoodTypes.Dispose();
 	}

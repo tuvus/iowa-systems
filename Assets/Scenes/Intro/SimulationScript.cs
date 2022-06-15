@@ -18,8 +18,6 @@ public class SimulationScript : MonoBehaviour {
 	Sun sun;
 
 	public bool simulationInitialised = false;
-
-
     public void Awake() {
 		if (Instance == null) {
 			Instance = this;
