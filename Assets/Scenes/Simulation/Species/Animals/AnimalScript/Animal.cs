@@ -123,7 +123,7 @@ public class Animal : Organism {
         stage = GrowthStage.Juvinile;
         zone = parent.zone;
         health = animalSpecies.maxHealth;
-        food = UnityEngine.Random.Range(animalSpecies.fullFood / 2, animalSpecies.fullFood);
+        food = UnityEngine.Random.Range(animalSpecies.fullFood, animalSpecies.maxFood);
         reproductive.SpawnReproductive();
     }
 

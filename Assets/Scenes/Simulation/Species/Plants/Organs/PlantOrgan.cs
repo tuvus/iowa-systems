@@ -4,7 +4,6 @@ using Unity.Mathematics;
 using UnityEngine;
 
 public abstract class PlantOrgan : Organ {
-    internal float growthPriority;
     internal bool spawned;
 
     public void SetupOrgan(PlantSpeciesOrgan plantSpeciesOrgan, Plant plant) {

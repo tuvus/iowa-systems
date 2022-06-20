@@ -22,6 +22,7 @@ public class Plant : Organism {
 
     public List<PlantOrgan> organs;
     public List<EddiblePlantOrgan> eddibleOrgans;
+    public GrowthStage plantStage;
 
     public struct PlantData {
         public float age;
@@ -113,6 +114,7 @@ public class Plant : Organism {
     }
 
     public void UpdateOrganismBehavior(float sunGain, float waterGain, GrowthStage stage) {
+        plantStage = stage;
         if (!spawned)
             return;
         if (GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage == GrowthStage.Seed) {
@@ -122,7 +124,6 @@ public class Plant : Organism {
             }
             if (stage == GrowthStage.Germinating) {
                 SeedGerminated();
-                //User.Instance.GetUserMotor().DebugPause();
                 age = 0;
                 return;
             }
@@ -171,7 +172,7 @@ public class Plant : Organism {
         if (!spawned)
             return 0;
         float foodReturn = 0;
-        GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(GetEarthScript().GetZoneController().allPlants[plantDataIndex], age, plantSpecies.GetGrowthStageData(GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage).bladeArea, plantSpecies.GetGrowthStageData(GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage).stemHeight, plantSpecies.GetGrowthStageData(GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage).rootGrowth, GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage);
+        //GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(GetEarthScript().GetZoneController().allPlants[plantDataIndex], age, plantSpecies.GetGrowthStageData(GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage).bladeArea, plantSpecies.GetGrowthStageData(GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage).stemHeight, plantSpecies.GetGrowthStageData(GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage).rootGrowth, GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage);
         for (int i = eddibleOrgans.Count - 1; i >= 0; i--) {
             //Multipling and dividing by 10 reduces the total food gained by eating an entire plant
             float newFood = eddibleOrgans[i].EatPlantOrgan(animal, biteAmount * 10) / 10;
@@ -213,6 +214,7 @@ public class Plant : Organism {
         for (int i = 0; i < organs.Count; i++) {
             organs[i].ResetOrgan();
         }
+        plantStage = GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage;
     }
 
     public void CheckRendering() {

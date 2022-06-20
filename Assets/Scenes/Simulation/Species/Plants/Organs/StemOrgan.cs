@@ -15,7 +15,7 @@ public class StemOrgan : EddiblePlantOrgan {
     }
 
     public override float EatPlantOrgan(Animal animal, float biteSize) {
-        if (!spawned)
+        if (!spawned || biteSize <= 0)
             return 0;
         for (int i = 0; i < animal.animalSpecies.eddibleFoodTypes.Length; i++) {
             if (animal.animalSpecies.eddibleFoodTypes[i] == GetPlantSpeciesStem().organFoodIndex) {
