@@ -133,4 +133,8 @@ public class SpeciesMotor : MonoBehaviour {
 	public List<PlantSpecies> GetAllPlantSpecies() {
 		return plantSpecies;
 	}
+
+	public Earth GetEarth() {
+		return earth;
+    }
 }

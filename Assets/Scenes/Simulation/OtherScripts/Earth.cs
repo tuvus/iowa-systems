@@ -355,7 +355,7 @@ public class Earth : MonoBehaviour {
     }
     #endregion
 
-    public void OnDisable() {
+    public void OnDestroy() {
 		CompleteJobs();
     }
 }

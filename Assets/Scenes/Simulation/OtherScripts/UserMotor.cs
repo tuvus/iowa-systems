@@ -143,6 +143,7 @@ public class UserMotor : MonoBehaviour {
 	}
 
 	public void EndSimulation () {
+		SpeciesManager.Instance.GetSpeciesMotor().GetEarth().OnDestroy();
 		SceneManager.LoadSceneAsync(0, LoadSceneMode.Single);
 	}
 }

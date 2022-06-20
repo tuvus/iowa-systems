@@ -406,7 +406,12 @@ public class AnimalSpecies : Species {
     }
 	#endregion
 
+	/// <summary>
+	/// Called after a simulation has ended but also after the intro scene is unloaded.
+	/// </summary>
 	public void OnDestroy() {
+		if (animalJobController != null)
+			animalJobController.job.Complete();
 		if (eddibleFoodTypes.IsCreated)
 			eddibleFoodTypes.Dispose();
 		if (predatorFoodTypes.IsCreated)
