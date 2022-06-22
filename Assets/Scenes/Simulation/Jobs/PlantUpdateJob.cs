@@ -58,7 +58,7 @@ public struct PlantUpdateJob : IJobParallelFor {
     }
 
     public float GetSunValue(float3 position) {
-        if (SimulationScript.Instance.sunRotationEffect) {
+        if (Simulation.Instance.sunRotationEffect) {
             float objectDistanceFromSun = Vector3.Distance(position, earthState.sunPostion);
             float sunDistanceFromEarth = Vector3.Distance(new float3(0, 0, 0), earthState.sunPostion);
             float sunValue = (objectDistanceFromSun - sunDistanceFromEarth) / earthState.earthRadius * 2;

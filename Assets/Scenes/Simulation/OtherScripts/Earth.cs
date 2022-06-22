@@ -59,7 +59,7 @@ public class Earth : MonoBehaviour {
 		frameManager = GetComponent<FrameManager>();
 		zoneController = GetComponent<ZoneController>();
 		zoneController.SetupZoneController(this);
-		zoneController.SpawnZones(size,SimulationScript.Instance.numberOfZones,SimulationScript.Instance.maxNeiboringZones, SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() * 5, SpeciesManager.Instance.GetAllStartingAnimals() * 5, SimulationScript.Instance.zoneSetup);
+		zoneController.SpawnZones(size,Simulation.Instance.numberOfZones,Simulation.Instance.maxNeiboringZones, SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() * 5, SpeciesManager.Instance.GetAllStartingAnimals() * 5, Simulation.Instance.zoneSetup);
 		earthState = new EarthState();
 	}
 
@@ -73,7 +73,7 @@ public class Earth : MonoBehaviour {
 	/// Then updates the simulation a number of times based on input and preformance capabilities of the computer.
 	/// </summary>
     private void Update() {
-		if (!SimulationScript.Instance.simulationInitialised)
+		if (!Simulation.Instance.simulationInitialised)
 			return;
 		frameManager.UpdateFrameStartTime();
 		if (simulationUpdateStatus != SimulationUpdateStatus.Intializing && simulationUpdateStatus != SimulationUpdateStatus.SettingUp) {
@@ -108,7 +108,7 @@ public class Earth : MonoBehaviour {
 			StartFindZoneJobs();
 			UpdateWorldTime();
 			UpdateHumidity();
-            SimulationScript.Instance.GetSun().UpdateSun();
+            Simulation.Instance.GetSun().UpdateSun();
 			UpdateEarthState();
 			CompleteFindZoneJobs();
 			UpdateOrganismData();
@@ -146,7 +146,7 @@ public class Earth : MonoBehaviour {
 		StartFindZoneJobs();
 		UpdateWorldTime();
 		UpdateHumidity();
-		SimulationScript.Instance.GetSun().UpdateSun();
+		Simulation.Instance.GetSun().UpdateSun();
 		UpdateEarthState();
 		CompleteFindZoneJobs();
 		UpdateOrganismData();
@@ -173,14 +173,14 @@ public class Earth : MonoBehaviour {
 
 	void UpdateHumidity() {
 		if (humidityTarget > humidity) {
-			humidity += UnityEngine.Random.Range(-0.5f * simulationDeltaTime, 2f * simulationDeltaTime);
+			humidity += Simulation.randomGenerator.NextFloat(-0.5f * simulationDeltaTime, 2f * simulationDeltaTime);
 			if (humidityTarget <= humidity) {
 				SetHumidityTarget();
             }
 			return;
         }
 		if (humidityTarget < humidity) {
-			humidity += UnityEngine.Random.Range(-2f * simulationDeltaTime, 0.5f * simulationDeltaTime);
+			humidity += Simulation.randomGenerator.NextFloat(-2f * simulationDeltaTime, 0.5f * simulationDeltaTime);
 			if (humidityTarget >= humidity) {
 				SetHumidityTarget();
 			}
@@ -189,7 +189,7 @@ public class Earth : MonoBehaviour {
 	}
     
 	public void SetHumidityTarget() {
-		humidityTarget = UnityEngine.Random.Range(0, 100f);
+		humidityTarget = Simulation.randomGenerator.NextFloat(0, 100f);
     }
 
 	void UpdateEarthState() {

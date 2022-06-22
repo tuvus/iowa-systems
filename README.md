@@ -213,16 +213,16 @@ Animals have a set age that they will die at.
 When animals die they spawn a corpse that will deteriorate after some time.
 Corpses can be eaten by a predetor species.
 
+An animal is considered full if they have 90% food in their somach and hungry if they are below 70%.
+
 Here is a list of behaviors that the animals can display in the order of their priority:
 * Check if there are predators nearby the animal, if so run away.
 * Check if the animal can eat food. (The food must be right in front of the animal)
 * Check if the animal is hungry, if so and there is a source food nearby go to the food source.
-* Check if the animal has a mate, if so attempt at reproduction. (Distance to mate is not a factor yet)
-* Check if there is an eligible mate nearby, if so set them as mate. (There is not yet any competition for mating, first come first served basically)
+* Check if the animal is not hungry and if there is an eligible mate nearby, if so attempt at reproduction with them.
 * Check if the animal is hungry, if so explore. If not and the animal has a mate and is ready to reproduce, move to the mate. Otherwise sit still.
 
-Note: Wait time in animals is no longer implemented except for eating but may be readded in the future. 
-Also animals might move past their food target as they don't move to a point instead they move a distance in a direction.
+Note: Wait time in animals is no longer implemented except for eating but may be readded in the future.
 
 An animal that tries to eat an organism or find a mate but was beaten by another animal in the same frame the animal will explore or sit still instead.
 

@@ -24,6 +24,6 @@ public abstract class JobController : MonoBehaviour {
     }
 
     public Earth GetEarth() {
-        return SimulationScript.Instance.GetEarth();
+        return Simulation.Instance.GetEarth();
     }
 }

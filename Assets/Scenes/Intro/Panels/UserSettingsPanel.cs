@@ -28,8 +28,9 @@ public class UserSettingsPanel : MonoBehaviour {
             GetRenderSyboxToggle().isOn = User.Instance.GetRenderSkyboxUserPref();
             GetFramesPerSeccondInputField().text = User.Instance.GetFramesPerSeccondUserPref().ToString();
         } else {
+            UpdateDesiredFramesPerSeccondUserPref();
             PlayerPrefs.Save();
-            if (SimulationScript.Instance.simulationInitialised)
+            if (Simulation.Instance.simulationInitialised)
                 User.Instance.OnChangedSettings();
         }
     }

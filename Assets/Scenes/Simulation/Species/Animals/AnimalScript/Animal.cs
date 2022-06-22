@@ -109,11 +109,11 @@ public class Animal : Organism {
     }
 
     public void SpawnAnimalRandom() {
-        age = UnityEngine.Random.Range(reproductive.GetAnimalSpeciesReproductiveSystem().reproductionAge / 2, animalSpecies.maxAge / 1.2f);
+        age = Simulation.randomGenerator.NextFloat(reproductive.GetAnimalSpeciesReproductiveSystem().reproductionAge / 2, animalSpecies.maxAge / 1.2f);
         stage = GrowthStage.Juvinile;
         ManageAge();
         health = animalSpecies.maxHealth;
-        food = UnityEngine.Random.Range(animalSpecies.fullFood, animalSpecies.maxFood);
+        food = Simulation.randomGenerator.NextFloat(animalSpecies.fullFood, animalSpecies.maxFood);
         reproductive.SpawnReproductive();
     }
 
@@ -123,7 +123,7 @@ public class Animal : Organism {
         stage = GrowthStage.Juvinile;
         zone = parent.zone;
         health = animalSpecies.maxHealth;
-        food = UnityEngine.Random.Range(animalSpecies.fullFood, animalSpecies.maxFood);
+        food = Simulation.randomGenerator.NextFloat(animalSpecies.fullFood, animalSpecies.maxFood);
         reproductive.SpawnReproductive();
     }
 
@@ -225,8 +225,8 @@ public class Animal : Organism {
     /// Changes the rotation of the model randomly and moves the model foward by the movement speed. Also sets the animal as moving.
     /// </summary>
     public void Explore() {
-        float random = UnityEngine.Random.Range(0, 30f);
-        GetAnimalMotor().TurnModel(UnityEngine.Random.Range(-random * GetEarthScript().simulationDeltaTime, random * GetEarthScript().simulationDeltaTime));
+        float random = Simulation.randomGenerator.NextFloat(0, 30f);
+        GetAnimalMotor().TurnModel(Simulation.randomGenerator.NextFloat(-random * GetEarthScript().simulationDeltaTime, random * GetEarthScript().simulationDeltaTime));
         GetAnimalMotor().MoveForward(GetMovementSpeed());
         SetMoving();
     }

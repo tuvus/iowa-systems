@@ -48,7 +48,7 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
         GetPlantSpecies().PreSpawn(startingSeedCount);
         for (int i = 0; i < startingSeedCount; i++) {
             Plant newseed = GetPlantSpecies().SpawnRandomSeed();
-            newseed.SpawnSeedRandom(Random.Range(0, seedGerminationRequirement.timeRequirement));
+            newseed.SpawnSeedRandom(Simulation.randomGenerator.NextFloat(0, seedGerminationRequirement.timeRequirement));
             AddSeed();
         }
     }

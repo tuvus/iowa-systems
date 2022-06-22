@@ -92,6 +92,8 @@ public abstract class Species : MonoBehaviour {
     /// </summary>
     public void OrganismDeath() {
         populationCount--;
+        if (populationCount == 0)
+            User.Instance.PrintState("Species has died out after " + (int)(earth.worldTime / 24) + " days.", speciesDisplayName,3);
     }
 
 

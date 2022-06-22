@@ -4,19 +4,22 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class SimulationSettingsPanel : MonoBehaviour {
-    SimulationScript simulation;
+    Simulation simulation;
     private int[] earthSizeArray = new int[] { 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 3000, 4000, 5000, 7500, 10000 };
     private int[] graphRefreshRateArray = new int[] { 12, 24, 48, 96, 168, 336, 720, 1080, 2880, 4320, 8640 };
 
     void Start() {
-        simulation = SimulationScript.Instance;
+        simulation = Simulation.Instance;
         GetSimulationSpeedInputField().text = simulation.simulationSpeed.ToString();
         GetEarthSizeSlider().maxValue = earthSizeArray.Length - 1;
         GetEarthSizeSlider().value = 9;
         GetGraphRefreshSlider().maxValue = graphRefreshRateArray.Length - 1;
         GetGraphRefreshSlider().value = 4;
-        OnChangeEarthSizeChange();
-        OnChangeGraphRefreshChange();
+        OnChangeEarthSize();
+        OnChangeGraphRefresh();
+        GetSunRotationEffectToggle().isOn = simulation.sunRotationEffect;
+        GetSimulationSeedInputField().text = Random.Range(-1000000, 1000000).ToString();
+        OnChangeSimulationSeed();
     }
 
     public void DisplayPanel(bool _trueOrFalse = true) {
@@ -26,22 +29,21 @@ public class SimulationSettingsPanel : MonoBehaviour {
         }
         if (_trueOrFalse == true) {
             GetMainPanelController().DisplayPanel(false);
-            GetSunRotationEffectToggle().isOn = simulation.sunRotationEffect;
         } else {
             GetMainPanelController().DisplayPanel(true);
         }
     }
 
-    public void OnSimulationSpeedChange() {
+    public void OnChangeSimulationSpeed() {
         simulation.simulationSpeed = int.Parse(GetSimulationSpeedInputField().text);
     }
 
-    public void OnChangeEarthSizeChange () {
+    public void OnChangeEarthSize () {
         GetEarthSizeText().text = "EarthSize:" + earthSizeArray[(int)GetEarthSizeSlider().value];
         simulation.earthSize = earthSizeArray[(int)GetEarthSizeSlider().value];
     }
 
-    public void OnChangeGraphRefreshChange() {
+    public void OnChangeGraphRefresh() {
         int totalHours = graphRefreshRateArray[(int)GetGraphRefreshSlider().value];
         SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime = totalHours;
         if (totalHours < 24)
@@ -60,7 +62,13 @@ public class SimulationSettingsPanel : MonoBehaviour {
         simulation.sunRotationEffect = GetSunRotationEffectToggle().isOn;
     }
 
+    public void OnChangeSimulationSeed() {
+        simulation.seed = GetSimulationSeedInputField().text;
+    }
+
     public void Back() {
+        OnChangeSimulationSpeed();
+        OnChangeSimulationSeed();
         DisplayPanel(false);
     }
 
@@ -86,6 +94,11 @@ public class SimulationSettingsPanel : MonoBehaviour {
 
     Toggle GetSunRotationEffectToggle() {
         return transform.GetChild(4).GetChild(1).GetComponent<Toggle>();
+    }
+
+
+    InputField GetSimulationSeedInputField() {
+        return transform.GetChild(5).GetChild(1).GetComponent<InputField>();
     }
 
     #endregion

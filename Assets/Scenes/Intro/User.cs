@@ -47,9 +47,9 @@ public class User : MonoBehaviour {
         } else {
             Camera.main.clearFlags = CameraClearFlags.SolidColor;
         }
-        SimulationScript.Instance.SetFrameRate(GetFramesPerSeccondUserPref());
-        SimulationScript.Instance.GetEarth().OnSettingsChanged(GetRenderWorldUserPref(), GetFramesPerSeccondUserPref());
-        SimulationScript.Instance.GetSun().OnSettingsChanged(GetRenderSunUserPref(),GetRenderShadowsUserPref());
+        Simulation.Instance.SetFrameRate(GetFramesPerSeccondUserPref());
+        Simulation.Instance.GetEarth().OnSettingsChanged(GetRenderWorldUserPref(), GetFramesPerSeccondUserPref());
+        Simulation.Instance.GetSun().OnSettingsChanged(GetRenderSunUserPref(),GetRenderShadowsUserPref());
     }
 
     /// <summary>

@@ -15,8 +15,8 @@ public class ReproductiveSystemOrgan : AnimalOrgan {
     }
 
     public void SpawnReproductive() {
-        reproductionAge = GetAnimalSpeciesReproductiveSystem().reproductionAge * Random.Range(0.8f, 1.2f);
-        sex = Random.Range(0, 2) == 0;
+        reproductionAge = GetAnimalSpeciesReproductiveSystem().reproductionAge * Simulation.randomGenerator.NextFloat(0.8f, 1.2f);
+        sex = Simulation.randomGenerator.NextBool();
         if (IsMature()) {
             GetAnimal().stage = Animal.GrowthStage.Adult;
         }
@@ -55,7 +55,7 @@ public class ReproductiveSystemOrgan : AnimalOrgan {
     }
 
     void Reproduce() {
-        timeAfterReproduction = GetAnimalSpeciesReproductiveSystem().reproductionDelay * Random.Range(0.8f, 1.2f);
+        timeAfterReproduction = GetAnimalSpeciesReproductiveSystem().reproductionDelay * Simulation.randomGenerator.NextFloat(0.8f, 1.2f);
         CreateChildren();
     }
 
@@ -70,9 +70,9 @@ public class ReproductiveSystemOrgan : AnimalOrgan {
 
     public void Concieve() {
         if (sex) {
-            timeAfterReproduction = GetAnimalSpeciesReproductiveSystem().reproductionDelay * Random.Range(0.0f, .3f);
+            timeAfterReproduction = GetAnimalSpeciesReproductiveSystem().reproductionDelay * Simulation.randomGenerator.NextFloat(0.0f, .3f);
         } else {
-            timeUntilBirth = GetAnimalSpeciesReproductiveSystem().birthTime * Random.Range(0.8f, 1.2f);
+            timeUntilBirth = GetAnimalSpeciesReproductiveSystem().birthTime * Simulation.randomGenerator.NextFloat(0.8f, 1.2f);
         }
     }
 
@@ -83,7 +83,7 @@ public class ReproductiveSystemOrgan : AnimalOrgan {
     public void CreateChildren() {
         int birthAmmount = GetAnimalSpeciesReproductiveSystem().reproducionAmount;
         for (int i = 0; i < GetAnimalSpeciesReproductiveSystem().reproducionAmount; i++) {
-            if (Random.Range(0f, 100f) > GetAnimalSpeciesReproductiveSystem().birthSuccessPercent) {
+            if (Simulation.randomGenerator.NextFloat(0f, 100f) > GetAnimalSpeciesReproductiveSystem().birthSuccessPercent) {
                 birthAmmount--;
             }
         }

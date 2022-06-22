@@ -11,11 +11,11 @@ public class SeedOrgan : PlantOrgan {
 
 	public override void SpawnOrganismAdult() {
 		if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == Plant.GrowthStage.Adult) {
-			if (UnityEngine.Random.Range(0, 10) < 4) {
-				awnsGrowth = UnityEngine.Random.Range(0, GetPlantSpeciesSeeds().awnMaxGrowth);
+			if (Simulation.randomGenerator.NextUInt(0, 10) < 4) {
+				awnsGrowth = Simulation.randomGenerator.NextFloat(0, GetPlantSpeciesSeeds().awnMaxGrowth);
 			} else {
 				awnsGrowth = GetPlantSpeciesSeeds().awnMaxGrowth;
-				timeUntillDispersion = UnityEngine.Random.Range(0, GetPlantSpeciesSeeds().awnSeedDispertionTime);
+				timeUntillDispersion = Simulation.randomGenerator.NextFloat(0, GetPlantSpeciesSeeds().awnSeedDispertionTime);
 			}
 		}
 	}
@@ -49,7 +49,7 @@ public class SeedOrgan : PlantOrgan {
 
 	public void SpreadNewSeed(int seedCount) {
 		for (int i = 0; i < seedCount; i++) {
-			if (UnityEngine.Random.Range(0,100) < GetPlantSpeciesSeeds().awnSeedDispersalSuccessChance)
+			if (Simulation.randomGenerator.NextFloat(0,100) < GetPlantSpeciesSeeds().awnSeedDispersalSuccessChance)
 				GetPlantSpeciesSeeds().SpreadSeed(GetPlant());
 		}
 	}

@@ -35,7 +35,7 @@ public class TimeUI : MonoBehaviour {
     }
 
     void UpdateTimeScale() {
-        if (!SimulationScript.Instance.simulationInitialised)
+        if (!Simulation.Instance.simulationInitialised)
             return;
         GetFrameManager().SetWantedIterationsPerSeccond(timeScaleArray[timeScale]);
         if (timeScaleArray[timeScale] < 24)
@@ -92,6 +92,6 @@ public class TimeUI : MonoBehaviour {
 
 
     public FrameManager GetFrameManager() {
-        return SimulationScript.Instance.GetEarth().GetFrameManager();
+        return Simulation.Instance.GetEarth().GetFrameManager();
     }
 }

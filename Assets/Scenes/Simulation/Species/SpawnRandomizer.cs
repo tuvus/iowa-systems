@@ -16,7 +16,7 @@ public static class SpawnRandomizer {
 	}
 
 	static float GetRandomNumber(float range = 360) {
-		return Random.Range(-range * 1000, range * 1000) / 1000;
+		return Simulation.randomGenerator.NextFloat(-range,range);
 	}
 }
     

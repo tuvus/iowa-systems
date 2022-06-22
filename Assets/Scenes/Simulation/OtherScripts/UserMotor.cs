@@ -30,14 +30,14 @@ public class UserMotor : MonoBehaviour {
 		cameraMovementUI = canvas.GetChild(3).GetComponent<CameraMovementUI>();
 		zoomMovementUI = canvas.GetChild(3).GetComponent<ZoomMovementUI>();
 		cameraTransform = Camera.main.transform;
-		cameraTransform.localPosition = new Vector3(0, SimulationScript.Instance.earthSize / 1.5f, 0);
+		cameraTransform.localPosition = new Vector3(0, Simulation.Instance.earthSize / 1.5f, 0);
 		this.graphBufferInput = graphBufferInput;
 		RefreshSlider();
 		timeUI.Pause();
 	}
 
 	void LateUpdate () {
-		float earthSize = SimulationScript.Instance.earthSize;
+		float earthSize = Simulation.Instance.earthSize;
 		ManageScroll(earthSize);
 		ManageGraph();
 		ManageMovement(earthSize);
@@ -67,15 +67,15 @@ public class UserMotor : MonoBehaviour {
 	}
 
 	public void SetScroll(float scroll) {
-		float earthSize = SimulationScript.Instance.earthSize;
+		float earthSize = Simulation.Instance.earthSize;
 		cameraTransform.localPosition = new Vector3(0, (scroll * GetRange()) + GetMinSize(), 0);
     }
 	float GetMaxSize() {
-		return SimulationScript.Instance.earthSize * 3;
+		return Simulation.Instance.earthSize * 3;
     }
 
 	float GetMinSize() {
-		return (SimulationScript.Instance.earthSize / 2) + 3;
+		return (Simulation.Instance.earthSize / 2) + 3;
     }
 
 	float GetRange() {

@@ -148,7 +148,7 @@ public class PlantSpecies : Species {
         populationCount++;
         RandomiseOrganismPosition(plant);
         AddToFindZone(plant);
-        plant.SpawnPlantRandom(growthStages[UnityEngine.Random.Range(1, growthStagesInput.Count)].stage);
+        plant.SpawnPlantRandom(growthStages[Simulation.randomGenerator.NextInt(1, growthStagesInput.Count)].stage);
     }
 
     public Plant SpawnRandomSeed() {
@@ -175,7 +175,7 @@ public class PlantSpecies : Species {
         ActivatePlant(plant, ListType.unlisted);
         RandomiseOrganismPosition(plant);
         SetUpOrgans(plant);
-        plant.SpawnPlantRandom(growthStages[UnityEngine.Random.Range(1, growthStagesInput.Count)].stage);
+        plant.SpawnPlantRandom(growthStages[Simulation.randomGenerator.NextInt(1, growthStagesInput.Count)].stage);
         populationCount++;
         return plant;
     }
