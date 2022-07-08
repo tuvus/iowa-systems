@@ -46,16 +46,7 @@ public class SimulationSettingsPanel : MonoBehaviour {
     public void OnChangeGraphRefresh() {
         int totalHours = graphRefreshRateArray[(int)GetGraphRefreshSlider().value];
         SpeciesManager.Instance.GetSpeciesMotor().maxRefreshTime = totalHours;
-        if (totalHours < 24)
-            GetGraphRefreshText().text = "GraphRate: " + (int)totalHours + "Hours";
-        else if (totalHours < 168)
-            GetGraphRefreshText().text = "GraphRate: " + (int)(totalHours * 10.0f / 24) / 10.0f + "Days";
-        else if (totalHours < 720)
-            GetGraphRefreshText().text = "GraphRate: " + (int)(totalHours * 10.0f / 168) / 10.0f + "Weeks";
-        else if (totalHours < 8640)
-            GetGraphRefreshText().text = "GraphRate: " + (int)(totalHours * 10.0f / 720) / 10.0f + "Months";
-        else
-            GetGraphRefreshText().text = "GraphRate: " + (int)(totalHours * 10.0f / 8640) / 10.0f + "Years";
+        GetGraphRefreshText().text = "GraphRate: " + TimeUtil.ConvertHoursToDecimalString(totalHours);
     }
 
     public void OnChangeSunRotationEffect() {
