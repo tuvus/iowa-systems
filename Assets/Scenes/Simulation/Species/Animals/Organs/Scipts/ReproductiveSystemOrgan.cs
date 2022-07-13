@@ -83,7 +83,7 @@ public class ReproductiveSystemOrgan : AnimalOrgan {
     public void CreateChildren() {
         int birthAmmount = GetAnimalSpeciesReproductiveSystem().reproducionAmount;
         for (int i = 0; i < GetAnimalSpeciesReproductiveSystem().reproducionAmount; i++) {
-            if (Simulation.randomGenerator.NextFloat(0f, 100f) > GetAnimalSpeciesReproductiveSystem().birthSuccessPercent) {
+            if (Simulation.randomGenerator.NextUInt(0, 100) < GetAnimalSpeciesReproductiveSystem().birthSuccessPercent) {
                 birthAmmount--;
             }
         }

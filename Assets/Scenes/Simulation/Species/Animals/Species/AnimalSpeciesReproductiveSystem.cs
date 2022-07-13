@@ -10,7 +10,7 @@ public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
 	public float reproductionDelay;
 	public float reproductionAge;
 	public int reproducionAmount;
-	public float birthSuccessPercent;
+	public int birthSuccessPercent;
 
 	public override void MakeOrganism(Animal animal) {
 		ReproductiveSystemOrgan reproductiveSystemScript = GetAnimalSpecies().InstantiateNewOrgan(reproductiveSystemPrefab, animal).GetComponent<ReproductiveSystemOrgan>();
