@@ -49,7 +49,7 @@ public abstract class Species : MonoBehaviour {
     }
 
     internal void RandomiseOrganismChildPosition(Organism organism, Organism parent, float range = 2) {
-        SpawnRandomizer.SpawnFromParent(organism.GetOrganismMotor(), range);
+        SpawnRandomizer.SpawnFromParent(organism.GetOrganismMotor(), parent.GetOrganismMotor(), range);
     }
 
     public GameObject InstantiateNewOrgan(GameObject organ, Organism organism) {

@@ -9,8 +9,8 @@ public static class SpawnRandomizer {
 		organismMotor.SetModelRotation(GetRandomNumber());
 	}
 
-	public static void SpawnFromParent(OrganismMotor organismMotor, float range) {
-		organismMotor.SetPositionToParent(organismMotor);
+	public static void SpawnFromParent(OrganismMotor organismMotor, OrganismMotor parentOrganismMotor, float range) {
+		organismMotor.SetPositionToParent(parentOrganismMotor);
 		organismMotor.RotateFromCenter(new Vector3(GetRandomNumber(range), GetRandomNumber(range), GetRandomNumber(range)));
 		organismMotor.SetModelRotation(GetRandomNumber());
 	}
