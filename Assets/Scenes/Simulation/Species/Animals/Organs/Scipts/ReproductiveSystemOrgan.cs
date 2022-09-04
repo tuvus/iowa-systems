@@ -31,27 +31,18 @@ public class ReproductiveSystemOrgan : AnimalOrgan {
     }
 
     public void UpdateMaleOrgan() {
-        if (timeAfterReproduction > 0) {
-            timeAfterReproduction -= GetAnimal().GetEarthScript().simulationDeltaTime * .2f;
-            if (timeAfterReproduction <= 0)
-                timeAfterReproduction = 0;
-        }
+        timeAfterReproduction = Mathf.Max(0, timeAfterReproduction - GetAnimal().GetEarthScript().simulationDeltaTime);
     }
 
     public void UpdateFemaleOrgan() {
         if (timeUntilBirth > 0) {
-            timeUntilBirth -= GetAnimal().GetEarthScript().simulationDeltaTime * .2f;
+            timeUntilBirth = Mathf.Max(0, timeUntilBirth - GetAnimal().GetEarthScript().simulationDeltaTime);
             if (timeUntilBirth <= 0) {
-                timeUntilBirth = 0;
                 Reproduce();
             }
             return;
         }
-        if (timeAfterReproduction > 0) {
-            timeAfterReproduction -= GetAnimal().GetEarthScript().simulationDeltaTime * .2f;
-            if (timeAfterReproduction <= 0)
-                timeAfterReproduction = 0;
-        }
+        timeAfterReproduction = Mathf.Max(0, timeAfterReproduction - GetAnimal().GetEarthScript().simulationDeltaTime);
     }
 
     void Reproduce() {
@@ -83,7 +74,7 @@ public class ReproductiveSystemOrgan : AnimalOrgan {
     public void CreateChildren() {
         int birthAmmount = GetAnimalSpeciesReproductiveSystem().reproducionAmount;
         for (int i = 0; i < GetAnimalSpeciesReproductiveSystem().reproducionAmount; i++) {
-            if (Simulation.randomGenerator.NextUInt(0, 100) < GetAnimalSpeciesReproductiveSystem().birthSuccessPercent) {
+            if (Simulation.randomGenerator.NextInt(0, 100) < GetAnimalSpeciesReproductiveSystem().birthSuccessPercent) {
                 birthAmmount--;
             }
         }

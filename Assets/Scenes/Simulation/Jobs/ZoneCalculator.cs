@@ -63,7 +63,7 @@ public static class ZoneCalculator {
         }
         return plants;
     }
-    
+
     public static List<int> GetAnimalsInZone(NativeMultiHashMap<int, int> animalsInZones, int zoneNumber) {
         List<int> animals = new List<int>(50);
         if (animalsInZones.TryGetFirstValue(zoneNumber, out int value, out var iterator)) {
@@ -74,13 +74,13 @@ public static class ZoneCalculator {
         return animals;
     }
 
-    public static List<ZoneController.DataLocation> GetOrganismsInZoneByFoodType(NativeMultiHashMap<int2,ZoneController.DataLocation> organismsByFoodTypeInZones, int zone, int foodTypeIndex) {
+    public static List<ZoneController.DataLocation> GetOrganismsInZoneByFoodType(NativeMultiHashMap<int2, ZoneController.DataLocation> organismsByFoodTypeInZones, int zone, int foodTypeIndex) {
         List<ZoneController.DataLocation> organisms = new List<ZoneController.DataLocation>(50);
-        if (organismsByFoodTypeInZones.TryGetFirstValue(new int2(zone,foodTypeIndex), out ZoneController.DataLocation value, out var iterator)) {
+        if (organismsByFoodTypeInZones.TryGetFirstValue(new int2(zone, foodTypeIndex), out ZoneController.DataLocation value, out var iterator)) {
             do {
                 organisms.Add(value);
             } while (organismsByFoodTypeInZones.TryGetNextValue(out value, ref iterator));
         }
         return organisms;
     }
-    }
+}

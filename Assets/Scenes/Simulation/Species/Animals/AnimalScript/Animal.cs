@@ -111,7 +111,6 @@ public class Animal : Organism {
     public void SpawnAnimalRandom() {
         age = Simulation.randomGenerator.NextFloat(reproductive.GetAnimalSpeciesReproductiveSystem().reproductionAge / 2, animalSpecies.maxAge / 1.2f);
         stage = GrowthStage.Juvinile;
-        ManageAge();
         health = animalSpecies.maxHealth;
         food = Simulation.randomGenerator.NextFloat(animalSpecies.fullFood, animalSpecies.maxFood);
         reproductive.SpawnReproductive();
@@ -175,12 +174,10 @@ public class Animal : Organism {
 
     bool ManageFood() {
         if (food > 0) {
-            if (hasMoved) {
-                food = math.max(0, food - animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime);
-            } else {
-                float restingFoodReduction = .6f;
-                food = math.max(0, food - animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime * restingFoodReduction);
-            }
+            float restingFoodReduction = 1f;
+            if (!hasMoved)
+                restingFoodReduction = .6f;
+            food = math.max(0, food - animalSpecies.GetFoodConsumption() * GetEarthScript().simulationDeltaTime * restingFoodReduction);
             if (health < animalSpecies.maxHealth) {
                 health = math.min(animalSpecies.maxHealth, health + GetEarthScript().simulationDeltaTime / 24);
             }

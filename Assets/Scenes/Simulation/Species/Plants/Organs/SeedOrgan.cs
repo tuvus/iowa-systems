@@ -49,7 +49,7 @@ public class SeedOrgan : PlantOrgan {
 
 	public void SpreadNewSeed(int seedCount) {
 		for (int i = 0; i < seedCount; i++) {
-			if (Simulation.randomGenerator.NextFloat(0,100) < GetPlantSpeciesSeeds().awnSeedDispersalSuccessChance)
+			if (Simulation.randomGenerator.NextInt(0,100) < GetPlantSpeciesSeeds().awnSeedDispersalSuccessChance)
 				GetPlantSpeciesSeeds().SpreadSeed(GetPlant());
 		}
 	}

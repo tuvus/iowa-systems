@@ -66,6 +66,10 @@ public class UserMotor : MonoBehaviour {
 		zoomMovementUI.SetScroll((cameraTransform.localPosition.y - GetMinSize()) / GetRange());
 	}
 
+	/// <summary>
+	/// Sets the scroll by precent.
+	/// </summary>
+	/// <param name="scroll">A value from zero to one</param>
 	public void SetScroll(float scroll) {
 		float earthSize = Simulation.Instance.earthSize;
 		cameraTransform.localPosition = new Vector3(0, (scroll * GetRange()) + GetMinSize(), 0);

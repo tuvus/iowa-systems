@@ -13,7 +13,7 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
     public float awnMaxGrowth;
     public int awnMaxSeedAmount;
     public float awnSeedDispertionTime;
-    public float awnSeedDispersalSuccessChance;
+    public int awnSeedDispersalSuccessChance;
 
     public float seedEnergyAmount;
 
