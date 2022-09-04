@@ -60,3 +60,4 @@ crashlytics-build.properties
 
 # Prevents the population graph file from being commited and pushed.
 Population
+UserSettings/
