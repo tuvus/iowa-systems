@@ -273,3 +273,13 @@ Smell is centered around the animal and goes in every direction.
 Bunnies have a better sense of smell then foxes.
 
 ---
+
+## Authors
+<hr>
+
+[tuvus](https://github.com/tuvus/) - 
+    **Oskar Niesen** <<oskar-github@niesens.com>> (he/him)
+
+## License
+<hr>
+The Iowa Systems project is licensed under [GNU GPL v3](https://github.com/tuvus/iowa-systems/blob/master/LICENSE.md).
