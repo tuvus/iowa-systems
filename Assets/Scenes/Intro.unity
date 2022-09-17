@@ -1409,7 +1409,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 240339069}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 200
+  m_MaxValue: 1000
   m_WholeNumbers: 1
   m_Value: 0
   m_OnValueChanged:
@@ -2536,11 +2536,11 @@ MonoBehaviour:
   humidityRequirement: 64
   tempetureRequirement: 50
   seedDispertionRange: 40
-  timeRequirement: 5760
-  timeMaximum: 17520
+  timeRequirement: 240
+  timeMaximum: 730
   awnMaxGrowth: 24
   awnMaxSeedAmount: 6
-  awnSeedDispertionTime: 1000
+  awnSeedDispertionTime: 45
   awnSeedDispersalSuccessChance: 30
   seedEnergyAmount: 0.01
 --- !u!114 &456575643
@@ -4298,7 +4298,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 722298054}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 100
+  m_MaxValue: 1000
   m_WholeNumbers: 1
   m_Value: 0
   m_OnValueChanged:
@@ -5433,7 +5433,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4278242603
-  startingPopulation: 100
+  startingPopulation: 400
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
@@ -5505,15 +5505,15 @@ MonoBehaviour:
   organType: Seed
   organFoodIndex: 0
   growthModifier: 0.1
-  startingSeedCount: 40
+  startingSeedCount: 500
   humidityRequirement: 52
   tempetureRequirement: 45
   seedDispertionRange: 30
-  timeRequirement: 5760
-  timeMaximum: 17520
+  timeRequirement: 240
+  timeMaximum: 730
   awnMaxGrowth: 18
   awnMaxSeedAmount: 6
-  awnSeedDispertionTime: 720
+  awnSeedDispertionTime: 30
   awnSeedDispersalSuccessChance: 30
   seedEnergyAmount: 0.2
 --- !u!1 &835355319
@@ -10483,9 +10483,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
-  birthTime: 1440
-  reproductionDelay: 24
-  reproductionAge: 8760
+  birthTime: 60
+  reproductionDelay: 72
+  reproductionAge: 365
   reproducionAmount: 5
   birthSuccessPercent: 60
 --- !u!114 &1600016794
@@ -10550,7 +10550,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4278198711
-  startingPopulation: 5
+  startingPopulation: 12
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
@@ -10560,11 +10560,11 @@ MonoBehaviour:
   bodyWeight: 13
   maxHealth: 3
   speed: 50
-  foodConsumption: 0.5
+  foodConsumption: 0.25
   fullFood: 0
   maxFood: 12
-  maxAge: 61320
-  deteriationTime: 720
+  maxAge: 2555
+  deteriationTime: 14
   eddibleFoodTypesInput:
   - CottontailRabbit
   animals: []
@@ -10611,9 +10611,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   reproductiveSystemPrefab: {fileID: 1733832562068660, guid: 05c86d95c01eb403098bb5207a818964,
     type: 3}
-  birthTime: 720
-  reproductionDelay: 12
-  reproductionAge: 2184
+  birthTime: 30
+  reproductionDelay: 336
+  reproductionAge: 91
   reproducionAmount: 8
   birthSuccessPercent: 30
 --- !u!114 &1627060935
@@ -10678,7 +10678,7 @@ MonoBehaviour:
   speciesColor:
     serializedVersion: 2
     rgba: 4282874818
-  startingPopulation: 30
+  startingPopulation: 60
   speciesIndex: 0
   specificSpeciesIndex: 0
   organisms: []
@@ -10691,8 +10691,8 @@ MonoBehaviour:
   foodConsumption: 0.2
   fullFood: 0
   maxFood: 7
-  maxAge: 52560
-  deteriationTime: 720
+  maxAge: 2190
+  deteriationTime: 14
   eddibleFoodTypesInput:
   - Stem
   - Blade

@@ -25,6 +25,7 @@ public class Plant : Organism {
     public GrowthStage plantStage;
 
     public struct PlantData {
+        [Tooltip("The age of the plant in days")]
         public float age;
         public int speciesIndex;
         public int specificSpeciesIndex;
@@ -137,7 +138,7 @@ public class Plant : Organism {
 
     public override void UpdateOrganism() {
         if (spawned) {
-            age += GetEarthScript().simulationDeltaTime;
+            age += GetEarthScript().simulationDeltaTime / 24;
             GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(GetEarthScript().GetZoneController().allPlants[plantDataIndex], age, GetEarthScript().GetZoneController().allPlants[plantDataIndex].bladeArea, GetEarthScript().GetZoneController().allPlants[plantDataIndex].stemHeight, GetEarthScript().GetZoneController().allPlants[plantDataIndex].rootGrowth, GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage);
             growth += GetGrowth();
             Grow(growth);

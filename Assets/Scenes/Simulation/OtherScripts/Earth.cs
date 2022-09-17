@@ -19,12 +19,15 @@ public class Earth : MonoBehaviour {
     ZoneController zoneController;
 
     #region EarthVariables
+    [Tooltip("The radius of the earth model")]
     public int size;
+    [Tooltip("The max time in hours that the simulation has been running")]
     public long worldTime;
-    public int maxTime;
-    //The acuracy of the simulation 1f = 1 hour
+    [Tooltip("The max time in hours until the simulation ends")]
+    public long maxTime;
+    [Tooltip("The change in time of this frame in hours")]
     public float simulationDeltaTime;
-    public float tempeture;
+    public float temperature;
     public float humidity;
     public float humidityTarget;
     public EarthState earthState { private set; get; }
@@ -45,7 +48,7 @@ public class Earth : MonoBehaviour {
             sunPostion = earthScript.GetSunPosition();
             earthRadius = earthScript.GetRadius();
             humidity = earthScript.humidity;
-            temperature = earthScript.tempeture;
+            temperature = earthScript.temperature;
             return this;
         }
     }

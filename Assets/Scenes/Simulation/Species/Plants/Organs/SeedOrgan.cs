@@ -32,9 +32,8 @@ public class SeedOrgan : PlantOrgan {
 
     public override void GrowOrgan(float growth) {
 		if (timeUntillDispersion > 0) {
-			timeUntillDispersion -= GetPlant().GetEarthScript().simulationDeltaTime;
+			timeUntillDispersion = math.max(0, timeUntillDispersion - GetPlant().GetEarthScript().simulationDeltaTime / 24);
 			if (timeUntillDispersion <= 0) {
-				timeUntillDispersion = 0;
 				awnsGrowth = 0;
 				SpreadNewSeed(GetPlantSpeciesSeeds().awnMaxSeedAmount);
 			}

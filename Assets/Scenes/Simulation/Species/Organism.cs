@@ -9,6 +9,7 @@ public abstract class Organism : MonoBehaviour {
 	public int organismIndex;
 	public int specificOrganismIndex;
 	public bool spawned;
+	[Tooltip("The age of the organism in days")]
 	[SerializeField] internal float age;
 
 	public Vector3 position;

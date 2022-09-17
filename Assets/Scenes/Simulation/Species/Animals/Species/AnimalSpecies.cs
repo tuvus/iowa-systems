@@ -9,17 +9,20 @@ public class AnimalSpecies : Species {
 
 	public Color corpseColor;
 	//AnimalStats
-	[Tooltip("Body weight is wheight in kilograms")]
+	[Tooltip("Weight in kilograms")]
 	public float bodyWeight;
 	public float maxHealth;
 	public float speed;
-	[Tooltip("foodConsumption is daily food eaten in kilograms")]
+	[Tooltip("Daily food used by the organism in kilograms")]
     public float foodConsumption;
+	[Tooltip("The food in kilograms at which the animal is hungry")]
 	public float fullFood;
-	[Tooltip("maxFood is food stored in kilograms")]
+	[Tooltip("Maximum ammount of food stored in kilograms")]
 	public float maxFood;
+	[Tooltip("The age at which the animal will die at in days")]
 	public int maxAge;
 
+	[Tooltip("The time it takes a corpse to deteriorate in days")]
 	public float deteriationTime;
 
 	int foodIndex;

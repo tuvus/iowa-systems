@@ -156,7 +156,7 @@ public class Animal : Organism {
     }
 
     bool ManageAge() {
-        age += GetEarthScript().simulationDeltaTime;
+        age += GetEarthScript().simulationDeltaTime / 24;
         if (stage == GrowthStage.Juvinile && reproductive.IsMature()) {
             stage = GrowthStage.Adult;
         }
@@ -192,7 +192,7 @@ public class Animal : Organism {
     }
 
     void ManageCorpse() {
-        age -= GetEarthScript().simulationDeltaTime;
+        age -= GetEarthScript().simulationDeltaTime / 24;
         if (age <= 0) {
             animalSpecies.DespawnCorpse(this);
             RemoveFromZone();

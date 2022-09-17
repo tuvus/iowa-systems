@@ -7,11 +7,14 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
     public float humidityRequirement;
     public float tempetureRequirement;
     public float seedDispertionRange;
+    [Tooltip("The time in days required before germination can begin")]
     public float timeRequirement;
+    [Tooltip("The maximum time in days the seed can wait to germinate before it dies off")]
     public float timeMaximum;
 
     public float awnMaxGrowth;
     public int awnMaxSeedAmount;
+    [Tooltip("The time the in days it takes until the awns release thier seeds")]
     public float awnSeedDispertionTime;
     public int awnSeedDispersalSuccessChance;
 
@@ -24,7 +27,9 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
     public struct SeedGerminationRequirement {
         public float humidityRequirement;
         public float tempetureRequirement;
+        [Tooltip("The time in days required before germination can begin")]
         public float timeRequirement;
+        [Tooltip("The maximum time in days the seed can wait to germinate before it dies off")]
         public float timeMaximum;
 
         public SeedGerminationRequirement(PlantSpeciesSeeds speciesSeeds) {

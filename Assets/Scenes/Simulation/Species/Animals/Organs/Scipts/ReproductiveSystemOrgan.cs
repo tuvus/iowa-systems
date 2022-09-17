@@ -5,8 +5,11 @@ using UnityEngine;
 public class ReproductiveSystemOrgan : AnimalOrgan {
     [Tooltip("False = female, True = male")]
     public bool sex;
+    [Tooltip("The age in which the animal is ready to reproduce in days")]
     public float reproductionAge;
+    [Tooltip("Time until the animal is ready give birth in days")]
     public float timeUntilBirth;
+    [Tooltip("Time until the animal is ready to reproduce again in hours")]
     public float timeAfterReproduction;
 
     public void SetupOrgan(AnimalSpeciesReproductiveSystem speciesReproductive, Animal animal) {
@@ -19,6 +22,7 @@ public class ReproductiveSystemOrgan : AnimalOrgan {
         sex = Simulation.randomGenerator.NextBool();
         if (IsMature()) {
             GetAnimal().stage = Animal.GrowthStage.Adult;
+            timeAfterReproduction = GetAnimalSpeciesReproductiveSystem().reproductionDelay * Simulation.randomGenerator.NextFloat(0f, 1.2f);
         }
     }
 
@@ -36,7 +40,7 @@ public class ReproductiveSystemOrgan : AnimalOrgan {
 
     public void UpdateFemaleOrgan() {
         if (timeUntilBirth > 0) {
-            timeUntilBirth = Mathf.Max(0, timeUntilBirth - GetAnimal().GetEarthScript().simulationDeltaTime);
+            timeUntilBirth = Mathf.Max(0, timeUntilBirth - GetAnimal().GetEarthScript().simulationDeltaTime / 24);
             if (timeUntilBirth <= 0) {
                 Reproduce();
             }
