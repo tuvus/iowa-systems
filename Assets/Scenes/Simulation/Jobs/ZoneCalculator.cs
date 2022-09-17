@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Collections;
 
 public static class ZoneCalculator {
-    public static List<int> GetNeiboringZones(int zone, NativeMultiHashMap<int, int> neiboringZones) {
+    public static List<int> GetNeiboringZones(int zone, NativeParallelMultiHashMap<int, int> neiboringZones) {
         List<int> neiboringZonesList = new List<int>(15);
         if (neiboringZones.TryGetFirstValue(zone, out int value, out var iterator)) {
             do {
@@ -15,7 +15,7 @@ public static class ZoneCalculator {
         return neiboringZonesList;
     }
 
-    public static List<int> GetNearbyZones(NativeArray<ZoneController.ZoneData> zones, NativeMultiHashMap<int, int> neiboringZones, int zone, float3 position, float range) {
+    public static List<int> GetNearbyZones(NativeArray<ZoneController.ZoneData> zones, NativeParallelMultiHashMap<int, int> neiboringZones, int zone, float3 position, float range) {
         List<int> nearbyZones = new List<int>(zones.Length / 5);
         List<int> tempNeiboringZones = new List<int>(50);
         nearbyZones.Add(zone);
@@ -35,7 +35,7 @@ public static class ZoneCalculator {
         return nearbyZones;
     }
 
-    public static List<int> GetNearbyZonesFromTwoPositions(NativeArray<ZoneController.ZoneData> zones, NativeMultiHashMap<int, int> neiboringZones, int zone, float3x2 positions, float range) {
+    public static List<int> GetNearbyZonesFromTwoPositions(NativeArray<ZoneController.ZoneData> zones, NativeParallelMultiHashMap<int, int> neiboringZones, int zone, float3x2 positions, float range) {
         List<int> nearbyZones = new List<int>(zones.Length / 5);
         List<int> tempNeiboringZones = new List<int>(50);
         nearbyZones.Add(zone);
@@ -54,7 +54,7 @@ public static class ZoneCalculator {
         return nearbyZones;
     }
 
-    public static List<int> GetPlantsInZone(NativeMultiHashMap<int, int> plantsInZones, int zoneNumber) {
+    public static List<int> GetPlantsInZone(NativeParallelMultiHashMap<int, int> plantsInZones, int zoneNumber) {
         List<int> plants = new List<int>(50);
         if (plantsInZones.TryGetFirstValue(zoneNumber, out int value, out var iterator)) {
             do {
@@ -64,7 +64,7 @@ public static class ZoneCalculator {
         return plants;
     }
 
-    public static List<int> GetAnimalsInZone(NativeMultiHashMap<int, int> animalsInZones, int zoneNumber) {
+    public static List<int> GetAnimalsInZone(NativeParallelMultiHashMap<int, int> animalsInZones, int zoneNumber) {
         List<int> animals = new List<int>(50);
         if (animalsInZones.TryGetFirstValue(zoneNumber, out int value, out var iterator)) {
             do {
@@ -74,7 +74,7 @@ public static class ZoneCalculator {
         return animals;
     }
 
-    public static List<ZoneController.DataLocation> GetOrganismsInZoneByFoodType(NativeMultiHashMap<int2, ZoneController.DataLocation> organismsByFoodTypeInZones, int zone, int foodTypeIndex) {
+    public static List<ZoneController.DataLocation> GetOrganismsInZoneByFoodType(NativeParallelMultiHashMap<int2, ZoneController.DataLocation> organismsByFoodTypeInZones, int zone, int foodTypeIndex) {
         List<ZoneController.DataLocation> organisms = new List<ZoneController.DataLocation>(50);
         if (organismsByFoodTypeInZones.TryGetFirstValue(new int2(zone, foodTypeIndex), out ZoneController.DataLocation value, out var iterator)) {
             do {

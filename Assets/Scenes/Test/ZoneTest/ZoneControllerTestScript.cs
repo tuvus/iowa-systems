@@ -11,7 +11,7 @@ public class ZoneControllerTestScript : MonoBehaviour {
 
     public int numberOfZones;
     NativeArray<float3> zonePositions;
-    NativeMultiHashMap<int, int> neiboringZones;
+    NativeParallelMultiHashMap<int, int> neiboringZones;
     public int maxNeibroingZones;
 
     internal JobHandle job;
@@ -44,7 +44,7 @@ public class ZoneControllerTestScript : MonoBehaviour {
 
     void Allocate() {
         zonePositions = new NativeArray<float3>(numberOfZones, Allocator.Persistent);
-        neiboringZones = new NativeMultiHashMap<int, int>(numberOfZones * maxNeibroingZones, Allocator.Persistent);
+        neiboringZones = new NativeParallelMultiHashMap<int, int>(numberOfZones * maxNeibroingZones, Allocator.Persistent);
     }
 
     public JobHandle FindNeiboringZones(float distance) {

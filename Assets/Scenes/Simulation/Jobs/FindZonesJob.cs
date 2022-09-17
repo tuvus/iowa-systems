@@ -8,10 +8,10 @@ public struct FindZonesJob : IJobParallelFor {
     NativeArray<FindZoneController.FindZoneData> findZones;
 
     [ReadOnly] NativeArray<ZoneController.ZoneData> zones;
-    [ReadOnly] NativeMultiHashMap<int, int> neiboringZones;
+    [ReadOnly] NativeParallelMultiHashMap<int, int> neiboringZones;
 
     public static JobHandle BeginJob(NativeArray<FindZoneController.FindZoneData> findZones, int findZoneCount, NativeArray<ZoneController.ZoneData> zones,
-        NativeMultiHashMap<int, int> neiboringZones) {
+        NativeParallelMultiHashMap<int, int> neiboringZones) {
         FindZonesJob job = new FindZonesJob { findZones = findZones, zones = zones, neiboringZones = neiboringZones };
         return IJobParallelForExtensions.Schedule(job, findZoneCount, 1);
     }

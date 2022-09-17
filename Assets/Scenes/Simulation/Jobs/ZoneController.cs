@@ -18,10 +18,10 @@ public class ZoneController : MonoBehaviour {
     public int allPlantsCount;
     public NativeArray<Animal.AnimalData> allAnimals;
     public int allAnimalsCount;
-    public NativeMultiHashMap<int, int> neiboringZones;
-    public NativeMultiHashMap<int, int> plantsInZones;
-    public NativeMultiHashMap<int, int> animalsInZones;
-    public NativeMultiHashMap<int2, DataLocation> organismsByFoodTypeInZones;
+    public NativeParallelMultiHashMap<int, int> neiboringZones;
+    public NativeParallelMultiHashMap<int, int> plantsInZones;
+    public NativeParallelMultiHashMap<int, int> animalsInZones;
+    public NativeParallelMultiHashMap<int2, DataLocation> organismsByFoodTypeInZones;
 
     public struct DataLocation {
         public enum DataType {
@@ -109,10 +109,10 @@ public class ZoneController : MonoBehaviour {
         zones = new NativeArray<ZoneData>(numberOfZones, Allocator.Persistent);
         allPlants = new NativeArray<Plant.PlantData>(SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() * 5, Allocator.Persistent);
         allAnimals = new NativeArray<Animal.AnimalData>(SpeciesManager.Instance.GetAllStartingAnimals() * 5, Allocator.Persistent);
-        neiboringZones = new NativeMultiHashMap<int, int>(numberOfZones * maxNeibroingZones, Allocator.Persistent);
-        plantsInZones = new NativeMultiHashMap<int, int>(numberOfPlants, Allocator.Persistent);
-        animalsInZones = new NativeMultiHashMap<int, int>(numberOfAnimals, Allocator.Persistent);
-        organismsByFoodTypeInZones = new NativeMultiHashMap<int2, DataLocation>(numberOfPlants * 3, Allocator.Persistent);
+        neiboringZones = new NativeParallelMultiHashMap<int, int>(numberOfZones * maxNeibroingZones, Allocator.Persistent);
+        plantsInZones = new NativeParallelMultiHashMap<int, int>(numberOfPlants, Allocator.Persistent);
+        animalsInZones = new NativeParallelMultiHashMap<int, int>(numberOfAnimals, Allocator.Persistent);
+        organismsByFoodTypeInZones = new NativeParallelMultiHashMap<int2, DataLocation>(numberOfPlants * 3, Allocator.Persistent);
     }
 
     JobHandle FindDistanceNeiboringZones(double distance, int maxNeibroingZones, NativeArray<float> maxZoneSize) {

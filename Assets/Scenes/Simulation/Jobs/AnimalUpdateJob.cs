@@ -22,17 +22,17 @@ public struct AnimalUpdateJob : IJobParallelFor {
     [ReadOnly] NativeArray<Animal.AnimalData> allAnimals;
     [ReadOnly] NativeArray<Plant.PlantData> allPlants;
     [ReadOnly] NativeArray<ZoneController.ZoneData> zones;
-    [ReadOnly] NativeMultiHashMap<int, int> neiboringZones;
-    [ReadOnly] NativeMultiHashMap<int, int> animalsInZones;
-    [ReadOnly] NativeMultiHashMap<int, int> plantsInZones;
-    [ReadOnly] NativeMultiHashMap<int2, ZoneController.DataLocation> organismsByFoodTypeInZones;
+    [ReadOnly] NativeParallelMultiHashMap<int, int> neiboringZones;
+    [ReadOnly] NativeParallelMultiHashMap<int, int> animalsInZones;
+    [ReadOnly] NativeParallelMultiHashMap<int, int> plantsInZones;
+    [ReadOnly] NativeParallelMultiHashMap<int2, ZoneController.DataLocation> organismsByFoodTypeInZones;
 
     public static JobHandle BeginJob(NativeArray<Animal.AnimalActions> animalActions, NativeArray<int> updateAnimals,
         int animalCount, float speciesFullFood, float speciesMaxFood, float speciesSightRange, EyesOrgan.EyeTypes speciesEyeType, float speciesEatRange, float speciesSmellRange,
         int speciesFoodType, NativeArray<int> eddibleFoodTypes, NativeArray<int> predatorFoodTypes,
         NativeArray<Animal.AnimalData> allAnimals, NativeArray<Plant.PlantData> allPlants,
-        NativeArray<ZoneController.ZoneData> zones, NativeMultiHashMap<int, int> neiboringZones, NativeMultiHashMap<int, int> animalsInZones,
-        NativeMultiHashMap<int, int> plantsInZones, NativeMultiHashMap<int2, ZoneController.DataLocation> organismsByFoodTypeInZones) {
+        NativeArray<ZoneController.ZoneData> zones, NativeParallelMultiHashMap<int, int> neiboringZones, NativeParallelMultiHashMap<int, int> animalsInZones,
+        NativeParallelMultiHashMap<int, int> plantsInZones, NativeParallelMultiHashMap<int2, ZoneController.DataLocation> organismsByFoodTypeInZones) {
         AnimalUpdateJob job = new AnimalUpdateJob() {
             animalActions = animalActions, updateAnimals = updateAnimals, speciesFullFood = speciesFullFood, speciesMaxFood = speciesMaxFood,
             speciesSightRange = speciesSightRange, speciesEyeType = speciesEyeType, speciesEatRange = speciesEatRange, speciesSmellRange = speciesSmellRange,

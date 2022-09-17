@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using UnityEngine;
 public struct ZoneSetupJobByDistance : IJobParallelFor {
     [ReadOnly] NativeArray<ZoneController.ZoneData> zones;
-    NativeMultiHashMap<int, int>.ParallelWriter neiboringZones;
+    NativeParallelMultiHashMap<int, int>.ParallelWriter neiboringZones;
     NativeArray<float> maxZoneSize;
     int maxNeiboringZones;
     double distance;
 
-    public static JobHandle BeginJob(NativeArray<ZoneController.ZoneData> zones, NativeMultiHashMap<int, int>.ParallelWriter neiboringZones, 
+    public static JobHandle BeginJob(NativeArray<ZoneController.ZoneData> zones, NativeParallelMultiHashMap<int, int>.ParallelWriter neiboringZones, 
         int maxNeiboringZones, double distance, NativeArray<float> maxZoneSize) {
         ZoneSetupJobByDistance job = new ZoneSetupJobByDistance() { zones = zones, neiboringZones = neiboringZones, maxNeiboringZones = maxNeiboringZones, 
             distance = distance, maxZoneSize = maxZoneSize };

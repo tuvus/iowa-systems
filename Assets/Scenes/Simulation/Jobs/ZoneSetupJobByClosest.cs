@@ -6,11 +6,11 @@ using UnityEngine;
 
 public struct ZoneSetupJobByClosest : IJobParallelFor {
     [ReadOnly] NativeArray<ZoneController.ZoneData> zones;
-    NativeMultiHashMap<int, int>.ParallelWriter neiboringZones;
+    NativeParallelMultiHashMap<int, int>.ParallelWriter neiboringZones;
     NativeArray<float> maxZoneSize;
     int maxNeiboringZones;
 
-    public static JobHandle BeginJob(NativeArray<ZoneController.ZoneData> zones, NativeMultiHashMap<int, int>.ParallelWriter neiboringZones,
+    public static JobHandle BeginJob(NativeArray<ZoneController.ZoneData> zones, NativeParallelMultiHashMap<int, int>.ParallelWriter neiboringZones,
         int maxNeiboringZones, NativeArray<float> maxZoneSize) {
         ZoneSetupJobByClosest job = new ZoneSetupJobByClosest() { zones = zones, neiboringZones = neiboringZones,
             maxNeiboringZones = maxNeiboringZones, maxZoneSize = maxZoneSize };

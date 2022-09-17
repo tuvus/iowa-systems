@@ -10,8 +10,8 @@ public struct PlantUpdateJob : IJobParallelFor {
 
     [ReadOnly] NativeArray<Plant.PlantData> allPlants;
     [ReadOnly] NativeArray<ZoneController.ZoneData> zones;
-    [ReadOnly] NativeMultiHashMap<int, int> neiboringZones;
-    [ReadOnly] NativeMultiHashMap<int, int> plantsInZones;
+    [ReadOnly] NativeParallelMultiHashMap<int, int> neiboringZones;
+    [ReadOnly] NativeParallelMultiHashMap<int, int> plantsInZones;
 
     [ReadOnly] Earth.EarthState earthState;
     [ReadOnly] NativeArray<PlantSpecies.GrowthStageData> growthStages;
@@ -20,7 +20,7 @@ public struct PlantUpdateJob : IJobParallelFor {
 
     public static JobHandle BeginJob(NativeArray<float2> plantReasourceGain, NativeArray<Plant.GrowthStage> plantGrowthStage, 
         NativeArray<int> plants, int plantCount, NativeArray<Plant.PlantData> allPlants , NativeArray<ZoneController.ZoneData> zones, 
-        NativeMultiHashMap<int, int> neiboringZones, NativeMultiHashMap<int, int> plantsInZones, Earth.EarthState earthState, 
+        NativeParallelMultiHashMap<int, int> neiboringZones, NativeParallelMultiHashMap<int, int> plantsInZones, Earth.EarthState earthState, 
         NativeArray<PlantSpecies.GrowthStageData> growthStages, PlantSpeciesSeeds.SeedGerminationRequirement seedGerminationRequirement) {
         PlantUpdateJob job = new PlantUpdateJob { plantReasourceGain = plantReasourceGain, plantGrowthStage = plantGrowthStage, 
             updatePlants = plants, allPlants = allPlants, zones = zones, neiboringZones = neiboringZones, plantsInZones = plantsInZones, earthState = earthState, 
