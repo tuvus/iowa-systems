@@ -6,7 +6,7 @@ The simulation is not very accurate yet.
 Go to "Simulating Iowa's Prairies" below to see what problems the simulation has.
 
 #### Opening the Simulation
-To run the IowaSystemsWindows version run Systems.exe.
+To run the IowaSystemsWindows version, download the files from GitHub and run Systems.exe.
 
 To run the IowaSystemsWebGL version on a browser go to https://tuvus.github.io/iowa-systems-demo/.
 
@@ -137,8 +137,8 @@ Instead of a top-down process: aligning the organism's variables so that it matc
 
 ---
 General problems with the accuracy of the simulation:
-Grass will scale infinitely.
-Foxes move too quickly and over hunt rabbits and then die off.
+Grass will scale infinitely and doesen't compete with itself.
+Rabbits have explosions of population and eat all the grass then starve off.
 Foxes and rabbits always move at a running speed instead of a normal walking speed.
 Plants die off completely when fully eaten when in reality they would have a chance to grow back with thier stored resources.
 
@@ -147,9 +147,10 @@ Plants die off completely when fully eaten when in reality they would have a cha
 #### Time scale
 Each update of the simulation equals one hour.
 Decreasing the simulation speed will in the simulation settings panel (in theory) result in a more accurate simulation but uses more processing power per unit of time.
+Decreasing the simulation speed doesen't change the displayed time scale yet but will change the speed at which the simulation is played.
 
 #### Zones
-The earth is split up somewhat evenly into zones, by default this is 20. 
+The earth is split up somewhat evenly into zones, by default this is 20.
 Plants will only check in thier zone and neighboring zones for resource competition. (not implemented yet)
 In the future each zone will have its own temperature, water and sunlight.
 
@@ -180,11 +181,10 @@ Seeds are dispersed relative to their parents using random values and a dispersa
 ---
 Growth and SunRotationEffect:
 
-With SunRotationEffect turned on, plants on the close side of the earth will grow at a rate of 1, and plants halfway between the closest and farthest part on earth will get no growth.
-
-Note: Plants at the poles will always be at a disadvantage if SunRotationEffect is on.
-
+With SunRotationEffect turned on, plants on the close side of the earth will grow at a rate of 1, and plants on the poles will get little.
 Without SunRotationEffect turned on all plants will grow at a rate of .5 equally.
+
+Note: The sun visual will rotate whether the effect is on or off.
 
 Plants currently have 7 stages: 
  * Dead, the plant object is not currently in use
@@ -223,6 +223,7 @@ Here is a list of behaviors that the animals can display in the order of their p
 * Check if the animal is hungry, if so explore. If not and the animal has a mate and is ready to reproduce, move to the mate. Otherwise sit still.
 
 Note: Wait time in animals is no longer implemented except for eating but may be readded in the future.
+This will increace the accuracy of the simulation at lower timeScale values.
 
 An animal that tries to eat an organism or find a mate but was beaten by another animal in the same frame the animal will explore or sit still instead.
 
@@ -230,7 +231,7 @@ An animal that tries to eat an organism or find a mate but was beaten by another
 
 Hunting:
 
-Animals that bite other animals do not instantly kill them. 
+Animals that bite other animals do not instantly kill them.
 The movement speed of the animal being bitten is reduced after each bite.
 This makes it so that after the first bite the animal is much easier to catch and will surely get bitten again.
 How many bites it takes to kill an animal depends on the prey's health and the predator's bite size.
@@ -243,7 +244,7 @@ Reproduction:
 
 Animals are given a sex at birth and can only mate with the opposite sex.
 Animals must be above a certain age to be capable of reproducing.
-After an animal is conceived  it has to survive until it is ready to give birth.
+After an animal is conceived it has to survive until it is ready to give birth.
 How many offspring are created depend on the birth amount and the birth success percent for each offspring.
 
 Note: Currently there is no parenting behavior. 
@@ -275,11 +276,10 @@ Bunnies have a better sense of smell then foxes.
 ---
 
 ## Authors
-<hr>
 
 [tuvus](https://github.com/tuvus/) - 
     **Oskar Niesen** <<oskar-github@niesens.com>> (he/him)
 
 ## License
-<hr>
+
 The Iowa Systems project is licensed under [GNU GPL v3](https://github.com/tuvus/iowa-systems/blob/master/LICENSE.md).
