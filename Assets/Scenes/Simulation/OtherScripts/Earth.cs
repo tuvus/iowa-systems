@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
+using UnityEngine.Profiling;
 
 public class Earth : MonoBehaviour {
     enum SimulationUpdateStatus {
@@ -108,14 +109,18 @@ public class Earth : MonoBehaviour {
     /// </summary>
     void UpdateSimualtionWithDelay() {
         if (simulationUpdateStatus == SimulationUpdateStatus.SettingUp) {
+            Profiler.BeginSample("Setup");
             StartFindZoneJobs();
             UpdateWorldTime();
             UpdateHumidity();
             Simulation.Instance.GetSun().UpdateSun();
             UpdateEarthState();
             CompleteFindZoneJobs();
+            Profiler.EndSample();
             UpdateOrganismData();
+            Profiler.BeginSample("JobsSetup");
             StartOrganismJobs();
+            Profiler.EndSample();
             simulationUpdateStatus = SimulationUpdateStatus.Calculating;
             if (!frameManager.IsInIterationTimePeriod())
                 return;
@@ -129,15 +134,21 @@ public class Earth : MonoBehaviour {
                 return;
         }
         if (simulationUpdateStatus == SimulationUpdateStatus.Updating) {
+            Profiler.BeginSample("UpdateBehaviour");
             UpdateOrganismsBehavior();
+            Profiler.EndSample();
+            Profiler.BeginSample("Update");
             UpdateOrganisms();
+            Profiler.EndSample();
             simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
             if (!frameManager.IsInIterationTimePeriod())
                 return;
         }
         if (simulationUpdateStatus == SimulationUpdateStatus.CleaningUp) {
+            Profiler.BeginSample("CleaningUp");
             UpdateOrganismLists();
             OnEndFrame?.Invoke(this, new EventArgs { });
+            Profiler.EndSample();
             simulationUpdateStatus = SimulationUpdateStatus.SettingUp;
         }
     }
@@ -146,23 +157,33 @@ public class Earth : MonoBehaviour {
     /// Updates the simulation without any delay.
     /// </summary>
     void UpdateSimulationWithoutDelay() {
+        Profiler.BeginSample("Setup");
         StartFindZoneJobs();
         UpdateWorldTime();
         UpdateHumidity();
         Simulation.Instance.GetSun().UpdateSun();
         UpdateEarthState();
         CompleteFindZoneJobs();
+        Profiler.EndSample();
         UpdateOrganismData();
+        Profiler.BeginSample("Jobs");
         StartOrganismJobs();
         simulationUpdateStatus = SimulationUpdateStatus.Calculating;
         CompleteJobs();
+        Profiler.EndSample();
+        Profiler.BeginSample("UpdateBehaviour");
         simulationUpdateStatus = SimulationUpdateStatus.Updating;
         UpdateOrganismsBehavior();
+        Profiler.EndSample();
+        Profiler.BeginSample("Update");
         UpdateOrganisms();
+        Profiler.EndSample();
+        Profiler.BeginSample("CleaningUp");
         simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
         UpdateOrganismLists();
         OnEndFrame?.Invoke(this, new EventArgs { });
         UpdateSpeciesMotorGraphData();
+        Profiler.EndSample();
         simulationUpdateStatus = SimulationUpdateStatus.SettingUp;
     }
 
@@ -244,7 +265,9 @@ public class Earth : MonoBehaviour {
     void UpdateOrganisms() {
         List<Species> allSpecies = GetAllSpecies();
         for (int i = 0; i < allSpecies.Count; i++) {
+            Profiler.BeginSample("Update" + allSpecies[i].speciesName);
             allSpecies[i].UpdateOrganisms();
+            Profiler.EndSample();
         }
     }
 
