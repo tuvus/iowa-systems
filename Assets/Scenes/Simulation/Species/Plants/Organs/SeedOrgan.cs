@@ -10,7 +10,7 @@ public class SeedOrgan : PlantOrgan {
 	public float timeUntillDispersion;
 
 	public override void SpawnOrganismAdult() {
-		if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == Plant.GrowthStage.Adult) {
+		if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == PlantSpecies.GrowthStage.Adult) {
 			if (Simulation.randomGenerator.NextUInt(0, 10) < 4) {
 				awnsGrowth = Simulation.randomGenerator.NextFloat(0, GetPlantSpeciesSeeds().awnMaxGrowth);
 			} else {
@@ -21,7 +21,7 @@ public class SeedOrgan : PlantOrgan {
 	}
 
 	public override void OnPlantAddToZone(int zone, ZoneController.DataLocation dataLocation) {
-		if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == Plant.GrowthStage.Seed)
+		if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == PlantSpecies.GrowthStage.Seed)
 			Spawn();
     }
 
@@ -54,7 +54,7 @@ public class SeedOrgan : PlantOrgan {
 	}
 
 	public override float GetGrowth(float deltaTime) {
-		if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == Plant.GrowthStage.Germinating || GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == Plant.GrowthStage.Sprout) {
+		if (GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == PlantSpecies.GrowthStage.Germinating || GetPlant().GetEarthScript().GetZoneController().allPlants[GetPlant().plantDataIndex].growthStage == PlantSpecies.GrowthStage.Sprout) {
 			return deltaTime * GetPlantSpeciesSeeds().seedEnergyAmount;
 		}
 		return base.GetGrowth(deltaTime);

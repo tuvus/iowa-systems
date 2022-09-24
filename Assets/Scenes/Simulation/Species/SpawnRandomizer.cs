@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class SpawnRandomizer {
 
-	public static void SpawnRandom (OrganismMotor organismMotor) {
+	public static void SpawnRandom (Species.Organism organismData) {
 		organismMotor.RotateFromCenter(new Vector3(GetRandomNumber(),GetRandomNumber(),GetRandomNumber()));
 		organismMotor.SetModelRotation(GetRandomNumber());
 	}

@@ -56,7 +56,7 @@ public abstract class PlantOrgan : Organ {
     /// Returns a value from 0 to 1 depending on how much growth should be spend in this organ.
     /// </summary>
     /// <returns>float</returns>
-    public float GetGrowthPriority(Plant.GrowthStage stage) {
+    public float GetGrowthPriority(PlantSpecies.GrowthStage stage) {
         return GetPlantSpeciesOrgan().growthPriorities[(int)stage];
     }
 

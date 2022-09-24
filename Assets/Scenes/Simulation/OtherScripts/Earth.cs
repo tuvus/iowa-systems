@@ -332,6 +332,10 @@ public class Earth : MonoBehaviour {
     #endregion
 
     #region GetMethods
+    public Species GetSpecies(int index) {
+        return SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[index];
+
+    }
     public List<Species> GetAllSpecies() {
         return SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
     }

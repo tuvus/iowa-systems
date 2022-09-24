@@ -18,32 +18,20 @@ public class Animal : Organism {
     [SerializeField] internal Animal animalParent;
 
     public struct AnimalData {
-        public float age;
-        public int speciesIndex;
-        public int specificSpeciesIndex;
-        public int animalIndex;
-        public int zone;
-        public float3 position;
+        public int activeAnimalIndex;
+        public float3 rotation;
         public float3x2 animalEyePosition;
         public float3 animalMouthPosition;
         public float animalFood;
-        public bool animalSex;
-        public bool animalReproductionReady;
         public GrowthStage stage;
 
-        public AnimalData(Animal animal) {
-            age = animal.age;
-            speciesIndex = animal.species.speciesIndex;
-            specificSpeciesIndex = animal.species.specificSpeciesIndex;
-            animalIndex = animal.specificOrganismIndex;
-            position = animal.position;
-            zone = animal.zone;
-            animalEyePosition = GetAnimalEyePositions(animal, animal.GetEyes());
-            animalMouthPosition = GetMouthPosition(animal, animal.GetMouth());
-            animalFood = animal.food;
-            animalSex = animal.GetReproductive().GetSex();
-            animalReproductionReady = ReadyToReproduce(animal);
-            stage = animal.stage;
+        public AnimalData(int activeAnimalIndex) {
+            this.activeAnimalIndex = activeAnimalIndex;
+            rotation = float3.zero;
+            animalEyePosition = float3x2.zero;
+            animalMouthPosition = float3.zero;
+            animalFood = 0;
+            stage = GrowthStage.Adult;
         }
 
         public static float3x2 GetAnimalEyePositions(Animal animal, EyesOrgan eyes) {

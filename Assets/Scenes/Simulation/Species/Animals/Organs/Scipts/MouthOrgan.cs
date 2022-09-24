@@ -24,7 +24,7 @@ public class MouthOrgan : AnimalOrgan {
     }
 
 	public float GetEatTime() {
-		return GetSpeciesMouth().eatTime;
+		return GetSpeciesMouth().eatSpeed;
 	}
 
 	public float GetBiteSize() {

@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 public class AnimalSpeciesNose : AnimalSpeciesOrgan {
-	public GameObject nose;
+    public GameObject nose;
 
-	public float smellRange;
+    [Tooltip("How far away the animal can smell in meters")]
+    public float smellRange;
 
-	public override void MakeOrganism(Animal animal) {
-		NoseOrgan noseScipt = GetAnimalSpecies().InstantiateNewOrgan(nose, animal).GetComponent<NoseOrgan>();
-		noseScipt.SetupOrgan(this, animal);
-	}
+    public override void SetupSpeciesOrganArrays(int arraySize) {
+        //No aditional data needs to be stored here, it is currently being stored in the Plant struct
+    }
 }

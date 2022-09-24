@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 
 public abstract class PlantSpeciesOrgan : SpeciesOrgan {
@@ -11,9 +12,7 @@ public abstract class PlantSpeciesOrgan : SpeciesOrgan {
 
     public NativeArray<float> growthPriorities;
 
-    public abstract void MakeOrganism(Plant plant);
-
-    public abstract float GetGrowthRequirementForStage(Plant.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues);
+    public abstract float GetGrowthRequirementForStage(PlantSpecies.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues);
 
     public void SetupSpeciesOrganFoodType() {
         organFoodIndex = GetPlantSpecies().GetEarth().GetIndexOfFoodType(GetOrganType());
@@ -22,6 +21,8 @@ public abstract class PlantSpeciesOrgan : SpeciesOrgan {
     public virtual string GetOrganType() {
         return null;
     }
+
+    public abstract void GrowOrgan(float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth);
 
     public int GetOrganFoodIndex() {
         return organFoodIndex;

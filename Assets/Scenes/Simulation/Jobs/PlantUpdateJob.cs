@@ -5,7 +5,7 @@ using UnityEngine;
 
 public struct PlantUpdateJob : IJobParallelFor {
     [WriteOnly] NativeArray<float2> plantReasourceGain;
-    [WriteOnly] NativeArray<Plant.GrowthStage> plantGrowthStage;
+    [WriteOnly] NativeArray<PlantSpecies.GrowthStage> plantGrowthStage;
     [ReadOnly] NativeArray<int> updatePlants;
 
     [ReadOnly] NativeArray<Plant.PlantData> allPlants;
@@ -18,7 +18,7 @@ public struct PlantUpdateJob : IJobParallelFor {
     [ReadOnly] PlantSpeciesSeeds.SeedGerminationRequirement seedGerminationRequirement;
 
 
-    public static JobHandle BeginJob(NativeArray<float2> plantReasourceGain, NativeArray<Plant.GrowthStage> plantGrowthStage, 
+    public static JobHandle BeginJob(NativeArray<float2> plantReasourceGain, NativeArray<PlantSpecies.GrowthStage> plantGrowthStage, 
         NativeArray<int> plants, int plantCount, NativeArray<Plant.PlantData> allPlants , NativeArray<ZoneController.ZoneData> zones, 
         NativeParallelMultiHashMap<int, int> neiboringZones, NativeParallelMultiHashMap<int, int> plantsInZones, Earth.EarthState earthState, 
         NativeArray<PlantSpecies.GrowthStageData> growthStages, PlantSpeciesSeeds.SeedGerminationRequirement seedGerminationRequirement) {
@@ -30,14 +30,14 @@ public struct PlantUpdateJob : IJobParallelFor {
 
     public void Execute(int plantIndex) {
         Plant.PlantData plant = allPlants[updatePlants[plantIndex]];
-        if (plant.growthStage == Plant.GrowthStage.Dead) {
+        if (plant.growthStage == PlantSpecies.GrowthStage.Dead) {
             return;
         }
         if (plant.zone == -1) {
             Debug.LogError("The zone of this plant should not be " + plant.zone + ". Curent growth stage is " + plant.growthStage);
             return;
         }
-        if (plant.growthStage == Plant.GrowthStage.Seed) {
+        if (plant.growthStage == PlantSpecies.GrowthStage.Seed) {
             plantGrowthStage[plantIndex] = GetSeedGerminationResults(plant);
             return;
         }
@@ -45,66 +45,15 @@ public struct PlantUpdateJob : IJobParallelFor {
         plantGrowthStage[plantIndex] = GetGrowthStage(plant);
     }
 
-    Plant.GrowthStage GetSeedGerminationResults(Plant.PlantData plant) {
+    PlantSpecies.GrowthStage GetSeedGerminationResults(Plant.PlantData plant) {
         if (plant.age > seedGerminationRequirement.timeMaximum)
-            return Plant.GrowthStage.Dead;
+            return PlantSpecies.GrowthStage.Dead;
         if (plant.age > seedGerminationRequirement.timeRequirement && earthState.humidity > seedGerminationRequirement.humidityRequirement && earthState.temperature > seedGerminationRequirement.tempetureRequirement)
-            return Plant.GrowthStage.Germinating;
-        return Plant.GrowthStage.Seed;
+            return PlantSpecies.GrowthStage.Germinating;
+        return PlantSpecies.GrowthStage.Seed;
     }
 
-    float GetSunGain(Plant.PlantData plant) {
-        return plant.bladeArea * GetSunValue(plant.position);
-    }
 
-    public float GetSunValue(float3 position) {
-        if (Simulation.Instance.sunRotationEffect) {
-            float objectDistanceFromSun = Vector3.Distance(position, earthState.sunPostion);
-            float sunDistanceFromEarth = Vector3.Distance(new float3(0, 0, 0), earthState.sunPostion);
-            float sunValue = (objectDistanceFromSun - sunDistanceFromEarth) / earthState.earthRadius * 2;
-            return Mathf.Max(sunValue,0);
-        } else {
-            return 0.5f;
-        }
-    }
-
-    float GetWaterGain(Plant.PlantData plant) {
-        float rootArea = (math.PI * plant.rootGrowth.x * plant.rootGrowth.y) + (math.pow(plant.rootGrowth.x / 2, 2) * 2);
-        float overLapingRootArea = 0f;
-        if (plantsInZones.TryGetFirstValue(plant.zone, out int targetPlant, out var iterator)) {
-            do {
-                    Debug.Log(1);
-                float distance = GetDistanceToPlant(plant, allPlants[targetPlant]);
-                float rootDistance = GetRootSize(plant) + GetRootSize(allPlants[targetPlant]);
-                if (distance < rootDistance) {
-                    float reletiveDepth = (plant.rootGrowth.y - allPlants[targetPlant].rootGrowth.y) / plant.rootGrowth.y;
-                    float reletiveDistance = rootDistance - distance;
-                    overLapingRootArea += (reletiveDistance / 2) / (1 + reletiveDepth);
-                }
-            } while (plantsInZones.TryGetNextValue(out targetPlant, ref iterator));
-        }
-        int zoneNumber;
-        if (neiboringZones.TryGetFirstValue(plant.zone, out zoneNumber, out var iterator2)) {
-            do {
-                if (plantsInZones.TryGetFirstValue(zoneNumber, out targetPlant, out var iterator3)) {
-                            Debug.Log(2);
-                    do {
-                        float distance = GetDistanceToPlant(plant, allPlants[targetPlant]);
-                        float rootDistance = GetRootSize(plant) + GetRootSize(allPlants[targetPlant]);
-                        if (distance < rootDistance) {
-                            float reletiveDepth = (plant.rootGrowth.y - allPlants[targetPlant].rootGrowth.y) / plant.rootGrowth.y;
-                            float reletiveDistance = rootDistance - distance;
-                            overLapingRootArea += (reletiveDistance / 2) / (1 + reletiveDepth);
-                        }
-                    } while (plantsInZones.TryGetNextValue(out targetPlant, ref iterator3));
-                }
-            } while (neiboringZones.TryGetNextValue(out zoneNumber, ref iterator2));
-        }
-
-        rootArea = rootArea - (overLapingRootArea / 2);
-        float rootUnderWaterPercent = 1 - (zones[plant.zone].waterDepth / plant.rootGrowth.y);
-        return Mathf.Max(rootUnderWaterPercent * rootArea * plant.rootDensity * .01f,0);
-    }
 
     float GetDistanceToPlant(Plant.PlantData from, Plant.PlantData to) {
         return math.distance(from.position, to.position);
@@ -114,7 +63,7 @@ public struct PlantUpdateJob : IJobParallelFor {
         return plant.rootGrowth.x;
     }
 
-    Plant.GrowthStage GetGrowthStage(Plant.PlantData plant) {
+    PlantSpecies.GrowthStage GetGrowthStage(Plant.PlantData plant) {
         int stageIndex = (int)plant.growthStage;
         if (stageIndex == growthStages.Length - 1)
             return plant.growthStage;

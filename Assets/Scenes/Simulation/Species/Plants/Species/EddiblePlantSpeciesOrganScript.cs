@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class EddiblePlantSpeciesOrganScript : PlantSpeciesOrgan {
+public abstract class EddiblePlantSpeciesOrgan : PlantSpeciesOrgan {
     
     internal void MakeEddibleOrganism(EddiblePlantOrgan eddiblePlantOrgan, Plant plant) {
         plant.eddibleOrgans.Add(eddiblePlantOrgan);

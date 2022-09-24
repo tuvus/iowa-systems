@@ -5,15 +5,6 @@ using Unity.Mathematics;
 using System;
 
 public class Plant : Organism {
-    public enum GrowthStage {
-        Dead = -1,
-        Seed = 0,
-        Germinating = 1,
-        Sprout = 2,
-        Seedling = 3,
-        Youngling = 4,
-        Adult = 5,
-    }
     public PlantSpecies plantSpecies;
     Plant plantParent;
 
@@ -22,7 +13,7 @@ public class Plant : Organism {
 
     public List<PlantOrgan> organs;
     public List<EddiblePlantOrgan> eddibleOrgans;
-    public GrowthStage plantStage;
+    public PlantSpecies.GrowthStage plantStage;
 
     public struct PlantData {
         [Tooltip("The age of the plant in days")]
@@ -36,12 +27,11 @@ public class Plant : Organism {
         public float stemHeight;
         public float2 rootGrowth;
         public float rootDensity;
-        public GrowthStage growthStage;
+        public PlantSpecies.GrowthStage growthStage;
 
-        public PlantData(Plant plant, float bladeArea, float stemHeight, float2 rootGrowth, GrowthStage stage) {
+        public PlantData(Plant plant, float bladeArea, float stemHeight, float2 rootGrowth, PlantSpecies.GrowthStage stage) {
             age = plant.age;
             speciesIndex = plant.species.speciesIndex;
-            specificSpeciesIndex = plant.species.specificSpeciesIndex;
             plantIndex = plant.specificOrganismIndex;
             zone = plant.zone;
             position = plant.position;
@@ -51,7 +41,7 @@ public class Plant : Organism {
             rootDensity = .1f;
             this.growthStage = stage;
         }
-        public PlantData(PlantData plantData, float bladeArea, float stemHeight, float2 rootGrowth, GrowthStage stage) {
+        public PlantData(PlantData plantData, float bladeArea, float stemHeight, float2 rootGrowth, PlantSpecies.GrowthStage stage) {
             age = plantData.age;
             speciesIndex = plantData.speciesIndex;
             specificSpeciesIndex = plantData.specificSpeciesIndex;
@@ -65,7 +55,7 @@ public class Plant : Organism {
             this.growthStage = stage;
         }
 
-        public PlantData(PlantData plantData, float age, float bladeArea, float stemHeight, float2 rootGrowth, GrowthStage stage) {
+        public PlantData(PlantData plantData, float age, float bladeArea, float stemHeight, float2 rootGrowth, PlantSpecies.GrowthStage stage) {
             this.age = age;
             speciesIndex = plantData.speciesIndex;
             specificSpeciesIndex = plantData.specificSpeciesIndex;
@@ -87,10 +77,10 @@ public class Plant : Organism {
         this.plantSpecies = plantSpecies;
         position = transform.position;
         gameObject.name = plantSpecies + "Organism";
-        GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(this, 0, 0, new float2(0, 0), GrowthStage.Dead);
+        GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(this, 0, 0, new float2(0, 0), PlantSpecies.GrowthStage.Dead);
     }
 
-    public void SpawnPlantRandom(GrowthStage stage) {
+    public void SpawnPlantRandom(PlantSpecies.GrowthStage stage) {
         SetPlantToStage(stage);
         //age = plantSpecies.GetGrowthStageData(stage).daysAfterGermination * 24;
         CheckRendering();
@@ -100,12 +90,12 @@ public class Plant : Organism {
     }
 
     public void SpawnSeedRandom(float age) {
-        SetPlantToStage(GrowthStage.Seed);
+        SetPlantToStage(PlantSpecies.GrowthStage.Seed);
         this.age = age;
     }
 
     public void SpawnSeed() {
-        SetPlantToStage(GrowthStage.Seed);
+        SetPlantToStage(PlantSpecies.GrowthStage.Seed);
         age = 0;
     }
     #endregion
@@ -114,16 +104,16 @@ public class Plant : Organism {
     public override void RefreshOrganism() {
     }
 
-    public void UpdateOrganismBehavior(float sunGain, float waterGain, GrowthStage stage) {
+    public void UpdateOrganismBehavior(float sunGain, float waterGain, PlantSpecies.GrowthStage stage) {
         plantStage = stage;
         if (!spawned)
             return;
-        if (GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage == GrowthStage.Seed) {
-            if (stage == GrowthStage.Dead) {
+        if (GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage == PlantSpecies.GrowthStage.Seed) {
+            if (stage == PlantSpecies.GrowthStage.Dead) {
                 KillOrganism();
                 return;
             }
-            if (stage == GrowthStage.Germinating) {
+            if (stage == PlantSpecies.GrowthStage.Germinating) {
                 SeedGerminated();
                 age = 0;
                 return;
@@ -185,14 +175,14 @@ public class Plant : Organism {
 
     void SeedGerminated() {
         GetMeshRenderer().enabled = User.Instance.GetRenderWorldUserPref();
-        SetPlantToStage(GrowthStage.Germinating);
+        SetPlantToStage(PlantSpecies.GrowthStage.Germinating);
         for (int i = 0; i < organs.Count; i++) {
             organs[i].OnOrganismGermination();
         }
     }
 
     public override void KillOrganism() {
-        if (GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage == GrowthStage.Seed)
+        if (GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage == PlantSpecies.GrowthStage.Seed)
             plantSpecies.GetSpeciesSeeds().SeedDeath();
         else
             species.OrganismDeath();
@@ -208,7 +198,7 @@ public class Plant : Organism {
     }
 
     public void ResetPlant() {
-        GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(GetEarthScript().GetZoneController().allPlants[plantDataIndex], 0, 0, new float2(0, 0), GrowthStage.Dead);
+        GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(GetEarthScript().GetZoneController().allPlants[plantDataIndex], 0, 0, new float2(0, 0), PlantSpecies.GrowthStage.Dead);
         //print(GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage + " " + GetEarthScript().GetZoneController().allPlants[plantDataIndex].position + " " + GetEarthScript().GetZoneController().allPlants[plantDataIndex].zone + " " + GetEarthScript().GetZoneController().allPlants[plantDataIndex].age);
         zone = -1;
         age = 0;
@@ -219,7 +209,7 @@ public class Plant : Organism {
     }
 
     public void CheckRendering() {
-        if ((int)GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage > (int)GrowthStage.Germinating)
+        if ((int)GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage > (int)PlantSpecies.GrowthStage.Germinating)
             GetMeshRenderer().enabled = User.Instance.GetRenderWorldUserPref();
     }
 
@@ -235,11 +225,11 @@ public class Plant : Organism {
         GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(GetEarthScript().GetZoneController().allPlants[plantDataIndex], GetEarthScript().GetZoneController().allPlants[plantDataIndex].bladeArea, GetEarthScript().GetZoneController().allPlants[plantDataIndex].stemHeight, rootGrowth, GetEarthScript().GetZoneController().allPlants[plantDataIndex].growthStage);
     }
 
-    public void ChangeGrowthStage(GrowthStage stage) {
+    public void ChangeGrowthStage(PlantSpecies.GrowthStage stage) {
         GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(GetEarthScript().GetZoneController().allPlants[plantDataIndex], GetEarthScript().GetZoneController().allPlants[plantDataIndex].bladeArea, GetEarthScript().GetZoneController().allPlants[plantDataIndex].stemHeight, GetEarthScript().GetZoneController().allPlants[plantDataIndex].rootGrowth, stage);
     }
 
-    public void SetPlantToStage(GrowthStage stage) {
+    public void SetPlantToStage(PlantSpecies.GrowthStage stage) {
         age = plantSpecies.GetGrowthStageData(stage).daysAfterGermination * 24;
         GetEarthScript().GetZoneController().allPlants[plantDataIndex] = new PlantData(GetEarthScript().GetZoneController().allPlants[plantDataIndex], age, plantSpecies.GetGrowthStageData(stage).bladeArea, plantSpecies.GetGrowthStageData(stage).stemHeight, plantSpecies.GetGrowthStageData(stage).rootGrowth, stage);
     }

@@ -10,21 +10,18 @@ public class FindZoneController : JobController {
     private int findZoneCount;
 
     public struct FindZoneData {
-        public ZoneController.DataLocation dataLocation;
-        public float3 position;
+        public int2 organismLocation;
         public float range;
         public int zone;
 
-        public FindZoneData(ZoneController.DataLocation dataLocation, int zone, float3 position, float range) {
-            this.dataLocation = dataLocation;
-            this.position = position;
+        public FindZoneData(int2 organismLocation, int zone, float range) {
+            this.organismLocation = organismLocation;
             this.range = range;
             this.zone = zone;
         }
 
         public FindZoneData(FindZoneData oldData, int zone) {
-            this.dataLocation = oldData.dataLocation;
-            this.position = oldData.position;
+            this.organismLocation = oldData.organismLocation;
             this.range = oldData.range;
             this.zone = zone;
         }
@@ -39,7 +36,7 @@ public class FindZoneController : JobController {
         for (int i = 0; i < findZoneCount; i++) {
             if (findZones[i].zone == -1)
                 Debug.LogError("error");
-            GetEarth().GetZoneController().GetOrganismFromDataLocation(findZones[i].dataLocation).SetOrganismZone(findZones[i].zone);
+            GetEarth().GetAllSpecies()[findZones[i].organismLocation.x].organisms[findZones[i].organismLocation.y] = new Species.Organism(GetEarth().GetAllSpecies()[findZones[i].organismLocation.x].organisms[findZones[i].organismLocation.y], findZones[i].zone);
         }
         findZoneCount = 0;
     }

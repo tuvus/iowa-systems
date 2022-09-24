@@ -6,7 +6,7 @@ using Unity.Mathematics;
 
 public class PlantJobController : JobController {
     public NativeArray<float2> plantReasourceGain;
-    public NativeArray<Plant.GrowthStage> plantGrowthStage;
+    public NativeArray<PlantSpecies.GrowthStage> plantGrowthStage;
     NativeArray<int> updatePlants;
     
 
@@ -36,12 +36,12 @@ public class PlantJobController : JobController {
         plantReasourceGain = new NativeArray<float2>(length, Allocator.Persistent);
 
         plantGrowthStage.Dispose();
-        plantGrowthStage = new NativeArray<Plant.GrowthStage>(length, Allocator.Persistent);
+        plantGrowthStage = new NativeArray<PlantSpecies.GrowthStage>(length, Allocator.Persistent);
     }
 
     public override void Allocate() {
         plantReasourceGain = new NativeArray<float2>(500, Allocator.Persistent);
-        plantGrowthStage = new NativeArray<Plant.GrowthStage>(500, Allocator.Persistent);
+        plantGrowthStage = new NativeArray<PlantSpecies.GrowthStage>(500, Allocator.Persistent);
         updatePlants = new NativeArray<int>(500, Allocator.Persistent);
     }
     

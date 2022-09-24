@@ -1,17 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
-public class PlantSpeciesStem : EddiblePlantSpeciesOrganScript {
+public class PlantSpeciesStem : EddiblePlantSpeciesOrgan {
 
-    public override void MakeOrganism(Plant plant) {
-        StemOrgan stemOrgan = plant.gameObject.AddComponent<StemOrgan>();
-        stemOrgan.SetupOrgan(this, plant);
-        MakeEddibleOrganism(stemOrgan, plant);
+    public override void GrowOrgan(float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
+        stemHeight = stemHeight + (growth * growthModifier);
     }
 
-    public override float GetGrowthRequirementForStage(Plant.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {
-        if (stage == Plant.GrowthStage.Adult)
+    public override float GetGrowthRequirementForStage(PlantSpecies.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {
+        if (stage == PlantSpecies.GrowthStage.Adult)
             return 0;
         return (thisStageValues.stemHeight - previousStageValues.stemHeight) / growthModifier;
     }

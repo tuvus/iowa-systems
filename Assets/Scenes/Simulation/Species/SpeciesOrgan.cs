@@ -9,6 +9,8 @@ public abstract class SpeciesOrgan : MonoBehaviour {
         this.species = species;
     }
 
+    public virtual void SetupSpeciesOrganArrays(int arraySize) { }
+
     public Species GetSpecies() {
         return species;
     }
