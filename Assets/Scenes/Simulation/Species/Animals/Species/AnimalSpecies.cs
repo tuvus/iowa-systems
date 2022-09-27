@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
-using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEditor;
 using UnityEngine;
-using static AnimalSpecies;
-using UnityEngine.XR;
-using UnityEditor.SceneManagement;
+using Unity.Collections.LowLevel.Unsafe;
 
 public class AnimalSpecies : Species {
     public GameObject basicOrganism;
@@ -70,9 +65,9 @@ public class AnimalSpecies : Species {
         }
     }
 
-    public NativeArray<Animal> animals;
+    [NativeDisableContainerSafetyRestriction] public NativeArray<Animal> animals;
 
-    public NativeArray<Organism> deadAnimals;
+    [NativeDisableContainerSafetyRestriction] public NativeArray<Organism> deadAnimals;
     public NativeArray<int> activeDeadAnimals;
     public int activeDeadAnimalCount;
     public NativeArray<int> inactiveDeadAnimals;
@@ -90,6 +85,7 @@ public class AnimalSpecies : Species {
     }
 
     public override void SetupArrays(int arrayLength) {
+        base.SetupArrays(arrayLength);
         animals = new NativeArray<Animal>(arrayLength, Allocator.Persistent);
     }
 
@@ -110,7 +106,7 @@ public class AnimalSpecies : Species {
     public void SetupAnimalPredatorSpeciesFoodType() {
         List<int> tempPredatorFoodTypes = new List<int>();
         for (int i = 0; i < SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies().Count; i++) {
-            if (i == speciesIndex)
+            if (i == speciesIndex || SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[i].GetType() != typeof(Animal))
                 continue;
             AnimalSpecies animalSpecies = (AnimalSpecies)SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[i];
             if (animalSpecies != null && animalSpecies.eddibleFoodTypes.Contains(GetFoodIndex())) {
@@ -137,18 +133,28 @@ public class AnimalSpecies : Species {
 
     public override int SpawnOrganism() {
         int animal = base.SpawnOrganism();
+        organisms[animal] = new Organism(organisms[animal], Simulation.randomGenerator.NextFloat(reproductiveSystem.reproductionAge / 2, maxAge / 1.2f),
+            -1, Vector3.zero, 0);
+        animals[animal] = new Animal(reproductiveSystem.SpawnReproductive(animal), bodyWeight, maxHealth, Simulation.randomGenerator.NextFloat(fullFood, maxFood));
+        return animal;
+    }
+
+    public override int SpawnOrganism(float3 position, int zone, float distance) {
+        int animal = base.SpawnOrganism();
         organisms[animal] = new Organism(organisms[animal], 0, -1, Vector3.zero, 0);
         animals[animal] = new Animal();
         throw new NotImplementedException();
         return animal;
     }
 
-    public override int SpawnOrganism(float3 position, float distance) {
-        int animal = base.SpawnOrganism();
-        organisms[animal] = new Organism(organisms[animal], 0, -1, Vector3.zero, 0);
-        animals[animal] = new Animal();
-        throw new NotImplementedException();
-        return animal;
+    protected override void IncreaseOrganismSize(int newSize) {
+        base.IncreaseOrganismSize(newSize);
+        NativeArray<Animal> oldAnimals = animals;
+        animals = new NativeArray<Animal>(newSize, Allocator.Persistent);
+        for (int i = 0; i < oldAnimals.Length; i++) {
+            animals[i] = oldAnimals[i];
+        }
+        oldAnimals.Dispose();
     }
 
     public int SpawnDeadAnimal() {
@@ -181,7 +187,7 @@ public class AnimalSpecies : Species {
     /// </summary>
     /// <param name="deadAnimalIndex">The index of the dead animal</param>
     public void DeactivateActiveDeadAnimal(int deadAnimalIndex) {
-        for (int i = deadAnimals[deadAnimalIndex].activeOrganismIndex; i < activeDeadAnimalCount - 1; i++) {
+        for (int i = deadAnimals[deadAnimalIndex].maxActiveOrganismIndex; i < activeDeadAnimalCount - 1; i++) {
             activeDeadAnimals[i] = activeDeadAnimals[i + 1];
         }
         activeDeadAnimalCount--;
@@ -199,6 +205,10 @@ public class AnimalSpecies : Species {
 
     protected override void UpdateOrganism(int organism) {
         base.UpdateOrganism(organism);
+        if (organisms[organism].age > maxAge) {
+            organismActionsParallelWriter.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
+            return;
+        }
         if (animals[organism].stage != GrowthStage.Adult && organisms[organism].age > reproductiveSystem.reproductionAge)
             animals[organism] = new Animal(animals[organism], GrowthStage.Adult);
         if (animals[organism].food > 0) {
@@ -207,7 +217,7 @@ public class AnimalSpecies : Species {
             //    restingFoodReduction = .6f;
             animals[organism] = new Animal(animals[organism], math.max(maxHealth, animals[organism].health * GetEarth().simulationDeltaTime / 24), math.max(0, animals[organism].food - GetFoodConsumption() * GetEarth().simulationDeltaTime * restingFoodReduction));
         } else {
-            animals[organism] = new Animal(animals[organism], math.max(0, animals[organism].health - GetFoodConsumption() * GetEarth().simulationDeltaTime),0);
+            animals[organism] = new Animal(animals[organism], math.max(0, animals[organism].health - GetFoodConsumption() * GetEarth().simulationDeltaTime), 0);
             //if (CheckIfDead("Starvation")) {
             //    return true;
             //}
@@ -270,7 +280,7 @@ public class AnimalSpecies : Species {
 
     float GetEyeDistance(float3x2 eyePositions, float3 to) {
         throw new NotImplementedException();
-        if (GetEyeType() == EyesOrgan.EyeTypes.Foward) {
+        if (GetEyeType() == AnimalSpeciesEyes.EyeTypes.Foward) {
             return math.distance(eyePositions.c0, to);
         } else {
             return GetClosestDistanceFromTwoPositions(eyePositions, to);
@@ -310,7 +320,7 @@ public class AnimalSpecies : Species {
         return GetComponent<AnimalSpeciesEyes>().sightRange;
     }
 
-    public EyesOrgan.EyeTypes GetEyeType() {
+    public AnimalSpeciesEyes.EyeTypes GetEyeType() {
         return GetComponent<AnimalSpeciesEyes>().eyeType;
     }
 
@@ -344,12 +354,19 @@ public class AnimalSpecies : Species {
     /// <summary>
     /// Called after a simulation has ended but also after the intro scene is unloaded.
     /// </summary>
-    public void OnDestroy() {
+    public override void OnDestroy() {
+        base.OnDestroy();
         if (eddibleFoodTypes.IsCreated)
             eddibleFoodTypes.Dispose();
         if (predatorFoodTypes.IsCreated)
             predatorFoodTypes.Dispose();
         if (animals.IsCreated)
             animals.Dispose();
+        if (deadAnimals.IsCreated)
+            deadAnimals.Dispose();
+        if (activeDeadAnimals.IsCreated)
+            activeDeadAnimals.Dispose();
+        if (inactiveDeadAnimals.IsCreated)
+            inactiveDeadAnimals.Dispose();
     }
 }

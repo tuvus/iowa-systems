@@ -51,7 +51,7 @@ public class FindZoneController : JobController {
     void IncreaceFindZoneLength(int length) {
         NativeArray<FindZoneData> oldFindZone = findZones;
         findZones = new NativeArray<FindZoneData>(oldFindZone.Length + length, Allocator.Persistent);
-        NativeArray<FindZoneData>.Copy(oldFindZone,findZones,findZoneCount);
+        NativeArray<FindZoneData>.Copy(oldFindZone, findZones, findZoneCount);
         oldFindZone.Dispose();
     }
 
@@ -62,7 +62,7 @@ public class FindZoneController : JobController {
     internal override void OnDestroy() {
         JobHandle.ScheduleBatchedJobs();
         job.Complete();
-
-        findZones.Dispose();
+        if (findZones.IsCreated)
+            findZones.Dispose();
     }
 }

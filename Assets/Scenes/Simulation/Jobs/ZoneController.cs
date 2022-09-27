@@ -43,9 +43,9 @@ public class ZoneController : MonoBehaviour {
         FindZoneController = GetComponent<FindZoneController>();
         FindZoneController.SetUpJobController(null);
     }
-    
+
     public void SpawnZones(float radius, int numberOfZones, int maxNeiboringZones, int numberOfPlants, int numberOfAnimals, ZoneSetupType zoneSetup) {
-        Allocate(numberOfZones,maxNeiboringZones,numberOfPlants, numberOfAnimals);
+        Allocate(numberOfZones, maxNeiboringZones, numberOfPlants, numberOfAnimals);
         float phi = Mathf.PI * (3 - Mathf.Sqrt(5));
         for (int i = 0; i < numberOfZones; i++) {
             float yPosition = 1 - (i / (float)(numberOfZones - 1)) * 2;
@@ -72,7 +72,7 @@ public class ZoneController : MonoBehaviour {
         maxZoneSize.Dispose();
     }
 
-    void Allocate(int numberOfZones,int maxNeibroingZones,int numberOfPlants, int numberOfAnimals) {
+    void Allocate(int numberOfZones, int maxNeibroingZones, int numberOfPlants, int numberOfAnimals) {
         zones = new NativeArray<ZoneData>(numberOfZones, Allocator.Persistent);
         neiboringZones = new NativeParallelMultiHashMap<int, int>(numberOfZones * maxNeibroingZones, Allocator.Persistent);
         organismsByFoodTypeInZones = new NativeParallelMultiHashMap<int2, int2>(numberOfPlants * 3, Allocator.Persistent);
@@ -89,9 +89,12 @@ public class ZoneController : MonoBehaviour {
     }
 
     void OnDestroy() {
-        neiboringZones.Dispose();
-        zones.Dispose();
-        organismsByFoodTypeInZones.Dispose();
+        if (neiboringZones.IsCreated)
+            neiboringZones.Dispose();
+        if (zones.IsCreated)
+            zones.Dispose();
+        if (organismsByFoodTypeInZones.IsCreated)
+            organismsByFoodTypeInZones.Dispose();
     }
     #endregion
 
@@ -99,7 +102,7 @@ public class ZoneController : MonoBehaviour {
         if (zone == -1) {
             Debug.LogError("Problems");
         }
-        organismsByFoodTypeInZones.Add(new int2(zone,foodIndex), location);
+        organismsByFoodTypeInZones.Add(new int2(zone, foodIndex), location);
     }
 
     public void RemoveFoodTypeFromZone(int zone, int foodIndex, int2 location) {

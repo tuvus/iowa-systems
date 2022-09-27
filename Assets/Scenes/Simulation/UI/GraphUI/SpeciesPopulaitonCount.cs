@@ -8,13 +8,13 @@ public class SpeciesPopulaitonCount : MonoBehaviour {
 	private Species speciesScript;
 	private int index;
 
-	public void SetSpecies(Species _speciesScript, int _index) {
-		speciesScript = _speciesScript;
-		GetComponent<Image>().color = speciesScript.speciesColor;
+	public void SetSpecies(Species speciesScript, int index) {
+		this.speciesScript = speciesScript;
+        GetComponent<Image>().color = this.speciesScript.speciesColor;
 		UpdateInitialText();
 
-		index = _index;
-		GetComponent<RectTransform>().localPosition = new Vector2(-30, 45 - (32 * _index));
+		this.index = index;
+		GetComponent<RectTransform>().localPosition = new Vector2(-30, 45 - (32 * index));
 	}
 
 	void LateUpdate() {
@@ -32,7 +32,7 @@ public class SpeciesPopulaitonCount : MonoBehaviour {
 
 	void UpdateText() {
 		if (speciesScript.GetComponent<PlantSpeciesSeeds>() != null) {
-			transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation() + "(" + speciesScript.GetComponent<PlantSpeciesSeeds>().seedCount + ")");
+			transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation() + "(" + speciesScript.GetComponent<PlantSpeciesSeeds>().activeSeedsCount+ ")");
 			return;
 		}
 		transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation());

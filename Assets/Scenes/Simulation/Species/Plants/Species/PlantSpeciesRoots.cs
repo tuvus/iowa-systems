@@ -10,7 +10,7 @@ public class PlantSpeciesRoots : PlantSpeciesOrgan {
         return organType;
     }
 
-    public override void GrowOrgan(float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
+    public override void GrowOrgan(int organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
         rootGrowth = new float2(rootGrowth.x, rootGrowth.y + (growth * growthModifier));
     }
 

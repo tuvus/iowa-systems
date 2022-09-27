@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -21,8 +23,8 @@ public abstract class Species : MonoBehaviour {
     public struct Organism {
         [Tooltip("The index of the species")]
         public int speciesIndex;
-        [Tooltip("The index of the organism in the activeSpeciesArray")]
-        public int activeOrganismIndex;
+        [Tooltip("The max index of the organism in the activeSpeciesArray")]
+        public int maxActiveOrganismIndex;
         [Tooltip("The age of the organism in days")]
         public float age;
         [Tooltip("The zone that the organism is in")]
@@ -34,9 +36,9 @@ public abstract class Species : MonoBehaviour {
         [Tooltip("Is the organism spawned or not")]
         public bool spawned;
 
-        public Organism(Organism organismData, int speciesActiveOrganismIndex, bool spawned) {
+        public Organism(Organism organismData, int maxSpeciesActiveOrganismIndex, bool spawned) {
             speciesIndex = organismData.speciesIndex;
-            this.activeOrganismIndex = speciesActiveOrganismIndex;
+            this.maxActiveOrganismIndex = maxSpeciesActiveOrganismIndex;
             age = organismData.age;
             zone = organismData.zone;
             position = organismData.position;
@@ -44,9 +46,9 @@ public abstract class Species : MonoBehaviour {
             this.spawned = spawned;
         }
 
-        public Organism(Organism organismData, float age, int zone, float3 position, float rotation, int speciesActiveOrganismIndex, bool spawned) {
+        public Organism(Organism organismData, float age, int zone, float3 position, float rotation, int maxSpeciesActiveOrganismIndex, bool spawned) {
             speciesIndex = organismData.speciesIndex;
-            this.activeOrganismIndex = speciesActiveOrganismIndex;
+            this.maxActiveOrganismIndex = maxSpeciesActiveOrganismIndex;
             this.age = age;
             this.zone = zone;
             this.position = position;
@@ -56,7 +58,7 @@ public abstract class Species : MonoBehaviour {
 
         public Organism(Organism organismData, float age, int zone, float3 position, float rotation) {
             speciesIndex = organismData.speciesIndex;
-            activeOrganismIndex = organismData.activeOrganismIndex;
+            maxActiveOrganismIndex = organismData.maxActiveOrganismIndex;
             this.age = age;
             this.zone = zone;
             this.position = position;
@@ -66,7 +68,7 @@ public abstract class Species : MonoBehaviour {
 
         public Organism(Organism organismData, float age) {
             speciesIndex = organismData.speciesIndex;
-            activeOrganismIndex = organismData.activeOrganismIndex;
+            maxActiveOrganismIndex = organismData.maxActiveOrganismIndex;
             this.age = age;
             this.zone = organismData.zone;
             this.position = organismData.position;
@@ -76,7 +78,7 @@ public abstract class Species : MonoBehaviour {
 
         public Organism(Organism organismData, int zone) {
             speciesIndex = organismData.speciesIndex;
-            activeOrganismIndex = organismData.activeOrganismIndex;
+            maxActiveOrganismIndex = organismData.maxActiveOrganismIndex;
             this.age = organismData.age;
             this.zone = zone;
             this.position = organismData.position;
@@ -85,13 +87,61 @@ public abstract class Species : MonoBehaviour {
         }
     }
 
-    public NativeArray<Organism> organisms;
+    public struct OrganismAction {
+        public enum Action {
+            Starve,
+            Die,
+            Bite,
+            Eat,
+            Reproduce,
+        }
+        public Action action;
+        public int organism;
+        public int2 target;
+        public float3 position;
+        public int zone;
+        public int amount;
+        [Tooltip("Either dispertion range or bite size")]
+        public float floatValue;
+
+        public OrganismAction(Action action, int organism) {
+            this.action = action;
+            this.organism = organism;
+            this.target = -1;
+            this.position = float3.zero;
+            this.zone = -1;
+            this.amount = -1;
+            this.floatValue = -1;
+        }
+
+        public OrganismAction(Action action, int organism, int2 target, float biteSize) {
+            this.action = action;
+            this.organism = organism;
+            this.target = target;
+            this.position = float3.zero;
+            this.zone = -1;
+            this.amount = -1;
+            this.floatValue = biteSize;
+        }
+
+        public OrganismAction(Action action, int organism, Species species, int amount, float dispertionRange) {
+            this.action = action;
+            this.organism = organism;
+            this.target = int2.zero;
+            this.position = species.organisms[organism].position;
+            this.zone = species.organisms[organism].zone;
+            this.amount = amount;
+            this.floatValue = dispertionRange;
+        }
+    }
+
+    [NativeDisableContainerSafetyRestriction] public NativeArray<Organism> organisms;
     public NativeArray<int> activeOrganisms;
     public int activeOrganismsCount;
     public NativeArray<int> inactiveOrganisms;
     public int inactiveOrganismsCount;
-    public NativeQueue<int> deadOrganismQueue;
-    public NativeQueue<int>.ParallelWriter deadOrganismQueueParallel;
+    public NativeQueue<OrganismAction> organismActions;
+    public NativeQueue<OrganismAction>.ParallelWriter organismActionsParallelWriter;
 
     SpeciesUpdateJob speciesUpdateJob;
 
@@ -102,24 +152,23 @@ public abstract class Species : MonoBehaviour {
         for (int i = 0; i < organs.Count; i++) {
             organs[i].SetSpeciesScript(this);
         }
-        SetupArrays(startingPopulation * 2);
+        SetupArrays(math.max(startingPopulation * 2, 100));
     }
 
     public virtual void SetupArrays(int arrayLength) {
         organisms = new NativeArray<Organism>(arrayLength, Allocator.Persistent);
         activeOrganisms = new NativeArray<int>(arrayLength, Allocator.Persistent);
         inactiveOrganisms = new NativeArray<int>(arrayLength, Allocator.Persistent);
-        deadOrganismQueue = new NativeQueue<int>(Allocator.Persistent);
-        deadOrganismQueueParallel = deadOrganismQueue.AsParallelWriter();
-        speciesUpdateJob = new SpeciesUpdateJob(this);
+        organismActions = new NativeQueue<OrganismAction>(Allocator.Persistent);
+        organismActionsParallelWriter = organismActions.AsParallelWriter();
+        speciesUpdateJob = new SpeciesUpdateJob(speciesIndex);
         for (int i = 0; i < organisms.Length; i++) {
             inactiveOrganisms[i] = i;
         }
         inactiveOrganismsCount = organisms.Length;
         activeOrganismsCount = 0;
-        foreach (var organ in GetComponents<SpeciesOrgan>()) {
-            organ.SetSpeciesScript(this);
-            organ.SetupSpeciesOrganArrays(arrayLength);
+        for (int i = 0; i < organs.Count; i++) {
+            organs[i].SetupSpeciesOrganArrays(arrayLength);
         }
     }
 
@@ -140,6 +189,7 @@ public abstract class Species : MonoBehaviour {
     public virtual int SpawnOrganism() {
         int organismIndex = ActivateInactiveOrganism();
         organisms[organismIndex] = new Organism(organisms[organismIndex], activeOrganismsCount - 1, true);
+        Debug.LogWarning("Need to add position and rotation here.");
         return organismIndex;
     }
 
@@ -147,13 +197,14 @@ public abstract class Species : MonoBehaviour {
     /// Spawns a new organism within distance degrees of position.
     /// </summary>
     /// <param name="position">The position to be randomised around</param>
+    /// <param name="zone">The zone that the position is in</param>
     /// <param name="distance">The distance in degrees from the position</param>
     /// <returns>The index of the new organism</returns>
     /// <exception cref="NotImplementedException"></exception>
-    public virtual int SpawnOrganism(float3 position, float distance) {
+    public virtual int SpawnOrganism(float3 position, int zone, float distance) {
         int organism = ActivateInactiveOrganism();
-        organisms[organism] = new Organism(organisms[organism],0,0, position, 0, activeOrganismsCount - 1, true);
-        throw new NotImplementedException("Need to add position and rotation here.");
+        organisms[organism] = new Organism(organisms[organism], 0, zone, position, 0, activeOrganismsCount - 1, true);
+        Debug.LogWarning("Need to add position and rotation here.");
         return organism;
     }
 
@@ -178,23 +229,31 @@ public abstract class Species : MonoBehaviour {
 
     /// <summary>
     /// Removes the organism from the active list and adds it to the inactive list.
-    /// Does not acualy change the organism's data.
+    /// Resets the organism's data and sets it to not spawned.
     /// If the organism's index does not match the value of activeOrganisms at the organim's activeOrganismIndex
     /// then the deactivation has already occured and nothing will be done.
     /// </summary>
     /// <param name="organismIndex">The index of the organism</param>
     public void DeactivateActiveOrganism(int organismIndex) {
         //Check if the organism is still active
-        if (organisms[organismIndex].activeOrganismIndex >= activeOrganismsCount || activeOrganisms[organisms[organismIndex].activeOrganismIndex] != organismIndex)
+        if (!organisms[organismIndex].spawned)
             return;
+        //Finds the activeOrganismIndex starting at maxActiveOrganismIndex and works it's way to the begining.
+        //Because of the way activeOrganisms are removed the index must be equal to or less than maxActiveOrganismIndex.
+        int activeOrganismIndex = organisms[organismIndex].maxActiveOrganismIndex;
+        for (; activeOrganismIndex >= -1; activeOrganismIndex--) {
+            if (activeOrganisms[activeOrganismIndex] == organismIndex)
+                break;
+        }
         //Remove the organism from the active list
-        for (int i = organisms[organismIndex].activeOrganismIndex; i < activeOrganismsCount - 1; i++) {
+        for (int i = activeOrganismIndex; i < activeOrganismsCount - 1; i++) {
             activeOrganisms[i] = activeOrganisms[i + 1];
         }
         activeOrganismsCount--;
         //Add the organism to the inactive list
         inactiveOrganisms[inactiveOrganismsCount] = organismIndex;
         inactiveOrganismsCount++;
+        organisms[organismIndex] = new Organism(organisms[organismIndex], -2, false);
     }
 
     /// <summary>
@@ -203,34 +262,92 @@ public abstract class Species : MonoBehaviour {
     /// </summary>
     /// <param name="newSize"></param>
     protected virtual void IncreaseOrganismSize(int newSize) {
-        throw new NotImplementedException("IncreaseOrganismSize has not been implamented yet.");
+        NativeArray<Organism> oldOrganisms = organisms;
+        organisms = new NativeArray<Organism>(newSize, Allocator.Persistent);
+        for (int i = 0; i < oldOrganisms.Length; i++) {
+            organisms[i] = oldOrganisms[i];
+        }
+        oldOrganisms.Dispose();
+        NativeArray<int> oldActiveOrganisms = activeOrganisms;
+        activeOrganisms = new NativeArray<int>(newSize, Allocator.Persistent);
+        for (int i = 0; i < oldActiveOrganisms.Length; i++) {
+            activeOrganisms[i] = oldActiveOrganisms[i];
+        }
+        oldActiveOrganisms.Dispose();
+        NativeArray<int> oldInActiveOrganisms = inactiveOrganisms;
+        inactiveOrganisms = new NativeArray<int>(newSize, Allocator.Persistent);
+        for (int i = 0; i < oldInActiveOrganisms.Length; i++) {
+            inactiveOrganisms[i] = oldInActiveOrganisms[i];
+        }
+        //Add new inactiveOrganisms to the inactiveOrganismList and increment inactiveOrganismCount
+        for (int i = oldInActiveOrganisms.Length; i < inactiveOrganisms.Length; i++) {
+            inactiveOrganisms[inactiveOrganismsCount] = i;
+            inactiveOrganismsCount++;
+        }
+        oldInActiveOrganisms.Dispose();
+        for (int i = 0; i < organs.Count; i++) {
+            organs[i].IncreaseOrganismSize(newSize);
+
+        }
     }
     #endregion
 
     public struct SpeciesUpdateJob : IJobParallelFor {
-        private Species species;
+        private int species;
 
-        public SpeciesUpdateJob(Species species) {
+        public SpeciesUpdateJob(int species) {
             this.species = species;
         }
 
         public JobHandle BeginJob() {
-            return IJobParallelForExtensions.Schedule(this, species.activeOrganismsCount, species.activeOrganismsCount);
+            return IJobParallelForExtensions.Schedule(this, SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].activeOrganismsCount, SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].activeOrganismsCount);
         }
 
         public void Execute(int index) {
-            species.UpdateOrganism(index);
+            SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].UpdateOrganism(SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].activeOrganisms[index]);
         }
+    }
+
+    public List<JobHandle> StartJobs() {
+        List<JobHandle> jobs = new List<JobHandle>(2);
+        jobs.Add(speciesUpdateJob.BeginJob());
+        for (int i = 0; i < organs.Count; i++) {
+            JobHandle? jobHandle = organs[i].StartJob();
+            if (jobHandle.HasValue)
+                jobs.Add(jobHandle.Value);
+        }
+        return jobs;
     }
 
     protected virtual void UpdateOrganism(int organism) {
         organisms[organism] = new Organism(organisms[organism], organisms[organism].age + earth.simulationDeltaTime / 24);
     }
 
-    public virtual void UpdateDeadOrganisms() {
-        while (!deadOrganismQueue.IsEmpty()) {
+    public virtual void UpdateOrganismActions() {
+        while (!organismActions.IsEmpty()) {
             //No need to worry about deactivating an already inactive organism, it is handled in DeactivateActiveOrganism()
-            DeactivateActiveOrganism(deadOrganismQueue.Dequeue());
+            OrganismAction action = organismActions.Dequeue();
+            switch (action.action) {
+                case OrganismAction.Action.Starve:
+                    DeactivateActiveOrganism(action.organism);
+                    break;
+                case OrganismAction.Action.Die:
+                    DeactivateActiveOrganism(action.organism);
+                    break;
+                case OrganismAction.Action.Bite:
+                    break;
+                case OrganismAction.Action.Eat:
+                    break;
+                case OrganismAction.Action.Reproduce:
+                    ReproduceOrganism(action);
+                    break;
+            }
+        }
+    }
+
+    public virtual void ReproduceOrganism(OrganismAction action) {
+        for (int i = 0; i < action.amount; i++) {
+            SpawnOrganism(action.position, action.amount, action.floatValue);
         }
     }
 
@@ -249,7 +366,7 @@ public abstract class Species : MonoBehaviour {
     }
 
     public int GetCurrentPopulation() {
-        return populationCount;
+        return activeOrganismsCount;
     }
     #endregion
 
@@ -277,7 +394,7 @@ public abstract class Species : MonoBehaviour {
             activeOrganisms.Dispose();
         if (inactiveOrganisms.IsCreated)
             inactiveOrganisms.Dispose();
-        if (deadOrganismQueue.IsCreated)
-            deadOrganismQueue.Dispose();
+        if (organismActions.IsCreated)
+            organismActions.Dispose();
     }
 }

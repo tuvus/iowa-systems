@@ -13,6 +13,8 @@ public class SpeciesManager : MonoBehaviour {
 	[SerializeField] List<GameObject> plantSimulation = new List<GameObject>();
 	[SerializeField] List<GameObject> defaultSimulation = new List<GameObject>();
 
+	private SpeciesMotor speciesMotor;
+
 	public void Awake() {
 		if (Instance == null) {
 			Instance = this;
@@ -21,6 +23,7 @@ public class SpeciesManager : MonoBehaviour {
 		}
 		speciesMaker = GameObject.Find("SpeciesMakerPanel").GetComponent<SpeciesMakerPanel>();
 		speciesList = GameObject.Find("SpeciesList");
+		speciesMotor = GetComponent<SpeciesMotor>();
 	}
 
 	public void SetDefaultSimulation() {
@@ -77,6 +80,6 @@ public class SpeciesManager : MonoBehaviour {
     }
 
 	public SpeciesMotor GetSpeciesMotor() {
-		return GetComponent<SpeciesMotor>();
+		return speciesMotor;
     }
 }

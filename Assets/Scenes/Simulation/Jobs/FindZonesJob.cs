@@ -27,7 +27,7 @@ public struct FindZonesJob : IJobParallelFor {
         float distance = -1;
         int zoneIndex = -1;
         for (int i = 0; i < zones.Length; i++) {
-            float newDistance = GetDistanceBetweenPoints(findZones[index].position, zones[i].position);
+            float newDistance = GetDistanceBetweenPoints(GetOrganismPosition(findZones[i].organismLocation), zones[i].position);
             if (newDistance < distance || distance < 0) {
                 distance = newDistance;
                 zoneIndex = i;
@@ -37,17 +37,21 @@ public struct FindZonesJob : IJobParallelFor {
     }
 
     FindZoneController.FindZoneData FindNearbyZone(int index) {
-        List<int> nearbyZones = ZoneCalculator.GetNearbyZones(zones, neiboringZones, findZones[index].zone, findZones[index].position, findZones[index].range);
-        float distance = GetDistanceBetweenPoints(findZones[index].position, zones[nearbyZones[0]].position);
+        List<int> nearbyZones = ZoneCalculator.GetNearbyZones(zones, neiboringZones, findZones[index].zone, GetOrganismPosition(findZones[index].organismLocation), findZones[index].range);
+        float distance = GetDistanceBetweenPoints(GetOrganismPosition(findZones[index].organismLocation), zones[nearbyZones[0]].position);
         int zoneIndex = nearbyZones[0];
         for (int i = 1; i < nearbyZones.Count; i++) {
-            float newDistance = GetDistanceBetweenPoints(findZones[index].position, zones[nearbyZones[i]].position);
+            float newDistance = GetDistanceBetweenPoints(GetOrganismPosition(findZones[index].organismLocation), zones[nearbyZones[i]].position);
             if (newDistance < distance) {
                 distance = newDistance;
                 zoneIndex = nearbyZones[i];
             }
         }
         return new FindZoneController.FindZoneData(findZones[index], zoneIndex);
+    }
+
+    float3 GetOrganismPosition(int2 dataLocation) {
+        return SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[dataLocation.x].organisms[dataLocation.y].position;
     }
 
     float GetDistanceBetweenPoints(float3 pos1, float3 pos2) {

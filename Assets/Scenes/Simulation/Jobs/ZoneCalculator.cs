@@ -74,9 +74,9 @@ public static class ZoneCalculator {
         return animals;
     }
 
-    public static List<ZoneController.DataLocation> GetOrganismsInZoneByFoodType(NativeParallelMultiHashMap<int2, ZoneController.DataLocation> organismsByFoodTypeInZones, int zone, int foodTypeIndex) {
-        List<ZoneController.DataLocation> organisms = new List<ZoneController.DataLocation>(50);
-        if (organismsByFoodTypeInZones.TryGetFirstValue(new int2(zone, foodTypeIndex), out ZoneController.DataLocation value, out var iterator)) {
+    public static List<int2> GetOrganismsInZoneByFoodType(NativeParallelMultiHashMap<int2, int2> organismsByFoodTypeInZones, int zone, int foodTypeIndex) {
+        List<int2> organisms = new List<int2>(50);
+        if (organismsByFoodTypeInZones.TryGetFirstValue(new int2(zone, foodTypeIndex), out int2 value, out var iterator)) {
             do {
                 organisms.Add(value);
             } while (organismsByFoodTypeInZones.TryGetNextValue(out value, ref iterator));

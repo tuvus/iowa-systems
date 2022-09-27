@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PlantSpeciesBlade : EddiblePlantSpeciesOrgan {
 
-    public override void GrowOrgan(float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
+    public override void GrowOrgan(int organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
         bladeArea = bladeArea + (growth * growthModifier);
     }
 

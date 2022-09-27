@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
-using Unity.Collections;
 using UnityEngine.Profiling;
 
 public class Earth : MonoBehaviour {
@@ -28,10 +26,13 @@ public class Earth : MonoBehaviour {
     public long maxTime;
     [Tooltip("The change in time of this frame in hours")]
     public float simulationDeltaTime;
+    [Tooltip("The average temperature in celcius")]
     public float temperature;
     public float humidity;
     public float humidityTarget;
     public EarthState earthState { private set; get; }
+
+    public static Earth earth;
     #endregion
 
     public event EventHandler<EventArgs> OnEndFrame;
@@ -55,6 +56,7 @@ public class Earth : MonoBehaviour {
     }
 
     public void SetUpEarth(int size, float simulationSpeed) {
+        earth = this;
         this.simulationDeltaTime = simulationSpeed;
         this.size = size;
         transform.localScale = new Vector3(size, size, size);
@@ -65,6 +67,8 @@ public class Earth : MonoBehaviour {
         zoneController.SetupZoneController(this);
         zoneController.SpawnZones(size, Simulation.Instance.numberOfZones, Simulation.Instance.maxNeiboringZones, SpeciesManager.Instance.GetAllStartingPlantsAndSeeds() * 5, SpeciesManager.Instance.GetAllStartingAnimals() * 5, Simulation.Instance.zoneSetup);
         earthState = new EarthState();
+        humidity = 50;
+        temperature = 100;
     }
 
     public void StartSimulation() {
@@ -117,7 +121,6 @@ public class Earth : MonoBehaviour {
             UpdateEarthState();
             CompleteFindZoneJobs();
             Profiler.EndSample();
-            UpdateOrganismData();
             Profiler.BeginSample("JobsSetup");
             StartOrganismJobs();
             Profiler.EndSample();
@@ -135,10 +138,9 @@ public class Earth : MonoBehaviour {
         }
         if (simulationUpdateStatus == SimulationUpdateStatus.Updating) {
             Profiler.BeginSample("UpdateBehaviour");
-            UpdateOrganismsBehavior();
             Profiler.EndSample();
             Profiler.BeginSample("Update");
-            UpdateOrganisms();
+            UpdatOrganismActions();
             Profiler.EndSample();
             simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
             if (!frameManager.IsInIterationTimePeriod())
@@ -146,7 +148,6 @@ public class Earth : MonoBehaviour {
         }
         if (simulationUpdateStatus == SimulationUpdateStatus.CleaningUp) {
             Profiler.BeginSample("CleaningUp");
-            UpdateOrganismLists();
             OnEndFrame?.Invoke(this, new EventArgs { });
             Profiler.EndSample();
             simulationUpdateStatus = SimulationUpdateStatus.SettingUp;
@@ -165,7 +166,6 @@ public class Earth : MonoBehaviour {
         UpdateEarthState();
         CompleteFindZoneJobs();
         Profiler.EndSample();
-        UpdateOrganismData();
         Profiler.BeginSample("Jobs");
         StartOrganismJobs();
         simulationUpdateStatus = SimulationUpdateStatus.Calculating;
@@ -173,14 +173,12 @@ public class Earth : MonoBehaviour {
         Profiler.EndSample();
         Profiler.BeginSample("UpdateBehaviour");
         simulationUpdateStatus = SimulationUpdateStatus.Updating;
-        UpdateOrganismsBehavior();
         Profiler.EndSample();
         Profiler.BeginSample("Update");
-        UpdateOrganisms();
+        UpdatOrganismActions();
         Profiler.EndSample();
         Profiler.BeginSample("CleaningUp");
         simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
-        UpdateOrganismLists();
         OnEndFrame?.Invoke(this, new EventArgs { });
         UpdateSpeciesMotorGraphData();
         Profiler.EndSample();
@@ -225,16 +223,12 @@ public class Earth : MonoBehaviour {
         zoneController.FindZoneController.CompleteZoneJob();
     }
 
-    void UpdateOrganismData() {
-        for (int i = 0; i < GetAllSpecies().Count; i++) {
-            GetAllSpecies()[i].UpdateOrganismData();
-        }
-    }
-
     void StartOrganismJobs() {
         List<Species> allSpecies = SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
         for (int i = 0; i < allSpecies.Count; i++) {
-            activeJobs.Add(allSpecies[i].GetBasicJobController().StartUpdateJob());
+            foreach (var jobhandle in allSpecies[i].StartJobs()) {
+                activeJobs.Add(jobhandle);
+            }
         }
     }
 
@@ -255,26 +249,12 @@ public class Earth : MonoBehaviour {
         }
     }
 
-    void UpdateOrganismsBehavior() {
+    void UpdatOrganismActions() {
         List<Species> allSpecies = GetAllSpecies();
         for (int i = 0; i < allSpecies.Count; i++) {
-            allSpecies[i].UpdateOrganismsBehavior();
-        }
-    }
-
-    void UpdateOrganisms() {
-        List<Species> allSpecies = GetAllSpecies();
-        for (int i = 0; i < allSpecies.Count; i++) {
-            Profiler.BeginSample("Update" + allSpecies[i].speciesName);
-            allSpecies[i].UpdateOrganisms();
+            Profiler.BeginSample("UpdateOrganismActions" + allSpecies[i].speciesName);
+            allSpecies[i].UpdateOrganismActions();
             Profiler.EndSample();
-        }
-    }
-
-    void UpdateOrganismLists() {
-        List<Species> allSpecies = GetAllSpecies();
-        for (int i = 0; i < allSpecies.Count; i++) {
-            allSpecies[i].UpdateOrganismLists();
         }
     }
 
@@ -291,7 +271,7 @@ public class Earth : MonoBehaviour {
             GetAtmosphereRenderer().enabled = false;
         }
         for (int i = 0; i < GetAllSpecies().Count; i++) {
-            GetAllSpecies()[i].OnSettingsChanged(renderWorld);
+            //GetAllSpecies()[i].OnSettingsChanged(renderWorld);
         }
         frameManager.SetFramesPerSeccond(framesPerSeccond);
     }
@@ -346,14 +326,6 @@ public class Earth : MonoBehaviour {
 
     public List<AnimalSpecies> GetAllAnimalSpecies() {
         return SpeciesManager.Instance.GetSpeciesMotor().GetAllAnimalSpecies();
-    }
-
-    public List<JobController> GetAllJobControllers() {
-        List<JobController> jobControllers = new List<JobController>();
-        foreach (var animalSpecies in SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()) {
-            jobControllers.Add(animalSpecies.GetBasicJobController());
-        }
-        return jobControllers;
     }
 
     public Transform GetOrganismsTransform() {

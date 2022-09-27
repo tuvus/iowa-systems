@@ -38,13 +38,11 @@ public class SpeciesMotor : MonoBehaviour {
 		for (int i = 0; i < GetAllSpecies().Count; i++) {
 			if (GetAllSpecies()[i].GetComponent<AnimalSpecies>() != null) {
 				animalSpecies.Add(GetAllSpecies()[i].GetComponent<AnimalSpecies>());
-				GetAllSpecies()[i].specificSpeciesIndex = animalSpecies.Count - 1;
 			}
 		}
 		for (int i = 0; i < GetAllSpecies().Count; i++) {
 			if (GetAllSpecies()[i].GetComponent<PlantSpecies>() != null) {
 				plantSpecies.Add(GetAllSpecies()[i].GetComponent<PlantSpecies>());
-				GetAllSpecies()[i].specificSpeciesIndex = plantSpecies.Count - 1;
 			}
 		}
 		foreach (var species in GetAllSpecies()) {

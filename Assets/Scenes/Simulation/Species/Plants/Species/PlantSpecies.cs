@@ -1,14 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
 using System;
-using static Earth;
-using UnityEngine.UIElements;
-using static PlantSpecies;
-using UnityEditor.SceneManagement;
+using Unity.Collections.LowLevel.Unsafe;
 
 public class PlantSpecies : Species {
     public GameObject plantPrefab;
@@ -28,8 +23,9 @@ public class PlantSpecies : Species {
         "The first element in this is the starting growth at seed. " +
         "Each element in between shows how much growth is needed for the next stage." +
         "The last element is the final growth wanted as an adult.")]
-    [SerializeField] List<GrowthStageData> growthStagesInput = new List<GrowthStageData>();
+    [SerializeField] public List<GrowthStageData> growthStagesInput = new List<GrowthStageData>();
 
+    [System.Serializable]
     public struct GrowthStageData {
         public GrowthStage stage;
         public float bladeArea;
@@ -48,9 +44,8 @@ public class PlantSpecies : Species {
 
     public NativeArray<GrowthStageData> growthStages;
 
-    public NativeArray<Plant> plants;
+    [NativeDisableContainerSafetyRestriction] public NativeArray<Plant> plants;
 
-    [System.Serializable]
     public struct Plant {
         public GrowthStage stage;
         public float bladeArea;
@@ -63,6 +58,14 @@ public class PlantSpecies : Species {
             this.bladeArea = bladeArea;
             this.stemHeight = stemHeight;
             this.rootGrowth = rootGrowth;
+            this.rootDensity = 1;
+        }
+
+        public Plant(GrowthStage stage, GrowthStageData growthStageData) {
+            this.stage = stage;
+            this.bladeArea = growthStageData.bladeArea;
+            this.stemHeight = growthStageData.stemHeight;
+            this.rootGrowth = growthStageData.rootGrowth;
             this.rootDensity = 1;
         }
     }
@@ -110,8 +113,8 @@ public class PlantSpecies : Species {
     }
 
     public override void SetupArrays(int arrayLength) {
-        plants = new NativeArray<Plant>(arrayLength, Allocator.Persistent);
         base.SetupArrays(arrayLength);
+        plants = new NativeArray<Plant>(arrayLength, Allocator.Persistent);
     }
 
     public override void SetupSpeciesFoodType() {
@@ -138,18 +141,28 @@ public class PlantSpecies : Species {
 
     public override int SpawnOrganism() {
         int plant = base.SpawnOrganism();
-        organisms[plant] = new Organism(organisms[plant], 0, -1, Vector3.zero, 0);
-        plants[plant] = new Plant(GrowthStage.Adult, 10, 10, 10);
-        throw new NotImplementedException();
+        GrowthStage stage = (GrowthStage)Simulation.randomGenerator.NextInt(1, 6);
+        organisms[plant] = new Organism(organisms[plant], GetGrowthStageData(stage).daysAfterGermination, -1, Vector3.zero, 0);
+        plants[plant] = new Plant(stage, GetGrowthStageData(stage));
+        plantSpeciesSeeds.SpawnAwns(plant);
         return plant;
     }
 
-    public override int SpawnOrganism(float3 position, float distance) {
+    public override int SpawnOrganism(float3 position, int zone, float distance) {
         int plant = base.SpawnOrganism();
-        organisms[plant] = new Organism(organisms[plant], 0, -1, Vector3.zero, 0);
+        organisms[plant] = new Organism(organisms[plant], 0, zone, position, 0);
         plants[plant] = new Plant(GrowthStage.Germinating, 10, 10, 10);
-        throw new NotImplementedException();
         return plant;
+    }
+
+    protected override void IncreaseOrganismSize(int newSize) {
+        base.IncreaseOrganismSize(newSize);
+        NativeArray<Plant> oldPlants = plants;
+        plants = new NativeArray<Plant>(newSize, Allocator.Persistent);
+        for (int i = 0; i < oldPlants.Length; i++) {
+            plants[i] = oldPlants[i];
+        }
+        oldPlants.Dispose();
     }
 
     public GrowthStageData GetGrowthStageData(GrowthStage stage) {
@@ -158,12 +171,16 @@ public class PlantSpecies : Species {
 
     protected override void UpdateOrganism(int organism) {
         base.UpdateOrganism(organism);
+        if (organisms[organism].age > 1000) {
+            organismActionsParallelWriter.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
+            return;
+        }
         float bladeArea = plants[organism].bladeArea;
         float stemHeight = plants[organism].stemHeight;
         float2 rootGrowth = plants[organism].rootGrowth;
         int stageIndex = (int)plants[organism].stage;
         GrowthStage stage = plants[organism].stage;
-        if (stageIndex != growthStages.Length - 1 && bladeArea >= growthStages[stageIndex].bladeArea 
+        if (stageIndex != growthStages.Length - 1 && bladeArea >= growthStages[stageIndex].bladeArea
             && stemHeight >= growthStages[stageIndex].stemHeight && rootGrowth.y >= growthStages[stageIndex].rootGrowth.y) {
             stage = growthStages[stageIndex + 1].stage;
         }
@@ -171,16 +188,31 @@ public class PlantSpecies : Species {
         if (Simulation.Instance.sunRotationEffect) {
             float objectDistanceFromSun = Vector3.Distance(organisms[organism].position, GetEarth().GetSunPosition());
             float sunDistanceFromEarth = Vector3.Distance(new float3(0, 0, 0), GetEarth().GetSunPosition());
-            sunValue =  Mathf.Max((objectDistanceFromSun - sunDistanceFromEarth) / GetEarth().GetRadius() * 2, 0);
+            sunValue = Mathf.Max((objectDistanceFromSun - sunDistanceFromEarth) / GetEarth().GetRadius() * 2, 0);
         }
         float sunGain = bladeArea * sunValue;
         float rootArea = (math.PI * rootGrowth.x * rootGrowth.y) + (math.pow(rootGrowth.x / 2, 2) * 2);
-        float rootUnderWaterPercent = 1 - (GetEarth().GetZoneController().zones[organisms[organism].zone].waterDepth / rootGrowth.y);
+        float rootUnderWaterPercent = 1;
+        //float rootUnderWaterPercent = 1 - (GetEarth().GetZoneController().zones[organisms[organism].zone].waterDepth / rootGrowth.y);
         float waterGain = rootArea * rootUnderWaterPercent * 1;
         for (int i = 0; i < organs.Count; i++) {
-            ((PlantSpeciesOrgan)organs[i]).GrowOrgan(GetEarth().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain), ref bladeArea, ref stemHeight, ref rootGrowth);
+            ((PlantSpeciesOrgan)organs[i]).GrowOrgan(organism, GetEarth().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain), ref bladeArea, ref stemHeight, ref rootGrowth);
         }
         plants[organism] = new Plant(stage, bladeArea, stemHeight, rootGrowth);
+    }
+
+    public override void UpdateOrganismActions() {
+        base.UpdateOrganismActions();
+        if (plantSpeciesSeeds != null)
+            plantSpeciesSeeds.UpdateSeedActions();
+    }
+
+    public override void ReproduceOrganism(OrganismAction action) {
+        if (plantSpeciesSeeds != null) {
+            plantSpeciesSeeds.SpawnSeed(action.position, action.zone, action.floatValue);
+        } else {
+            base.ReproduceOrganism(action);
+        }
     }
 
     public override void OnSettingsChanged(bool renderOrganisms) {
@@ -201,5 +233,7 @@ public class PlantSpecies : Species {
         base.OnDestroy();
         if (growthStages.IsCreated)
             growthStages.Dispose();
+        if (plants.IsCreated)
+            plants.Dispose();
     }
 }

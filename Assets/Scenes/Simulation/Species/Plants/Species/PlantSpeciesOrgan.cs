@@ -22,14 +22,14 @@ public abstract class PlantSpeciesOrgan : SpeciesOrgan {
         return null;
     }
 
-    public abstract void GrowOrgan(float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth);
+    public abstract void GrowOrgan(int organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth);
 
     public int GetOrganFoodIndex() {
         return organFoodIndex;
     }
 
-    public void OnDestroy() {
-        if(growthPriorities.IsCreated)
+    public virtual void OnDestroy() {
+        if (growthPriorities.IsCreated)
             growthPriorities.Dispose();
     }
 

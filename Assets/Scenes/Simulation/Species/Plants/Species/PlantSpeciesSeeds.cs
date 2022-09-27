@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static Earth;
+using static PlantSpecies;
 using static Species;
 
 public class PlantSpeciesSeeds : PlantSpeciesOrgan {
@@ -27,46 +32,48 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
 
     public struct Awn {
         public float awnsGrowth;
-        public float timeUntillDispersion;
+        public float timeUntilDispersion;
+
+        public Awn(float awnsGrowth, float timeUntilDispersion) {
+            this.awnsGrowth = awnsGrowth;
+            this.timeUntilDispersion = timeUntilDispersion;
+        }
     }
 
-    public NativeArray<Awn> awns;
+    [NativeDisableUnsafePtrRestriction] public NativeArray<Awn> awns;
 
-    public NativeArray<Species.Organism> seeds;
+    [NativeDisableUnsafePtrRestriction] public NativeArray<Organism> seeds;
     public NativeArray<int> activeSeeds;
     public int activeSeedsCount;
     public NativeArray<int> inactiveSeeds;
     public int inactiveSeedsCount;
+    public NativeQueue<OrganismAction> seedActions;
+    public NativeQueue<OrganismAction>.ParallelWriter seedActionsParallelWriter;
 
-    public SeedGerminationRequirement seedGerminationRequirement;
-
-    public struct SeedGerminationRequirement {
-        public float humidityRequirement;
-        public float tempetureRequirement;
-        [Tooltip("The time in days required before germination can begin")]
-        public float timeRequirement;
-        [Tooltip("The maximum time in days the seed can wait to germinate before it dies off")]
-        public float timeMaximum;
-
-        public SeedGerminationRequirement(PlantSpeciesSeeds speciesSeeds) {
-            humidityRequirement = speciesSeeds.humidityRequirement;
-            tempetureRequirement = speciesSeeds.tempetureRequirement;
-            timeRequirement = speciesSeeds.timeRequirement;
-            timeMaximum = speciesSeeds.timeMaximum;
-        }
-    }
+    SpeciesSeedsUpdateJob speciesSeedsUpdateJob;
 
     public override void SetupSpeciesOrganArrays(int arraySize) {
-        seedGerminationRequirement = new SeedGerminationRequirement(this);
         awns = new NativeArray<Awn>(arraySize, Allocator.Persistent);
         seeds = new NativeArray<Species.Organism>(startingSeedCount * 2, Allocator.Persistent);
         activeSeeds = new NativeArray<int>(startingSeedCount * 2, Allocator.Persistent);
         inactiveSeeds = new NativeArray<int>(startingSeedCount * 2, Allocator.Persistent);
+        seedActions = new NativeQueue<OrganismAction>(Allocator.Persistent);
+        seedActionsParallelWriter = seedActions.AsParallelWriter();
         for (int i = 0; i < seeds.Length; i++) {
             inactiveSeeds[i] = i;
         }
         inactiveSeedsCount = inactiveSeeds.Length;
         activeSeedsCount = 0;
+        speciesSeedsUpdateJob = new SpeciesSeedsUpdateJob(GetPlantSpecies().speciesIndex);
+    }
+
+    public override void IncreaseOrganismSize(int newSize) {
+        NativeArray<Awn> oldAwns = awns;
+        awns = new NativeArray<Awn>(newSize, Allocator.Persistent);
+        for (int i = 0; i < oldAwns.Length; i++) {
+            awns[i] = oldAwns[i];
+        }
+        oldAwns.Dispose();
     }
 
     public void Populate() {
@@ -77,9 +84,28 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
 
     public int SpawnSeed() {
         int seed = ActivateInactiveSeed();
-        seeds[seed] = new Species.Organism(seeds[seed], Simulation.randomGenerator.NextFloat(0, seedGerminationRequirement.timeRequirement), 0, float3.zero, 0, activeSeedsCount- 1, true);
-        throw new NotImplementedException("Need to add position and rotation here.");
+        seeds[seed] = new Organism(seeds[seed], Simulation.randomGenerator.NextFloat(0, timeRequirement), 0, float3.zero, 0, activeSeedsCount - 1, true);
+        Debug.LogWarning("Need to add position and rotation here.");
         return seed;
+    }
+
+    public int SpawnSeed(float3 position, int zone, float distance) {
+        int seed = ActivateInactiveSeed();
+        seeds[seed] = new Organism(seeds[seed],0,zone,position, 0, activeSeedsCount - 1, true);
+        Debug.LogWarning("Need to add position and rotation here.");
+        return seed;
+    }
+
+    public void SpawnAwns(int organism) {
+        if (GetPlantSpecies().plants[organism].stage == GrowthStage.Adult) {
+            if (Simulation.randomGenerator.NextBool()) {
+                awns[organism] = new Awn(awnMaxGrowth, Simulation.randomGenerator.NextFloat(0, awnSeedDispertionTime));
+            } else {
+                awns[organism] = new Awn(Simulation.randomGenerator.NextFloat(0, awnMaxGrowth), 0);
+            }
+        } else {
+            awns[organism] = new Awn(0, 0);
+        }
     }
 
     /// <summary>
@@ -88,12 +114,14 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
     /// </summary>
     /// <returns>A new active seed</returns>
     private int ActivateInactiveSeed() {
+        //Make sure that there are free inactive seeds to get
         if (inactiveSeedsCount == 0) {
             IncreaseSeedsSize(seeds.Length * 2);
         }
+        //Get the first inactive seed and remove it from the inactiveSeeds list
         int newOrganism = inactiveSeeds[inactiveSeedsCount - 1];
         inactiveSeedsCount--;
-
+        //Add the organism to the activeSeedsList
         activeSeeds[activeSeedsCount] = newOrganism;
         activeSeedsCount++;
         return newOrganism;
@@ -105,12 +133,25 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
     /// </summary>
     /// <param name="seedIndex">The index of the seed</param>
     public void DeactivateActiveSeed(int seedIndex) {
-        for (int i = seeds[seedIndex].activeOrganismIndex; i < activeSeedsCount - 1; i++) {
+        //Check if the seed is still active
+        if (!seeds[seedIndex].spawned)
+            return;
+        //Finds the activeSeedIndex starting at maxActiveSeedIndex and works it's way to the begining.
+        //Because of the way activeSeeds are removed the index must be equal to or less than maxActiveSeedIndex.
+        int activeSeedIndex = seeds[seedIndex].maxActiveOrganismIndex;
+        for (; activeSeedIndex >= -1; activeSeedIndex--) {
+            if (activeSeeds[activeSeedIndex] == seedIndex)
+                break;
+        }
+        //Remove the seed from the active list
+        for (int i = activeSeedIndex; i < activeSeedsCount - 1; i++) {
             activeSeeds[i] = activeSeeds[i + 1];
         }
         activeSeedsCount--;
+        //Add the seed to the inactive list
         inactiveSeeds[inactiveSeedsCount] = seedIndex;
         inactiveSeedsCount++;
+        seeds[seedIndex] = new Organism(seeds[seedIndex], -2, false);
     }
 
     /// <summary>
@@ -118,7 +159,111 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
     /// </summary>
     /// <param name="newSize"></param>
     protected virtual void IncreaseSeedsSize(int newSize) {
-        throw new NotImplementedException("IncreaseSeedSize has not been implamented yet.");
+        NativeArray<Organism> oldSeeds = seeds;
+        seeds = new NativeArray<Organism>(newSize, Allocator.Persistent);
+        for (int i = 0; i < oldSeeds.Length; i++) {
+            seeds[i] = oldSeeds[i];
+        }
+        oldSeeds.Dispose();
+        NativeArray<int> oldActiveSeeds = activeSeeds;
+        activeSeeds = new NativeArray<int>(newSize, Allocator.Persistent);
+        for (int i = 0; i < oldActiveSeeds.Length; i++) {
+            activeSeeds[i] = oldActiveSeeds[i];
+        }
+        oldActiveSeeds.Dispose();
+        NativeArray<int> oldInActiveSeeds = inactiveSeeds;
+        inactiveSeeds = new NativeArray<int>(newSize, Allocator.Persistent);
+        for (int i = 0; i < oldInActiveSeeds.Length; i++) {
+            inactiveSeeds[i] = oldInActiveSeeds[i];
+        }
+        //Add new inactiveSeeds to the inactiveSeedList and increment inactiveSeedCount
+        for (int i = oldInActiveSeeds.Length; i < inactiveSeeds.Length; i++) {
+            inactiveSeeds[inactiveSeedsCount] = i;
+            inactiveSeedsCount++;
+        }
+        oldInActiveSeeds.Dispose();
+    }
+
+    public override void GrowOrgan(int organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
+        if (awns[organism].timeUntilDispersion > 0) {
+            awns[organism] = new Awn(0, math.max(0, awns[organism].timeUntilDispersion - GetPlantSpecies().GetEarth().simulationDeltaTime / 24));
+            if (awns[organism].timeUntilDispersion <= 0) {
+                //SpreadNewSeed(GetPlantSpeciesSeeds().awnMaxSeedAmount);
+                //throw new NotImplementedException("Spread seed not implemented");
+                int disperseSeeds = 0;
+                for (int i = 0; i < awnMaxSeedAmount; i++) {
+                    if (Simulation.randomGenerator.NextInt(0, 100) < awnSeedDispersalSuccessChance) {
+                        disperseSeeds++;
+                    }
+                }
+                GetPlantSpecies().organismActionsParallelWriter.Enqueue(new OrganismAction(OrganismAction.Action.Reproduce, organism, GetPlantSpecies(), disperseSeeds,seedDispertionRange));
+            }
+            return;
+        }
+        awns[organism] = new Awn(awns[organism].awnsGrowth + growth / 100, 0);
+        if (awns[organism].awnsGrowth >= awnMaxGrowth) {
+            awns[organism] = new Awn(0, awnSeedDispertionTime);
+        }
+    }
+
+    public struct SpeciesSeedsUpdateJob : IJobParallelFor {
+        private int species;
+
+        public SpeciesSeedsUpdateJob(int species) {
+            this.species = species;
+        }
+
+        public JobHandle BeginJob() {
+            return IJobParallelForExtensions.Schedule(this, ((PlantSpecies)SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species]).GetSpeciesSeeds().activeSeedsCount, SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].activeOrganismsCount);
+        }
+
+        public void Execute(int index) {
+            ((PlantSpecies)SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species]).GetSpeciesSeeds().UpdateSeed(
+                ((PlantSpecies)SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species]).GetSpeciesSeeds().activeSeeds[index]);
+        }
+    }
+
+    public override JobHandle? StartJob() {
+        return speciesSeedsUpdateJob.BeginJob();
+    }
+
+    public void UpdateSeed(int seed) {
+        seeds[seed] = new Organism(seeds[seed], seeds[seed].age + GetPlantSpecies().GetEarth().simulationDeltaTime);
+        if (seeds[seed].age > timeMaximum) {
+            seedActionsParallelWriter.Enqueue(new OrganismAction(OrganismAction.Action.Die, seed));
+            return;
+        } else if (seeds[seed].age >= timeRequirement 
+            && earth.earthState.humidity > humidityRequirement
+            && earth.earthState.temperature > tempetureRequirement) {
+            seedActionsParallelWriter.Enqueue(new OrganismAction(OrganismAction.Action.Reproduce, seed));
+        }
+    }
+
+    public void UpdateSeedActions() {
+        while (!seedActions.IsEmpty()) {
+            //No need to worry about deactivating an already inactive organism, it is handled in DeactivateActiveOrganism()
+            OrganismAction action = seedActions.Dequeue();
+            switch (action.action) {
+                case OrganismAction.Action.Starve:
+                    DeactivateActiveSeed(action.organism);
+                    break;
+                case OrganismAction.Action.Die:
+                    DeactivateActiveSeed(action.organism);
+                    break;
+                case OrganismAction.Action.Bite:
+                    break;
+                case OrganismAction.Action.Eat:
+                    break;
+                case OrganismAction.Action.Reproduce:
+                    DeactivateActiveSeed(action.organism);
+                    GrowSeed(action);
+                    break;
+            }
+        }
+    }
+
+    public void GrowSeed(OrganismAction organismAction) {
+        GetPlantSpecies().SpawnOrganism(organismAction.position, organismAction.zone,organismAction.floatValue);
     }
 
     public override string GetOrganType() {
@@ -132,7 +277,8 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
         return 0;
     }
 
-    public void OnDestroy() {
+    public override void OnDestroy() {
+        base.OnDestroy();
         if (seeds.IsCreated)
             seeds.Dispose();
         if (activeSeeds.IsCreated)
@@ -141,5 +287,7 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
             inactiveSeeds.Dispose();
         if (awns.IsCreated)
             awns.Dispose();
+        if (seedActions.IsCreated)
+            seedActions.Dispose();
     }
 }

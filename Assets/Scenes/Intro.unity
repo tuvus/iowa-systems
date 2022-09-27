@@ -2322,10 +2322,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.5
+  eatSpeed: 0
   eatRange: 0
-  eatTime: 0.95
 --- !u!114 &446744795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2338,7 +2337,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 8.07
   eyeType: 0
 --- !u!114 &446744796
@@ -2353,7 +2351,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 3.66
 --- !u!114 &446744797
 MonoBehaviour:
@@ -2373,9 +2370,10 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 0
   startingPopulation: 0
+  organs: []
   speciesIndex: 0
-  specificSpeciesIndex: 0
-  organisms: []
+  activeOrganismsCount: 0
+  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
@@ -2388,10 +2386,8 @@ MonoBehaviour:
   maxAge: 26
   deteriationTime: 0
   eddibleFoodTypesInput: []
-  animals: []
-  activeAnimals: 
-  activeCorpses: 
-  inactiveAnimals: 
+  activeDeadAnimalCount: 0
+  inactiveDeadAnimalCount: 0
 --- !u!114 &446744801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2465,12 +2461,16 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4278233195
   startingPopulation: 40
+  organs:
+  - {fileID: 456575642}
+  - {fileID: 456575638}
+  - {fileID: 456575643}
+  - {fileID: 456575637}
   speciesIndex: 0
-  specificSpeciesIndex: 0
-  organisms: []
+  activeOrganismsCount: 0
+  inactiveOrganismsCount: 0
   plantPrefab: {fileID: 1992517119343582, guid: a3e7fae49ee31442aac03db2a66b47b5,
     type: 3}
-  speciesOrgansOrder: []
   growthStagesInput:
   - stage: 0
     bladeArea: 0
@@ -2487,7 +2487,7 @@ MonoBehaviour:
       y: 6
     daysAfterGermination: 6
   - stage: 2
-    bladeArea: 5
+    bladeArea: 4
     stemHeight: 0
     rootGrowth:
       x: 1
@@ -2514,9 +2514,6 @@ MonoBehaviour:
       x: 1
       y: 160
     daysAfterGermination: 120
-  plants: []
-  activePlants: 
-  inactivePlants: 
 --- !u!114 &456575642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2543,6 +2540,8 @@ MonoBehaviour:
   awnSeedDispertionTime: 45
   awnSeedDispersalSuccessChance: 30
   seedEnergyAmount: 0.01
+  activeSeedsCount: 0
+  inactiveSeedsCount: 0
 --- !u!114 &456575643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3976,6 +3975,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
   m_HorizontalAxis: Horizontal
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit
@@ -4068,10 +4068,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.57
+  eatSpeed: 0
   eatRange: 0
-  eatTime: 0.38
 --- !u!114 &667267388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4084,7 +4083,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 10.29
   eyeType: 0
 --- !u!114 &667267389
@@ -4099,7 +4097,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 6.64
 --- !u!114 &667267390
 MonoBehaviour:
@@ -4119,9 +4116,10 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 0
   startingPopulation: 0
+  organs: []
   speciesIndex: 0
-  specificSpeciesIndex: 0
-  organisms: []
+  activeOrganismsCount: 0
+  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 0}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
   bodyWeight: 0
@@ -4133,10 +4131,8 @@ MonoBehaviour:
   maxAge: 0
   deteriationTime: 0
   eddibleFoodTypesInput: []
-  animals: []
-  activeAnimals: 
-  activeCorpses: 
-  inactiveAnimals: 
+  activeDeadAnimalCount: 0
+  inactiveDeadAnimalCount: 0
 --- !u!1 &676291395
 GameObject:
   m_ObjectHideFlags: 0
@@ -4891,6 +4887,7 @@ GameObject:
   m_Component:
   - component: {fileID: 745349115}
   - component: {fileID: 745349120}
+  - component: {fileID: 745349121}
   m_Layer: 5
   m_Name: Simulation
   m_TagString: Untagged
@@ -4938,6 +4935,18 @@ MonoBehaviour:
   zoneSetup: 1
   seed: 
   simulationInitialised: 0
+--- !u!114 &745349121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 745349114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c139ed4385ed1f479c91c333ff9c67c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &747077542
 GameObject:
   m_ObjectHideFlags: 0
@@ -5434,16 +5443,16 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4278242603
   startingPopulation: 400
+  organs:
+  - {fileID: 809522560}
+  - {fileID: 809522557}
+  - {fileID: 809522554}
+  - {fileID: 809522555}
   speciesIndex: 0
-  specificSpeciesIndex: 0
-  organisms: []
+  activeOrganismsCount: 0
+  inactiveOrganismsCount: 0
   plantPrefab: {fileID: 1992517119343582, guid: a3e7fae49ee31442aac03db2a66b47b5,
     type: 3}
-  speciesOrgansOrder:
-  - {fileID: 809522557}
-  - {fileID: 809522555}
-  - {fileID: 809522554}
-  - {fileID: 809522560}
   growthStagesInput:
   - stage: 0
     bladeArea: 0
@@ -5487,9 +5496,6 @@ MonoBehaviour:
       x: 1
       y: 120
     daysAfterGermination: 90
-  plants: []
-  activePlants: 
-  inactivePlants: 
 --- !u!114 &809522560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5516,6 +5522,8 @@ MonoBehaviour:
   awnSeedDispertionTime: 30
   awnSeedDispersalSuccessChance: 30
   seedEnergyAmount: 0.2
+  activeSeedsCount: 0
+  inactiveSeedsCount: 0
 --- !u!1 &835355319
 GameObject:
   m_ObjectHideFlags: 0
@@ -10500,10 +10508,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 3
+  eatSpeed: 0
   eatRange: 30
-  eatTime: 0.002777778
 --- !u!114 &1600016795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10516,7 +10523,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 320
   eyeType: 0
 --- !u!114 &1600016796
@@ -10531,7 +10537,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 120
 --- !u!114 &1600016797
 MonoBehaviour:
@@ -10551,9 +10556,15 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4278198711
   startingPopulation: 12
+  organs:
+  - {fileID: 1600016793}
+  - {fileID: 1600016794}
+  - {fileID: 1600016795}
+  - {fileID: 1600016796}
+  - {fileID: 1600016799}
   speciesIndex: 0
-  specificSpeciesIndex: 0
-  organisms: []
+  activeOrganismsCount: 0
+  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
@@ -10567,10 +10578,8 @@ MonoBehaviour:
   deteriationTime: 14
   eddibleFoodTypesInput:
   - CottontailRabbit
-  animals: []
-  activeAnimals: 
-  activeCorpses: 
-  inactiveAnimals: 
+  activeDeadAnimalCount: 0
+  inactiveDeadAnimalCount: 0
 --- !u!114 &1600016799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10628,10 +10637,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 1
+  eatSpeed: 0
   eatRange: 30
-  eatTime: 0.0027777783
 --- !u!114 &1627060936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10644,7 +10652,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 270
   eyeType: 1
 --- !u!114 &1627060937
@@ -10659,7 +10666,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 160
 --- !u!114 &1627060938
 MonoBehaviour:
@@ -10679,9 +10685,15 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4282874818
   startingPopulation: 60
+  organs:
+  - {fileID: 1627060934}
+  - {fileID: 1627060935}
+  - {fileID: 1627060936}
+  - {fileID: 1627060937}
+  - {fileID: 1627060940}
   speciesIndex: 0
-  specificSpeciesIndex: 0
-  organisms: []
+  activeOrganismsCount: 0
+  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
@@ -10696,10 +10708,8 @@ MonoBehaviour:
   eddibleFoodTypesInput:
   - Stem
   - Blade
-  animals: []
-  activeAnimals: 
-  activeCorpses: 
-  inactiveAnimals: 
+  activeDeadAnimalCount: 0
+  inactiveDeadAnimalCount: 0
 --- !u!114 &1627060940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11151,10 +11161,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.34
+  eatSpeed: 0
   eatRange: 0
-  eatTime: 0.35
 --- !u!114 &1754343637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11167,7 +11176,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 10.37
   eyeType: 0
 --- !u!114 &1754343638
@@ -11182,7 +11190,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 7.36
 --- !u!114 &1754343639
 MonoBehaviour:
@@ -11202,9 +11209,10 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 0
   startingPopulation: 0
+  organs: []
   speciesIndex: 0
-  specificSpeciesIndex: 0
-  organisms: []
+  activeOrganismsCount: 0
+  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
@@ -11217,10 +11225,8 @@ MonoBehaviour:
   maxAge: 14
   deteriationTime: 0
   eddibleFoodTypesInput: []
-  animals: []
-  activeAnimals: 
-  activeCorpses: 
-  inactiveAnimals: 
+  activeDeadAnimalCount: 0
+  inactiveDeadAnimalCount: 0
 --- !u!114 &1754343643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11961,10 +11967,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.1
+  eatSpeed: 0
   eatRange: 0
-  eatTime: 0.39
 --- !u!114 &1924411858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11977,7 +11982,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 6.41
   eyeType: 0
 --- !u!114 &1924411859
@@ -11992,7 +11996,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 7.5
 --- !u!114 &1924411860
 MonoBehaviour:
@@ -12012,9 +12015,10 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 0
   startingPopulation: 0
+  organs: []
   speciesIndex: 0
-  specificSpeciesIndex: 0
-  organisms: []
+  activeOrganismsCount: 0
+  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 0}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
   bodyWeight: 0
@@ -12026,10 +12030,8 @@ MonoBehaviour:
   maxAge: 16
   deteriationTime: 0
   eddibleFoodTypesInput: []
-  animals: []
-  activeAnimals: 
-  activeCorpses: 
-  inactiveAnimals: 
+  activeDeadAnimalCount: 0
+  inactiveDeadAnimalCount: 0
 --- !u!114 &1924411864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12460,15 +12462,12 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 0
   startingPopulation: 0
+  organs: []
   speciesIndex: 0
-  specificSpeciesIndex: 0
-  organisms: []
+  activeOrganismsCount: 0
+  inactiveOrganismsCount: 0
   plantPrefab: {fileID: 0}
-  speciesOrgansOrder: []
   growthStagesInput: []
-  plants: []
-  activePlants: 
-  inactivePlants: 
 --- !u!1 &1994337417
 GameObject:
   m_ObjectHideFlags: 0
@@ -13074,10 +13073,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afacf77f7768a4ce9bc71299fff8e5e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouth: {fileID: 1411799495688318, guid: 6e9b8c6169efb40139a7cc51ca226c1d, type: 3}
   biteSize: 0.7
+  eatSpeed: 0
   eatRange: 0
-  eatTime: 1.2
 --- !u!114 &2143928216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13090,7 +13088,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 905221b89439b4edfa037cb711460c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eyes: {fileID: 1854901955905016, guid: 0482e499b75b74d30a7a877a032f012d, type: 3}
   sightRange: 8
   eyeType: 0
 --- !u!114 &2143928217
@@ -13105,7 +13102,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b7df7061cc3d44cab12a46910b496e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ears: {fileID: 1875213387621888, guid: 567a078e279214c6f9143f7adfd0c1b7, type: 3}
   hearRange: 3
 --- !u!114 &2143928218
 MonoBehaviour:
@@ -13125,9 +13121,10 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 0
   startingPopulation: 0
+  organs: []
   speciesIndex: 0
-  specificSpeciesIndex: 0
-  organisms: []
+  activeOrganismsCount: 0
+  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
@@ -13141,10 +13138,8 @@ MonoBehaviour:
   deteriationTime: 0
   eddibleFoodTypesInput:
   - Grass
-  animals: []
-  activeAnimals: 
-  activeCorpses: 
-  inactiveAnimals: 
+  activeDeadAnimalCount: 0
+  inactiveDeadAnimalCount: 0
 --- !u!114 &2143928222
 MonoBehaviour:
   m_ObjectHideFlags: 0
