@@ -189,7 +189,7 @@ public abstract class Species : MonoBehaviour {
     public virtual int SpawnOrganism() {
         int organismIndex = ActivateInactiveOrganism();
         organisms[organismIndex] = new Organism(organisms[organismIndex], activeOrganismsCount - 1, true);
-        Debug.LogWarning("Need to add position and rotation here.");
+        //Debug.LogWarning("Need to add position and rotation here.");
         return organismIndex;
     }
 
@@ -204,7 +204,7 @@ public abstract class Species : MonoBehaviour {
     public virtual int SpawnOrganism(float3 position, int zone, float distance) {
         int organism = ActivateInactiveOrganism();
         organisms[organism] = new Organism(organisms[organism], 0, zone, position, 0, activeOrganismsCount - 1, true);
-        Debug.LogWarning("Need to add position and rotation here.");
+        //Debug.LogWarning("Need to add position and rotation here.");
         return organism;
     }
 
@@ -300,7 +300,7 @@ public abstract class Species : MonoBehaviour {
         }
 
         public JobHandle BeginJob() {
-            return IJobParallelForExtensions.Schedule(this, SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].activeOrganismsCount, SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].activeOrganismsCount);
+            return IJobParallelForExtensions.Schedule(this, SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].activeOrganismsCount, 10);
         }
 
         public void Execute(int index) {

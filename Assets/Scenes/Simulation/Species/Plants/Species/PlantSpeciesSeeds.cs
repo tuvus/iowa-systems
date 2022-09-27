@@ -85,14 +85,14 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
     public int SpawnSeed() {
         int seed = ActivateInactiveSeed();
         seeds[seed] = new Organism(seeds[seed], Simulation.randomGenerator.NextFloat(0, timeRequirement), 0, float3.zero, 0, activeSeedsCount - 1, true);
-        Debug.LogWarning("Need to add position and rotation here.");
+        //Debug.LogWarning("Need to add position and rotation here.");
         return seed;
     }
 
     public int SpawnSeed(float3 position, int zone, float distance) {
         int seed = ActivateInactiveSeed();
         seeds[seed] = new Organism(seeds[seed],0,zone,position, 0, activeSeedsCount - 1, true);
-        Debug.LogWarning("Need to add position and rotation here.");
+        //Debug.LogWarning("Need to add position and rotation here.");
         return seed;
     }
 
@@ -214,7 +214,7 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
         }
 
         public JobHandle BeginJob() {
-            return IJobParallelForExtensions.Schedule(this, ((PlantSpecies)SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species]).GetSpeciesSeeds().activeSeedsCount, SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].activeOrganismsCount);
+            return IJobParallelForExtensions.Schedule(this, ((PlantSpecies)SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species]).GetSpeciesSeeds().activeSeedsCount, 10);
         }
 
         public void Execute(int index) {
