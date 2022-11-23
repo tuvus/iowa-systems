@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using System;
 using Unity.Collections.LowLevel.Unsafe;
+using System.Threading;
 
 public class PlantSpecies : Species {
     public GameObject plantPrefab;
@@ -171,8 +172,9 @@ public class PlantSpecies : Species {
 
     protected override void UpdateOrganism(int organism) {
         base.UpdateOrganism(organism);
-        if (organisms[organism].age > 1000) {
-            organismActionsParallelWriter.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
+        if (organisms[organism].age > 100) {
+            int actionIndex = Interlocked.Increment(ref organismActionsCount);
+            organismActions[actionIndex] = new OrganismAction(OrganismAction.Action.Die, organism);
             return;
         }
         float bladeArea = plants[organism].bladeArea;

@@ -19,6 +19,7 @@ public class Calculator : MonoBehaviour {
         return 2 * math.PI * GetRadius();
     }
 
+
     public static float GetSurfaceArea() {
         return 4 * math.PI * math.pow(GetRadius(), 2);
     }
@@ -34,8 +35,6 @@ public class Calculator : MonoBehaviour {
     public static float GetSurfaceAreaWithinDistance(float distance) {
         return 0;
     }
-
-
 
     public static float3 GetRandomPosition() {
         return 0;

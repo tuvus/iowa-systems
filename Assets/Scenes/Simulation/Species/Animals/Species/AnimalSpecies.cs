@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using Unity.Collections.LowLevel.Unsafe;
+using System.Threading;
 
 public class AnimalSpecies : Species {
     public GameObject basicOrganism;
@@ -206,7 +207,8 @@ public class AnimalSpecies : Species {
     protected override void UpdateOrganism(int organism) {
         base.UpdateOrganism(organism);
         if (organisms[organism].age > maxAge) {
-            organismActionsParallelWriter.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
+            int actionIndex = Interlocked.Increment(ref organismActionsCount);
+            organismActions[actionIndex] = new OrganismAction(OrganismAction.Action.Die, organism);
             return;
         }
         if (animals[organism].stage != GrowthStage.Adult && organisms[organism].age > reproductiveSystem.reproductionAge)

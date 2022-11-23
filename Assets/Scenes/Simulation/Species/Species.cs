@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
@@ -140,8 +141,8 @@ public abstract class Species : MonoBehaviour {
     public int activeOrganismsCount;
     public NativeArray<int> inactiveOrganisms;
     public int inactiveOrganismsCount;
-    public NativeQueue<OrganismAction> organismActions;
-    public NativeQueue<OrganismAction>.ParallelWriter organismActionsParallelWriter;
+    public NativeArray<OrganismAction> organismActions;
+    public int organismActionsCount;
 
     SpeciesUpdateJob speciesUpdateJob;
 
@@ -159,14 +160,14 @@ public abstract class Species : MonoBehaviour {
         organisms = new NativeArray<Organism>(arrayLength, Allocator.Persistent);
         activeOrganisms = new NativeArray<int>(arrayLength, Allocator.Persistent);
         inactiveOrganisms = new NativeArray<int>(arrayLength, Allocator.Persistent);
-        organismActions = new NativeQueue<OrganismAction>(Allocator.Persistent);
-        organismActionsParallelWriter = organismActions.AsParallelWriter();
+        organismActions = new NativeArray<OrganismAction>(arrayLength, Allocator.Persistent);
         speciesUpdateJob = new SpeciesUpdateJob(speciesIndex);
         for (int i = 0; i < organisms.Length; i++) {
             inactiveOrganisms[i] = i;
         }
         inactiveOrganismsCount = organisms.Length;
         activeOrganismsCount = 0;
+        organismActionsCount = 0;
         for (int i = 0; i < organs.Count; i++) {
             organs[i].SetupSpeciesOrganArrays(arrayLength);
         }
@@ -289,6 +290,12 @@ public abstract class Species : MonoBehaviour {
             organs[i].IncreaseOrganismSize(newSize);
 
         }
+        NativeArray<OrganismAction> oldorganismActions = organismActions;
+        organismActions = new NativeArray<OrganismAction>(newSize, Allocator.Persistent);
+        for (int i = 0; i < oldorganismActions.Length; i++) {
+            organismActions[i] = oldorganismActions[i];
+        }
+        oldorganismActions.Dispose();
     }
     #endregion
 
@@ -324,24 +331,24 @@ public abstract class Species : MonoBehaviour {
     }
 
     public virtual void UpdateOrganismActions() {
-        while (!organismActions.IsEmpty()) {
+        while (organismActionsCount >= 0) {
             //No need to worry about deactivating an already inactive organism, it is handled in DeactivateActiveOrganism()
-            OrganismAction action = organismActions.Dequeue();
-            switch (action.action) {
+            switch (organismActions[organismActionsCount].action) {
                 case OrganismAction.Action.Starve:
-                    DeactivateActiveOrganism(action.organism);
+                    DeactivateActiveOrganism(organismActions[organismActionsCount].organism);
                     break;
                 case OrganismAction.Action.Die:
-                    DeactivateActiveOrganism(action.organism);
+                    DeactivateActiveOrganism(organismActions[organismActionsCount].organism);
                     break;
                 case OrganismAction.Action.Bite:
                     break;
                 case OrganismAction.Action.Eat:
                     break;
                 case OrganismAction.Action.Reproduce:
-                    ReproduceOrganism(action);
+                    ReproduceOrganism(organismActions[organismActionsCount]);
                     break;
             }
+            organismActionsCount--;
         }
     }
 
@@ -394,6 +401,8 @@ public abstract class Species : MonoBehaviour {
             activeOrganisms.Dispose();
         if (inactiveOrganisms.IsCreated)
             inactiveOrganisms.Dispose();
+        if (organismActions.IsCreated)
+            organismActions.Dispose();
         if (organismActions.IsCreated)
             organismActions.Dispose();
     }
