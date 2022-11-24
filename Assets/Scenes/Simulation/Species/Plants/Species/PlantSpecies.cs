@@ -44,8 +44,44 @@ public class PlantSpecies : Species {
     }
 
     public NativeArray<GrowthStageData> growthStages;
+    public PlantList plantList;
+    public NativeArray<Plant> plants;
 
-    [NativeDisableContainerSafetyRestriction] public NativeArray<Plant> plants;
+    public class PlantList : IOrganismListExtender {
+        [NativeDisableContainerSafetyRestriction] public NativeArray<Plant> plants;
+        IOrganismListExtender listExtender;
+
+        public PlantList(IOrganismListExtender extensionFrom) {
+            extensionFrom.AddListExtender(this);
+            plants = new NativeArray<Plant>(extensionFrom.GetListCapacity(), Allocator.Persistent);
+        }
+
+        public void AddListExtender(IOrganismListExtender listExtender) {
+            if (this.listExtender == null)
+                this.listExtender = listExtender;
+            else
+                this.listExtender.AddListExtender(listExtender);
+        }
+
+        public int GetListCapacity() {
+            return plants.Length;
+        }
+
+        public void IncreaseOrganismListCapacity(int newCapacity) {
+            NativeArray<Plant> oldPlants = plants;
+            plants = new NativeArray<Plant>(newCapacity, Allocator.Persistent);
+            NativeArray<Plant>.Copy(oldPlants, 0, plants, 0, oldPlants.Length);
+            oldPlants.Dispose();
+            if (listExtender != null)
+                listExtender.IncreaseOrganismListCapacity(newCapacity);
+        }
+
+        public void Deallocate() {
+            plants.Dispose();
+            if (listExtender != null)
+                listExtender.Deallocate();
+        }
+    }
 
     public struct Plant {
         public GrowthStage stage;
@@ -74,6 +110,7 @@ public class PlantSpecies : Species {
     #region StartSimulation
     public override void SetupSimulation(Earth earth) {
         base.SetupSimulation(earth);
+        plantList = new PlantList(organismList);
         plantSpeciesSeeds = GetComponent<PlantSpeciesSeeds>();
         growthStages = new NativeArray<GrowthStageData>(growthStagesInput.Count, Allocator.Persistent);
         for (int i = 0; i < growthStagesInput.Count; i++) {
@@ -113,11 +150,6 @@ public class PlantSpecies : Species {
         return types;
     }
 
-    public override void SetupArrays(int arrayLength) {
-        base.SetupArrays(arrayLength);
-        plants = new NativeArray<Plant>(arrayLength, Allocator.Persistent);
-    }
-
     public override void SetupSpeciesFoodType() {
         for (int i = 0; i < organs.Count; i++) {
             ((PlantSpeciesOrgan)organs[i]).SetupSpeciesOrganFoodType();
@@ -143,7 +175,7 @@ public class PlantSpecies : Species {
     public override int SpawnOrganism() {
         int plant = base.SpawnOrganism();
         GrowthStage stage = (GrowthStage)Simulation.randomGenerator.NextInt(1, 6);
-        organisms[plant] = new Organism(organisms[plant], GetGrowthStageData(stage).daysAfterGermination, -1, Vector3.zero, 0);
+        organisms[plant] = new Organism(GetGrowthStageData(stage).daysAfterGermination, -1, Vector3.zero, 0);
         plants[plant] = new Plant(stage, GetGrowthStageData(stage));
         plantSpeciesSeeds.SpawnAwns(plant);
         return plant;
@@ -156,14 +188,9 @@ public class PlantSpecies : Species {
         return plant;
     }
 
-    protected override void IncreaseOrganismSize(int newSize) {
-        base.IncreaseOrganismSize(newSize);
-        NativeArray<Plant> oldPlants = plants;
-        plants = new NativeArray<Plant>(newSize, Allocator.Persistent);
-        for (int i = 0; i < oldPlants.Length; i++) {
-            plants[i] = oldPlants[i];
-        }
-        oldPlants.Dispose();
+    protected override void IncreaseOrganismCapacity(int newSize) {
+        base.IncreaseOrganismCapacity(newSize);
+
     }
 
     public GrowthStageData GetGrowthStageData(GrowthStage stage) {
@@ -235,7 +262,5 @@ public class PlantSpecies : Species {
         base.OnDestroy();
         if (growthStages.IsCreated)
             growthStages.Dispose();
-        if (plants.IsCreated)
-            plants.Dispose();
     }
 }

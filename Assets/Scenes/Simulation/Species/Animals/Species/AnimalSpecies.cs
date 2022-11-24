@@ -148,8 +148,8 @@ public class AnimalSpecies : Species {
         return animal;
     }
 
-    protected override void IncreaseOrganismSize(int newSize) {
-        base.IncreaseOrganismSize(newSize);
+    protected override void IncreaseOrganismCapacity(int newSize) {
+        base.IncreaseOrganismCapacity(newSize);
         NativeArray<Animal> oldAnimals = animals;
         animals = new NativeArray<Animal>(newSize, Allocator.Persistent);
         for (int i = 0; i < oldAnimals.Length; i++) {
