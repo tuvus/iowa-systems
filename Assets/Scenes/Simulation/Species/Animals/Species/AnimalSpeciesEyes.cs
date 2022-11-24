@@ -13,9 +13,4 @@ public class AnimalSpeciesEyes : AnimalSpeciesOrgan {
     public float sightRange;
     [Tooltip("The eye type that the animal has")]
     public EyeTypes eyeType;
-
-
-    public override void SetupSpeciesOrganArrays(int arraySize) {
-        //No aditional data needs to be stored here, it is currently being stored in the Plant struct
-    }
 }

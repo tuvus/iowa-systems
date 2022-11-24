@@ -9,7 +9,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-public abstract class Species : MonoBehaviour {
+public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
     private Earth earth;
     public string speciesName;
     public string speciesDisplayName;
@@ -116,13 +116,13 @@ public abstract class Species : MonoBehaviour {
         for (int i = 0; i < organs.Count; i++) {
             organs[i].SetSpeciesScript(this);
         }
-        organismList = new OrganismList<Organism>(math.max(startingPopulation * 2, 100));
+        organismList = new OrganismList<Organism>(math.max(startingPopulation * 2, 100), this);
         organisms = organismList.organisms;
         organismActions = new NativeArray<OrganismAction>(organismList.GetListCapacity(), Allocator.Persistent);
         organismActionsCount = 0;
         speciesUpdateJob = new SpeciesUpdateJob(speciesIndex);
         for (int i = 0; i < organs.Count; i++) {
-            organs[i].SetupSpeciesOrganArrays(organismList.GetListCapacity());
+            organs[i].SetupSpeciesOrganArrays(organismList);
         }
     }
 
@@ -164,15 +164,17 @@ public abstract class Species : MonoBehaviour {
     /// Increases the size of the organism arrays, active and inactive arrays.
     /// Also increases the size for all of the organs, plants and animals liked with it.
     /// </summary>
-    /// <param name="newCapacity"></param>
-    protected virtual void IncreaseOrganismCapacity(int newCapacity) {
-        organismList.IncreaseOrganismListCapacity(newCapacity);
+    public virtual void OnListUpdate() {
+        organisms = organismList.organisms;
         NativeArray<OrganismAction> oldorganismActions = organismActions;
-        organismActions = new NativeArray<OrganismAction>(newCapacity, Allocator.Persistent);
+        organismActions = new NativeArray<OrganismAction>(organismList.GetListCapacity(), Allocator.Persistent);
         for (int i = 0; i < oldorganismActions.Length; i++) {
             organismActions[i] = oldorganismActions[i];
         }
         oldorganismActions.Dispose();
+        for (int i = 0; i < organs.Count; i++) {
+            organs[i].OnListUpdate();
+        }
     }
     #endregion
 
@@ -272,11 +274,14 @@ public abstract class Species : MonoBehaviour {
         return earth;
     }
 
+    /// <summary>
+    /// Called both when species prefabs are destroyed in the intro and the simulation
+    /// </summary>
     public virtual void OnDestroy() {
-        organismList.Deallocate();
-        if (organismActions.IsCreated)
+        if (earth != null) {
+            //Only deallocate during the simulation
+            organismList.Deallocate();
             organismActions.Dispose();
-        if (organismActions.IsCreated)
-            organismActions.Dispose();
+        }
     }
 }

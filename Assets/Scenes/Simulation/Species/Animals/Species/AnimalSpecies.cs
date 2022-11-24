@@ -66,13 +66,11 @@ public class AnimalSpecies : Species {
         }
     }
 
-    [NativeDisableContainerSafetyRestriction] public NativeArray<Animal> animals;
+    public OrganismAtribute<Animal> animalList;
+    public NativeArray<Animal> animals;
 
-    [NativeDisableContainerSafetyRestriction] public NativeArray<Organism> deadAnimals;
-    public NativeArray<int> activeDeadAnimals;
-    public int activeDeadAnimalCount;
-    public NativeArray<int> inactiveDeadAnimals;
-    public int inactiveDeadAnimalCount;
+    public OrganismList<Organism> deadAnimalList;
+    public NativeArray<Organism> deadAnimals;
 
     public NativeArray<int> eddibleFoodTypes;
     public NativeArray<int> predatorFoodTypes;
@@ -83,11 +81,10 @@ public class AnimalSpecies : Species {
         reproductiveSystem = gameObject.GetComponent<AnimalSpeciesReproductiveSystem>();
         base.SetupSimulation(earth);
         fullFood = maxFood * .7f;
-    }
-
-    public override void SetupArrays(int arrayLength) {
-        base.SetupArrays(arrayLength);
-        animals = new NativeArray<Animal>(arrayLength, Allocator.Persistent);
+        animalList = new OrganismAtribute<Animal>(organismList);
+        animals = animalList.organismAttributes;
+        deadAnimalList = new OrganismList<Organism>(organismList.GetListCapacity(), this);
+        deadAnimals = deadAnimalList.organisms;
     }
 
     public override void SetupSpeciesFoodType() {
@@ -134,74 +131,31 @@ public class AnimalSpecies : Species {
 
     public override int SpawnOrganism() {
         int animal = base.SpawnOrganism();
-        organisms[animal] = new Organism(organisms[animal], Simulation.randomGenerator.NextFloat(reproductiveSystem.reproductionAge / 2, maxAge / 1.2f),
-            -1, Vector3.zero, 0);
+        organisms[animal] = new Organism(Simulation.randomGenerator.NextFloat(reproductiveSystem.reproductionAge / 2, maxAge / 1.2f), -1, Vector3.zero, 0);
         animals[animal] = new Animal(reproductiveSystem.SpawnReproductive(animal), bodyWeight, maxHealth, Simulation.randomGenerator.NextFloat(fullFood, maxFood));
+        //TODO: Add position and rotation
         return animal;
     }
 
     public override int SpawnOrganism(float3 position, int zone, float distance) {
         int animal = base.SpawnOrganism();
-        organisms[animal] = new Organism(organisms[animal], 0, -1, Vector3.zero, 0);
+        organisms[animal] = new Organism(0, -1, Vector3.zero, 0);
         animals[animal] = new Animal();
-        throw new NotImplementedException();
+        //TODO: Add position and rotation
         return animal;
     }
 
-    protected override void IncreaseOrganismCapacity(int newSize) {
-        base.IncreaseOrganismCapacity(newSize);
-        NativeArray<Animal> oldAnimals = animals;
-        animals = new NativeArray<Animal>(newSize, Allocator.Persistent);
-        for (int i = 0; i < oldAnimals.Length; i++) {
-            animals[i] = oldAnimals[i];
-        }
-        oldAnimals.Dispose();
+    public override void OnListUpdate() {
+        base.OnListUpdate();
+        animals = animalList.organismAttributes;
+        deadAnimals = deadAnimalList.organisms;
     }
 
     public int SpawnDeadAnimal() {
-        int deadAnimal = ActivateInactiveDeadAnimal();
-        deadAnimals[deadAnimal] = new Species.Organism(deadAnimals[deadAnimal], 0, 0, float3.zero, 0, activeDeadAnimalCount - 1, true);
-        throw new NotImplementedException("Need to add position and rotation here.");
+        int deadAnimal = deadAnimalList.ActivateOrganism();
+        deadAnimals[deadAnimal] = new Organism(0, 0, float3.zero, 0);
+        //TODO: Add position and rotation
         return deadAnimal;
-    }
-
-    /// <summary>
-    /// Gets an inactive dead animal, activates it and returns it.
-    /// May change the size of the dead animal arrays
-    /// </summary>
-    /// <returns>A new active dead animal</returns>
-    private int ActivateInactiveDeadAnimal() {
-        if (inactiveDeadAnimalCount == 0) {
-            IncreaseDeadAnimalSize(deadAnimals.Length * 2);
-        }
-        int newDeadAnimal = inactiveDeadAnimals[inactiveDeadAnimalCount - 1];
-        inactiveDeadAnimalCount--;
-
-        activeDeadAnimals[activeDeadAnimalCount] = newDeadAnimal;
-        activeDeadAnimalCount++;
-        return newDeadAnimal;
-    }
-
-    /// <summary>
-    /// Removes the dead animal from the active list and adds it to the inactive list.
-    /// Does not acualy change the dead animal's data.
-    /// </summary>
-    /// <param name="deadAnimalIndex">The index of the dead animal</param>
-    public void DeactivateActiveDeadAnimal(int deadAnimalIndex) {
-        for (int i = deadAnimals[deadAnimalIndex].maxActiveOrganismIndex; i < activeDeadAnimalCount - 1; i++) {
-            activeDeadAnimals[i] = activeDeadAnimals[i + 1];
-        }
-        activeDeadAnimalCount--;
-        inactiveDeadAnimals[inactiveDeadAnimalCount] = deadAnimalIndex;
-        inactiveDeadAnimalCount++;
-    }
-
-    /// <summary>
-    /// Increases the size of the dead animals arrays, active and inactive arrays.
-    /// </summary>
-    /// <param name="newSize"></param>
-    protected virtual void IncreaseDeadAnimalSize(int newSize) {
-        throw new NotImplementedException("IncreaseDeadAnimalsSize has not been implamented yet.");
     }
 
     protected override void UpdateOrganism(int organism) {
@@ -281,7 +235,7 @@ public class AnimalSpecies : Species {
     }
 
     float GetEyeDistance(float3x2 eyePositions, float3 to) {
-        throw new NotImplementedException();
+        //TODO: Implement eye distance
         if (GetEyeType() == AnimalSpeciesEyes.EyeTypes.Foward) {
             return math.distance(eyePositions.c0, to);
         } else {
@@ -358,17 +312,11 @@ public class AnimalSpecies : Species {
     /// </summary>
     public override void OnDestroy() {
         base.OnDestroy();
-        if (eddibleFoodTypes.IsCreated)
+        if (GetEarth() != null) {
+            //Only deallocate during the simulation
+            deadAnimalList.Deallocate();
             eddibleFoodTypes.Dispose();
-        if (predatorFoodTypes.IsCreated)
             predatorFoodTypes.Dispose();
-        if (animals.IsCreated)
-            animals.Dispose();
-        if (deadAnimals.IsCreated)
-            deadAnimals.Dispose();
-        if (activeDeadAnimals.IsCreated)
-            activeDeadAnimals.Dispose();
-        if (inactiveDeadAnimals.IsCreated)
-            inactiveDeadAnimals.Dispose();
+        }
     }
 }

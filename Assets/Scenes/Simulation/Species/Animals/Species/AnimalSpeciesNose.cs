@@ -8,8 +8,4 @@ public class AnimalSpeciesNose : AnimalSpeciesOrgan {
 
     [Tooltip("How far away the animal can smell in meters")]
     public float smellRange;
-
-    public override void SetupSpeciesOrganArrays(int arraySize) {
-        //No aditional data needs to be stored here, it is currently being stored in the Plant struct
-    }
 }

@@ -10,9 +10,4 @@ public class AnimalSpeciesMouth : AnimalSpeciesOrgan {
     public float eatSpeed;
     [Tooltip("How far away the organism can bite in meters")]
     public float eatRange;
-
-
-    public override void SetupSpeciesOrganArrays(int arraySize) {
-        //No aditional data needs to be stored here, it is currently being stored in the Plant struct
-    }
 }

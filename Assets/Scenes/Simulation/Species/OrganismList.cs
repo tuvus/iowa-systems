@@ -28,28 +28,39 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
     }
 
     [NativeDisableContainerSafetyRestriction] public NativeArray<T> organisms;
-    [NativeDisableContainerSafetyRestriction] public NativeArray<OrganismStatus> organismsStatus;
+    [NativeDisableContainerSafetyRestriction] public NativeArray<OrganismStatus> organismStatuses;
     public NativeArray<int> activeOrganisms;
     public int activeOrganismCount;
     public NativeArray<int> inactiveOrganisms;
     public int inactiveOrganismCount;
     //An extention of values for the organism without having to add new active and inactive organism holders
     private IOrganismListExtender listExtender;
+    private IOrganismListCapacityChange organismListHolder;
 
     /// <summary>
     /// Creates the OrganismList with a capacity of initialCapacity
     /// </summary>
     /// <param name="initialCapacity">The starting capacity of the list</param>
-    public OrganismList(int initialCapacity) {
+    public OrganismList(int initialCapacity, IOrganismListCapacityChange organismListHolder) {
+        this.organismListHolder = organismListHolder;
         organisms = new NativeArray<T>(initialCapacity, Allocator.Persistent);
-        organismsStatus = new NativeArray<OrganismStatus>(initialCapacity, Allocator.Persistent);
+        organismStatuses = new NativeArray<OrganismStatus>(initialCapacity, Allocator.Persistent);
         activeOrganisms = new NativeArray<int>(initialCapacity, Allocator.Persistent);
         activeOrganismCount = 0;
         inactiveOrganisms = new NativeArray<int>(initialCapacity, Allocator.Persistent);
-        inactiveOrganismCount = 0;
+        inactiveOrganismCount = initialCapacity;
         for (int i = 0; i < organisms.Length; i++) {
             inactiveOrganisms[i] = i;
         }
+    }
+
+    /// <summary>
+    /// Creates the OrganismList with a capacity of listExtenders capacity.
+    /// Links listExtender to this OrganismList.
+    /// </summary>
+    /// <param name="listExtender">The parent list that should govern the size of this list</param>
+    public OrganismList(IOrganismListExtender listExtender) : this(listExtender.GetListCapacity(), null) {
+        listExtender.AddListExtender(this);
     }
 
     public void AddListExtender(IOrganismListExtender listExtender) {
@@ -72,14 +83,16 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
         //Make sure that there are free inactive organisms to get
         if (inactiveOrganismCount == 0) {
             IncreaseOrganismListCapacity(organisms.Length * 2);
+            organismListHolder.OnListUpdate();
         }
         //Get the first inactive organism and remove it from the inactiveOrganisms list
-        int newOrganism = inactiveOrganisms[inactiveOrganismCount - 1];
+        int newOrganismIndex = inactiveOrganisms[inactiveOrganismCount - 1];
         inactiveOrganismCount--;
         //Add the organism to the activeOrganismsList
-        activeOrganisms[activeOrganismCount] = newOrganism;
+        activeOrganisms[activeOrganismCount] = newOrganismIndex;
+        organismStatuses[newOrganismIndex] = new OrganismStatus(true, newOrganismIndex, activeOrganismCount);
         activeOrganismCount++;
-        return newOrganism;
+        return newOrganismIndex;
     }
 
     /// <summary>
@@ -91,11 +104,11 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
     /// <param name="organismIndex">The index of the organism</param>
     public void DeactivateActiveOrganism(int organismIndex) {
         //Check if the organism is still active
-        if (!organismsStatus[organismIndex].spawned)
+        if (!organismStatuses[organismIndex].spawned)
             return;
         //Finds the activeOrganismIndex starting at maxActiveOrganismIndex and works it's way to the begining.
         //Because of the way activeOrganisms are removed the index must be equal to or less than maxActiveOrganismIndex.
-        int activeOrganismIndex = organismsStatus[organismIndex].maxActiveOrganismIndex;
+        int activeOrganismIndex = organismStatuses[organismIndex].maxActiveOrganismIndex;
         for (; activeOrganismIndex >= -1; activeOrganismIndex--) {
             if (activeOrganisms[activeOrganismIndex] == organismIndex)
                 break;
@@ -108,7 +121,7 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
         //Add the organism to the inactive list
         inactiveOrganisms[inactiveOrganismCount] = organismIndex;
         inactiveOrganismCount++;
-        organismsStatus[organismIndex] = new OrganismStatus(false, organismIndex, -2);
+        organismStatuses[organismIndex] = new OrganismStatus(false, organismIndex, -2);
     }
 
     /// <summary>
@@ -122,25 +135,26 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
         NativeArray<T>.Copy(oldOrganisms, 0, organisms, 0, oldOrganisms.Length);
         oldOrganisms.Dispose();
 
-        NativeArray<OrganismStatus> oldOrganismsStatus = organismsStatus;
-        organismsStatus = new NativeArray<OrganismStatus>(newCapacity, Allocator.Persistent);
-        NativeArray<OrganismStatus>.Copy(oldOrganismsStatus, 0, organismsStatus, 0, oldOrganismsStatus.Length);
+        NativeArray<OrganismStatus> oldOrganismsStatus = organismStatuses;
+        organismStatuses = new NativeArray<OrganismStatus>(newCapacity, Allocator.Persistent);
+        NativeArray<OrganismStatus>.Copy(oldOrganismsStatus, 0, organismStatuses, 0, oldOrganismsStatus.Length);
         oldOrganismsStatus.Dispose();
 
         NativeArray<int> oldActiveOrganisms = activeOrganisms;
         activeOrganisms = new NativeArray<int>(newCapacity, Allocator.Persistent);
         NativeArray<int>.Copy(oldActiveOrganisms, 0, activeOrganisms, 0, oldActiveOrganisms.Length);
         oldActiveOrganisms.Dispose();
+
         NativeArray<int> oldInActiveOrganisms = inactiveOrganisms;
         inactiveOrganisms = new NativeArray<int>(newCapacity, Allocator.Persistent);
         NativeArray<int>.Copy(oldInActiveOrganisms, 0, inactiveOrganisms, 0, oldInActiveOrganisms.Length);
-
         //Add new inactiveOrganisms to the inactiveOrganismList and increment inactiveOrganismCount
         for (int i = oldInActiveOrganisms.Length; i < inactiveOrganisms.Length; i++) {
-            inactiveOrganisms[inactiveOrganismCount] = i;
-            inactiveOrganismCount++;
+            inactiveOrganisms[i] = i;
         }
+        inactiveOrganismCount += newCapacity - oldInActiveOrganisms.Length;
         oldInActiveOrganisms.Dispose();
+
         if (listExtender != null)
             listExtender.IncreaseOrganismListCapacity(newCapacity);
     }
@@ -150,7 +164,7 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
     /// </summary>
     public void Deallocate() {
         organisms.Dispose();
-        organismsStatus.Dispose();
+        organismStatuses.Dispose();
         activeOrganisms.Dispose();
         inactiveOrganisms.Dispose();
         if (listExtender != null)

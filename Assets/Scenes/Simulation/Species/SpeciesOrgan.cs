@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using Unity.Jobs;
 using UnityEngine;
 
-public abstract class SpeciesOrgan : MonoBehaviour {
+public abstract class SpeciesOrgan : MonoBehaviour, IOrganismListCapacityChange {
     private Species species;
 
     public void SetSpeciesScript(Species species) {
         this.species = species;
     }
 
-    public virtual void SetupSpeciesOrganArrays(int arraySize) { }
+    public virtual void SetupSpeciesOrganArrays(IOrganismListExtender listExtender) { }
 
-    public virtual void IncreaseOrganismSize(int newSize) { }
-
+    public virtual void OnListUpdate() { }
 
     public virtual JobHandle? StartJob() {
         return null;

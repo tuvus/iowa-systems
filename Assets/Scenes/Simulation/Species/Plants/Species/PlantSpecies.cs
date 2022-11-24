@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using System;
 using Unity.Collections.LowLevel.Unsafe;
 using System.Threading;
+using System.IO;
 
 public class PlantSpecies : Species {
     public GameObject plantPrefab;
@@ -44,44 +45,8 @@ public class PlantSpecies : Species {
     }
 
     public NativeArray<GrowthStageData> growthStages;
-    public PlantList plantList;
+    public OrganismAtribute<Plant> plantList;
     public NativeArray<Plant> plants;
-
-    public class PlantList : IOrganismListExtender {
-        [NativeDisableContainerSafetyRestriction] public NativeArray<Plant> plants;
-        IOrganismListExtender listExtender;
-
-        public PlantList(IOrganismListExtender extensionFrom) {
-            extensionFrom.AddListExtender(this);
-            plants = new NativeArray<Plant>(extensionFrom.GetListCapacity(), Allocator.Persistent);
-        }
-
-        public void AddListExtender(IOrganismListExtender listExtender) {
-            if (this.listExtender == null)
-                this.listExtender = listExtender;
-            else
-                this.listExtender.AddListExtender(listExtender);
-        }
-
-        public int GetListCapacity() {
-            return plants.Length;
-        }
-
-        public void IncreaseOrganismListCapacity(int newCapacity) {
-            NativeArray<Plant> oldPlants = plants;
-            plants = new NativeArray<Plant>(newCapacity, Allocator.Persistent);
-            NativeArray<Plant>.Copy(oldPlants, 0, plants, 0, oldPlants.Length);
-            oldPlants.Dispose();
-            if (listExtender != null)
-                listExtender.IncreaseOrganismListCapacity(newCapacity);
-        }
-
-        public void Deallocate() {
-            plants.Dispose();
-            if (listExtender != null)
-                listExtender.Deallocate();
-        }
-    }
 
     public struct Plant {
         public GrowthStage stage;
@@ -110,9 +75,11 @@ public class PlantSpecies : Species {
     #region StartSimulation
     public override void SetupSimulation(Earth earth) {
         base.SetupSimulation(earth);
-        plantList = new PlantList(organismList);
+        plantList = new OrganismAtribute<Plant>(organismList);
+        plants = plantList.organismAttributes;
         plantSpeciesSeeds = GetComponent<PlantSpeciesSeeds>();
         growthStages = new NativeArray<GrowthStageData>(growthStagesInput.Count, Allocator.Persistent);
+        
         for (int i = 0; i < growthStagesInput.Count; i++) {
             growthStages[i] = growthStagesInput[i];
         }
@@ -183,14 +150,14 @@ public class PlantSpecies : Species {
 
     public override int SpawnOrganism(float3 position, int zone, float distance) {
         int plant = base.SpawnOrganism();
-        organisms[plant] = new Organism(organisms[plant], 0, zone, position, 0);
+        organisms[plant] = new Organism(0, zone, position, 0);
         plants[plant] = new Plant(GrowthStage.Germinating, 10, 10, 10);
         return plant;
     }
 
-    protected override void IncreaseOrganismCapacity(int newSize) {
-        base.IncreaseOrganismCapacity(newSize);
-
+    public override void OnListUpdate() {
+        base.OnListUpdate();
+        plants = plantList.organismAttributes;
     }
 
     public GrowthStageData GetGrowthStageData(GrowthStage stage) {
@@ -260,7 +227,9 @@ public class PlantSpecies : Species {
     /// </summary>
     public override void OnDestroy() {
         base.OnDestroy();
-        if (growthStages.IsCreated)
+        if (GetEarth() != null) {
+            //Only deallocate during the simulation
             growthStages.Dispose();
+        }
     }
 }

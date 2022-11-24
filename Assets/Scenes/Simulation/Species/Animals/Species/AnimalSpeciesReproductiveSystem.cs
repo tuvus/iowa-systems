@@ -19,6 +19,7 @@ public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
     [Tooltip("The chance that each new offspring is successfully birthed")]
     public int birthSuccessPercent;
 
+    public OrganismAtribute<ReproductiveSystem> reproductiveSystemsList;
     public NativeArray<ReproductiveSystem> reproductiveSystems;
 
     public struct ReproductiveSystem {
@@ -36,13 +37,14 @@ public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
         }
     }
 
-    public override void SetupSpeciesOrganArrays(int arraySize) {
-        reproductiveSystems = new NativeArray<ReproductiveSystem>(arraySize, Allocator.Persistent);
+    public override void SetupSpeciesOrganArrays(IOrganismListExtender listExtender) {
+        reproductiveSystemsList = new OrganismAtribute<ReproductiveSystem>(listExtender);
+        reproductiveSystems = reproductiveSystemsList.organismAttributes;
     }
 
-    public override void IncreaseOrganismSize(int newSize) {
+    public override void OnListUpdate() {
         NativeArray<ReproductiveSystem> oldReproductiveSystems = reproductiveSystems;
-        reproductiveSystems = new NativeArray<ReproductiveSystem>(newSize, Allocator.Persistent);
+        reproductiveSystems = new NativeArray<ReproductiveSystem>(GetSpecies().organismList.GetListCapacity(), Allocator.Persistent);
         for (int i = 0; i < oldReproductiveSystems.Length; i++) {
             reproductiveSystems[i] = oldReproductiveSystems[i];
         }
@@ -55,10 +57,5 @@ public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
             return GrowthStage.Adult;
         }
         return GrowthStage.Juvinile;
-    }
-
-    public void OnDestroy() {
-        if (reproductiveSystems.IsCreated)
-            reproductiveSystems.Dispose();
     }
 }
