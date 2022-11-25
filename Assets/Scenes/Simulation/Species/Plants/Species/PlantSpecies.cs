@@ -167,8 +167,7 @@ public class PlantSpecies : Species {
     protected override void UpdateOrganism(int organism) {
         base.UpdateOrganism(organism);
         if (organisms[organism].age > 100) {
-            int actionIndex = Interlocked.Increment(ref organismActionsCount);
-            organismActions[actionIndex] = new OrganismAction(OrganismAction.Action.Die, organism);
+            organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
             return;
         }
         float bladeArea = plants[organism].bladeArea;

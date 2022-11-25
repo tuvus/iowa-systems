@@ -104,8 +104,7 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
 
     public OrganismList<Organism> organismList;
     public NativeArray<Organism> organisms;
-    public NativeArray<OrganismAction> organismActions;
-    public int organismActionsCount;
+    public OrganismActionQueue<OrganismAction> organismActions;
 
     SpeciesUpdateJob speciesUpdateJob;
 
@@ -118,8 +117,7 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
         }
         organismList = new OrganismList<Organism>(math.max(startingPopulation * 2, 100), this);
         organisms = organismList.organisms;
-        organismActions = new NativeArray<OrganismAction>(organismList.GetListCapacity(), Allocator.Persistent);
-        organismActionsCount = 0;
+        organismActions = new OrganismActionQueue<OrganismAction>(organismList);
         speciesUpdateJob = new SpeciesUpdateJob(speciesIndex);
         for (int i = 0; i < organs.Count; i++) {
             organs[i].SetupSpeciesOrganArrays(organismList);
@@ -166,12 +164,6 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
     /// </summary>
     public virtual void OnListUpdate() {
         organisms = organismList.organisms;
-        NativeArray<OrganismAction> oldorganismActions = organismActions;
-        organismActions = new NativeArray<OrganismAction>(organismList.GetListCapacity(), Allocator.Persistent);
-        for (int i = 0; i < oldorganismActions.Length; i++) {
-            organismActions[i] = oldorganismActions[i];
-        }
-        oldorganismActions.Dispose();
         for (int i = 0; i < organs.Count; i++) {
             organs[i].OnListUpdate();
         }
@@ -210,24 +202,22 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
     }
 
     public virtual void UpdateOrganismActions() {
-        while (organismActionsCount >= 0) {
+        while (!organismActions.Empty()) {
             //No need to worry about deactivating an already inactive organism, it is handled in DeactivateActiveOrganism()
-            switch (organismActions[organismActionsCount].action) {
-                case OrganismAction.Action.Starve:
-                    organismList.DeactivateActiveOrganism(organismActions[organismActionsCount].organism);
-                    break;
+            switch (organismActions.Peek().action) {
                 case OrganismAction.Action.Die:
-                    organismList.DeactivateActiveOrganism(organismActions[organismActionsCount].organism);
+                case OrganismAction.Action.Starve:
+                    organismList.DeactivateActiveOrganism(organismActions.Peek().organism);
                     break;
                 case OrganismAction.Action.Bite:
                     break;
                 case OrganismAction.Action.Eat:
                     break;
                 case OrganismAction.Action.Reproduce:
-                    ReproduceOrganism(organismActions[organismActionsCount]);
+                    ReproduceOrganism(organismActions.Peek());
                     break;
             }
-            organismActionsCount--;
+            organismActions.Dequeue();
         }
     }
 
@@ -281,7 +271,6 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
         if (earth != null) {
             //Only deallocate during the simulation
             organismList.Deallocate();
-            organismActions.Dispose();
         }
     }
 }

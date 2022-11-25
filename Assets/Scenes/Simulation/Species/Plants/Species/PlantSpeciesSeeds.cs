@@ -44,8 +44,7 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
     public OrganismList<Organism> seedList;
     public NativeArray<Organism> seeds;
 
-    public NativeArray<OrganismAction> seedActions;
-    public int seedActionsCount;
+    OrganismActionQueue<Species.OrganismAction> seedActions;
 
     SpeciesSeedsUpdateJob speciesSeedsUpdateJob;
 
@@ -54,8 +53,7 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
         awns = awnList.organismAttributes;
         seedList = new OrganismList<Organism>(Math.Max(startingSeedCount * 2, 100), this);
         seeds = seedList.organisms;
-        seedActions = new NativeArray<OrganismAction>(startingSeedCount * 2, Allocator.Persistent);
-        seedActionsCount = 0;
+        seedActions = new OrganismActionQueue<OrganismAction>(seedList);
         speciesSeedsUpdateJob = new SpeciesSeedsUpdateJob(GetPlantSpecies().speciesIndex);
     }
 
@@ -106,8 +104,7 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
                         disperseSeeds++;
                     }
                 }
-                int actionIndex = Interlocked.Increment(ref GetPlantSpecies().organismActionsCount);
-                GetPlantSpecies().organismActions[actionIndex] = new OrganismAction(OrganismAction.Action.Reproduce, organism, GetPlantSpecies(), disperseSeeds, seedDispertionRange);
+                GetPlantSpecies().organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Reproduce, organism, GetPlantSpecies(), disperseSeeds, seedDispertionRange));
             }
             return;
         }
@@ -141,40 +138,38 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
     public void UpdateSeed(int seed) {
         seeds[seed] = new Organism(seeds[seed], seeds[seed].age + GetPlantSpecies().GetEarth().simulationDeltaTime);
         if (seeds[seed].age > timeMaximum) {
-            int actionIndex = Interlocked.Increment(ref seedActionsCount);
-            seedActions[actionIndex] = new OrganismAction(OrganismAction.Action.Die, seed);
+            seedActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, seed));
             return;
         } else if (seeds[seed].age >= timeRequirement
             && earth.earthState.humidity > humidityRequirement
             && earth.earthState.temperature > tempetureRequirement) {
-            int actionIndex = Interlocked.Increment(ref seedActionsCount);
-            seedActions[actionIndex] = new OrganismAction(OrganismAction.Action.Reproduce, seed);
+            seedActions.Enqueue(new OrganismAction(OrganismAction.Action.Reproduce, seed));
         }
     }
 
     public void UpdateSeedActions() {
-        while (seedActionsCount >= 0) {
+        while (!seedActions.Empty()) {
             //No need to worry about deactivating an already inactive organism, it is handled in DeactivateActiveOrganism()
-            if (seedActions[seedActionsCount].organism > seeds.Length || seedActions[seedActionsCount].organism < 0)
+            if (seedActions.Peek().organism > seeds.Length || seedActions.Peek().organism < 0)
                 print("Thread error");
-            switch (seedActions[seedActionsCount].action) {
+            switch (seedActions.Peek().action) {
                 case OrganismAction.Action.Starve:
-                    seedList.DeactivateActiveOrganism(seedActions[seedActionsCount].organism);
+                    seedList.DeactivateActiveOrganism(seedActions.Peek().organism);
                     break;
                 case OrganismAction.Action.Die:
-                    if (seedList.organismStatuses[seedActions[seedActionsCount].organism].spawned)
-                        seedList.DeactivateActiveOrganism(seedActions[seedActionsCount].organism);
+                    if (seedList.organismStatuses[seedActions.Peek().organism].spawned)
+                        seedList.DeactivateActiveOrganism(seedActions.Peek().organism);
                     break;
                 case OrganismAction.Action.Bite:
                     break;
                 case OrganismAction.Action.Eat:
                     break;
                 case OrganismAction.Action.Reproduce:
-                    seedList.DeactivateActiveOrganism(seedActions[seedActionsCount].organism);
-                    GrowSeed(seedActions[seedActionsCount]);
+                    seedList.DeactivateActiveOrganism(seedActions.Peek().organism);
+                    GrowSeed(seedActions.Peek());
                     break;
             }
-            seedActionsCount--;
+            seedActions.Dequeue();
         }
     }
 
@@ -197,7 +192,6 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
         base.OnDestroy();
         if (GetPlantSpecies() != null && GetPlantSpecies().GetEarth() != null) {
             seedList.Deallocate();
-            seedActions.Dispose();
         }
     }
 }

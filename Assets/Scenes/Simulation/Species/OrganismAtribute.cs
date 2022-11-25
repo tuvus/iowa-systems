@@ -8,8 +8,8 @@ public class OrganismAtribute<T> : IOrganismListExtender where T : struct {
     IOrganismListExtender listExtender;
 
     public OrganismAtribute(IOrganismListExtender extensionFrom) {
-        extensionFrom.AddListExtender(this);
         organismAttributes = new NativeArray<T>(extensionFrom.GetListCapacity(), Allocator.Persistent);
+        extensionFrom.AddListExtender(this);
     }
 
     public void AddListExtender(IOrganismListExtender listExtender) {

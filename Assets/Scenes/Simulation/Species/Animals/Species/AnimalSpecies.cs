@@ -161,8 +161,7 @@ public class AnimalSpecies : Species {
     protected override void UpdateOrganism(int organism) {
         base.UpdateOrganism(organism);
         if (organisms[organism].age > maxAge) {
-            int actionIndex = Interlocked.Increment(ref organismActionsCount);
-            organismActions[actionIndex] = new OrganismAction(OrganismAction.Action.Die, organism);
+            organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
             return;
         }
         if (animals[organism].stage != GrowthStage.Adult && organisms[organism].age > reproductiveSystem.reproductionAge)
