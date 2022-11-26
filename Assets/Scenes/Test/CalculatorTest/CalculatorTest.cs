@@ -11,7 +11,7 @@ public class CalculatorTest : MonoBehaviour {
     public void Awake() {
         Vector3 previousSize = controlOrganism.parent.localScale;
         controlOrganism.parent.localScale = Vector3.one;
-        controlOrganism.parent.localPosition = new Vector3(0, 0, 0.5f);
+        controlOrganism.parent.localPosition = new Vector3(0, 0.5f, 0);
         controlOrganism.localScale = previousSize;
         //Testing calculator
         //print(GetArcDistanceBetweenTwoPositions(new float3(1,1,1), new float3(-1,-1,-1)));
@@ -38,17 +38,20 @@ public class CalculatorTest : MonoBehaviour {
     public Vector3 rotation = Vector3.zero;
 
     private void Update() {
-        //SetRotationControlAroundCenter(rotation);
+        SetRotationControlAroundCenter(rotation);
+        newOrganism.position = GetPositionFromRotation(rotation);
     }
 
     public void SetRotationControlAroundCenter(float3 rotationAmmount) {
-        controlOrganism.parent.position = new Vector3(0, 0, 0.5f);
-        //controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.right, 0);
-        //controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.up, 180);
-        //controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.forward, 0);
-        controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.right, math.degrees(rotationAmmount.x));
-        controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.up, math.degrees(rotationAmmount.y));
-        controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.forward, math.degrees(rotationAmmount.z));
+        controlOrganism.parent.localPosition = new Vector3(0, 0.5f, 0);
+        controlOrganism.parent.eulerAngles = Vector3.zero;
+        controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.right, rotationAmmount.x);
+        controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.up, rotationAmmount.y);
+        controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.forward, rotationAmmount.z);
+        //controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.right, math.degrees(rotationAmmount.x));
+        //controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.up, math.degrees(rotationAmmount.y));
+        //controlOrganism.parent.RotateAround(new Vector3(0, 0, 0), controlOrganism.forward, math.degrees(rotationAmmount.z));
+        controlOrganism.parent.LookAt(Vector3.zero);
     }
 
     public float GetRadius() {
