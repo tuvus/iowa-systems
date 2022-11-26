@@ -2372,8 +2372,6 @@ MonoBehaviour:
   startingPopulation: 0
   organs: []
   speciesIndex: 0
-  activeOrganismsCount: 0
-  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
@@ -2386,8 +2384,6 @@ MonoBehaviour:
   maxAge: 26
   deteriationTime: 0
   eddibleFoodTypesInput: []
-  activeDeadAnimalCount: 0
-  inactiveDeadAnimalCount: 0
 --- !u!114 &446744801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2467,8 +2463,6 @@ MonoBehaviour:
   - {fileID: 456575643}
   - {fileID: 456575637}
   speciesIndex: 0
-  activeOrganismsCount: 0
-  inactiveOrganismsCount: 0
   plantPrefab: {fileID: 1992517119343582, guid: a3e7fae49ee31442aac03db2a66b47b5,
     type: 3}
   growthStagesInput:
@@ -2540,8 +2534,6 @@ MonoBehaviour:
   awnSeedDispertionTime: 45
   awnSeedDispersalSuccessChance: 30
   seedEnergyAmount: 0.01
-  activeSeedsCount: 0
-  inactiveSeedsCount: 0
 --- !u!114 &456575643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4118,8 +4110,6 @@ MonoBehaviour:
   startingPopulation: 0
   organs: []
   speciesIndex: 0
-  activeOrganismsCount: 0
-  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 0}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
   bodyWeight: 0
@@ -4131,8 +4121,6 @@ MonoBehaviour:
   maxAge: 0
   deteriationTime: 0
   eddibleFoodTypesInput: []
-  activeDeadAnimalCount: 0
-  inactiveDeadAnimalCount: 0
 --- !u!1 &676291395
 GameObject:
   m_ObjectHideFlags: 0
@@ -4887,7 +4875,6 @@ GameObject:
   m_Component:
   - component: {fileID: 745349115}
   - component: {fileID: 745349120}
-  - component: {fileID: 745349121}
   m_Layer: 5
   m_Name: Simulation
   m_TagString: Untagged
@@ -4935,18 +4922,6 @@ MonoBehaviour:
   zoneSetup: 1
   seed: 
   simulationInitialised: 0
---- !u!114 &745349121
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745349114}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c139ed4385ed1f479c91c333ff9c67c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &747077542
 GameObject:
   m_ObjectHideFlags: 0
@@ -5449,8 +5424,6 @@ MonoBehaviour:
   - {fileID: 809522554}
   - {fileID: 809522555}
   speciesIndex: 0
-  activeOrganismsCount: 0
-  inactiveOrganismsCount: 0
   plantPrefab: {fileID: 1992517119343582, guid: a3e7fae49ee31442aac03db2a66b47b5,
     type: 3}
   growthStagesInput:
@@ -5522,8 +5495,6 @@ MonoBehaviour:
   awnSeedDispertionTime: 30
   awnSeedDispersalSuccessChance: 30
   seedEnergyAmount: 0.2
-  activeSeedsCount: 0
-  inactiveSeedsCount: 0
 --- !u!1 &835355319
 GameObject:
   m_ObjectHideFlags: 0
@@ -10563,8 +10534,6 @@ MonoBehaviour:
   - {fileID: 1600016796}
   - {fileID: 1600016799}
   speciesIndex: 0
-  activeOrganismsCount: 0
-  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
@@ -10578,8 +10547,6 @@ MonoBehaviour:
   deteriationTime: 14
   eddibleFoodTypesInput:
   - CottontailRabbit
-  activeDeadAnimalCount: 0
-  inactiveDeadAnimalCount: 0
 --- !u!114 &1600016799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10692,8 +10659,6 @@ MonoBehaviour:
   - {fileID: 1627060937}
   - {fileID: 1627060940}
   speciesIndex: 0
-  activeOrganismsCount: 0
-  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
@@ -10708,8 +10673,6 @@ MonoBehaviour:
   eddibleFoodTypesInput:
   - Stem
   - Blade
-  activeDeadAnimalCount: 0
-  inactiveDeadAnimalCount: 0
 --- !u!114 &1627060940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11211,8 +11174,6 @@ MonoBehaviour:
   startingPopulation: 0
   organs: []
   speciesIndex: 0
-  activeOrganismsCount: 0
-  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
@@ -11225,8 +11186,6 @@ MonoBehaviour:
   maxAge: 14
   deteriationTime: 0
   eddibleFoodTypesInput: []
-  activeDeadAnimalCount: 0
-  inactiveDeadAnimalCount: 0
 --- !u!114 &1754343643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12017,8 +11976,6 @@ MonoBehaviour:
   startingPopulation: 0
   organs: []
   speciesIndex: 0
-  activeOrganismsCount: 0
-  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 0}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
   bodyWeight: 0
@@ -12030,8 +11987,6 @@ MonoBehaviour:
   maxAge: 16
   deteriationTime: 0
   eddibleFoodTypesInput: []
-  activeDeadAnimalCount: 0
-  inactiveDeadAnimalCount: 0
 --- !u!114 &1924411864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12464,8 +12419,6 @@ MonoBehaviour:
   startingPopulation: 0
   organs: []
   speciesIndex: 0
-  activeOrganismsCount: 0
-  inactiveOrganismsCount: 0
   plantPrefab: {fileID: 0}
   growthStagesInput: []
 --- !u!1 &1994337417
@@ -13123,8 +13076,6 @@ MonoBehaviour:
   startingPopulation: 0
   organs: []
   speciesIndex: 0
-  activeOrganismsCount: 0
-  inactiveOrganismsCount: 0
   basicOrganism: {fileID: 1935006318196538, guid: 8035c9a88c8f145b786ffb1c4a07941f,
     type: 3}
   corpseColor: {r: 0, g: 0, b: 0, a: 0}
@@ -13138,8 +13089,6 @@ MonoBehaviour:
   deteriationTime: 0
   eddibleFoodTypesInput:
   - Grass
-  activeDeadAnimalCount: 0
-  inactiveDeadAnimalCount: 0
 --- !u!114 &2143928222
 MonoBehaviour:
   m_ObjectHideFlags: 0
