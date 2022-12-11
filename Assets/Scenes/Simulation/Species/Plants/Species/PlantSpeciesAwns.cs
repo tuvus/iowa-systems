@@ -10,7 +10,7 @@ using static Earth;
 using static PlantSpecies;
 using static Species;
 
-public class PlantSpeciesSeeds : PlantSpeciesOrgan {
+public class PlantSpeciesAwns : PlantSpeciesOrgan {
     public int startingSeedCount;
     public float humidityRequirement;
     public float tempetureRequirement;

@@ -22,8 +22,8 @@ public class SpeciesPopulaitonCount : MonoBehaviour {
     }
 
     void UpdateInitialText() {
-        if (speciesScript.GetComponent<PlantSpeciesSeeds>() != null) {
-            transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.startingPopulation + "(" + speciesScript.GetComponent<PlantSpeciesSeeds>().startingSeedCount + ")");
+        if (speciesScript.GetComponent<PlantSpeciesAwns>() != null) {
+            transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.startingPopulation + "(" + speciesScript.GetComponent<PlantSpeciesAwns>().startingSeedCount + ")");
             return;
         }
         transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.startingPopulation);
@@ -31,8 +31,8 @@ public class SpeciesPopulaitonCount : MonoBehaviour {
     }
 
     void UpdateText() {
-        if (speciesScript.GetComponent<PlantSpeciesSeeds>() != null) {
-            transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation() + "(" + speciesScript.GetComponent<PlantSpeciesSeeds>().seedList.activeOrganismCount + ")");
+        if (speciesScript.GetComponent<PlantSpeciesAwns>() != null) {
+            transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation() + "(" + speciesScript.GetComponent<PlantSpeciesAwns>().seedList.activeOrganismCount + ")");
             return;
         }
         transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation());

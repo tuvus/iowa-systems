@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using static AnimalSpecies;
-using static PlantSpeciesSeeds;
 
 public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
     public GameObject reproductiveSystemPrefab;

@@ -9,7 +9,7 @@ using System.IO;
 
 public class PlantSpecies : Species {
     public GameObject plantPrefab;
-    PlantSpeciesSeeds plantSpeciesSeeds;
+    PlantSpeciesAwns plantSpeciesSeeds;
 
     public enum GrowthStage {
         Dead = -1,
@@ -77,7 +77,7 @@ public class PlantSpecies : Species {
         base.SetupSimulation(earth);
         plantList = new OrganismAtribute<Plant>(organismList);
         plants = plantList.organismAttributes;
-        plantSpeciesSeeds = GetComponent<PlantSpeciesSeeds>();
+        plantSpeciesSeeds = GetComponent<PlantSpeciesAwns>();
         growthStages = new NativeArray<GrowthStageData>(growthStagesInput.Count, Allocator.Persistent);
 
         for (int i = 0; i < growthStagesInput.Count; i++) {
@@ -217,7 +217,7 @@ public class PlantSpecies : Species {
         throw new NotImplementedException();
     }
 
-    public PlantSpeciesSeeds GetSpeciesSeeds() {
+    public PlantSpeciesAwns GetSpeciesSeeds() {
         return plantSpeciesSeeds;
     }
 

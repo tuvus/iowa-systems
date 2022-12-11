@@ -58,7 +58,7 @@ public class SpeciesManager : MonoBehaviour {
 			PlantSpecies plantSpecies = transform.GetChild(i).GetComponent<PlantSpecies>();
 			if (plantSpecies != null) {
 				count += plantSpecies.startingPopulation;
-				PlantSpeciesSeeds speciesSeeds = plantSpecies.GetComponent<PlantSpeciesSeeds>();
+				PlantSpeciesAwns speciesSeeds = plantSpecies.GetComponent<PlantSpeciesAwns>();
 				if (speciesSeeds != null) {
 					count += speciesSeeds.startingSeedCount;
                 }

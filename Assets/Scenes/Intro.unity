@@ -4923,6 +4923,7 @@ MonoBehaviour:
   zoneSetup: 1
   seed: 
   simulationInitialised: 0
+  simulationRunning: 0
 --- !u!114 &745349121
 MonoBehaviour:
   m_ObjectHideFlags: 0
