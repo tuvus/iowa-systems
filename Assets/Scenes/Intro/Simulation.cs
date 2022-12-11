@@ -70,7 +70,7 @@ public class Simulation : MonoBehaviour {
         Application.targetFrameRate = frameRate;
     }
 
-    public void QuitSimulation() {
+    public void QuitApplication() {
         PlayerPrefs.Save();
         Application.Quit();
     }
