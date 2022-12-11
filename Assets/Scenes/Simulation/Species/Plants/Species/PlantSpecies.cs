@@ -79,7 +79,7 @@ public class PlantSpecies : Species {
         plants = plantList.organismAttributes;
         plantSpeciesSeeds = GetComponent<PlantSpeciesSeeds>();
         growthStages = new NativeArray<GrowthStageData>(growthStagesInput.Count, Allocator.Persistent);
-        
+
         for (int i = 0; i < growthStagesInput.Count; i++) {
             growthStages[i] = growthStagesInput[i];
         }
@@ -224,11 +224,8 @@ public class PlantSpecies : Species {
     /// <summary>
     /// Called after a simulation has ended but also after the intro scene is unloaded.
     /// </summary>
-    public override void OnDestroy() {
-        base.OnDestroy();
-        if (GetEarth() != null) {
-            //Only deallocate during the simulation
-            growthStages.Dispose();
-        }
+    public override void Deallocate() {
+        base.Deallocate();
+        growthStages.Dispose();
     }
 }

@@ -188,8 +188,8 @@ public class PlantSpeciesSeeds : PlantSpeciesOrgan {
         return 0;
     }
 
-    public override void OnDestroy() {
-        base.OnDestroy();
+    public override void Deallocate() {
+        base.Deallocate();
         if (GetPlantSpecies() != null && GetPlantSpecies().GetEarth() != null) {
             seedList.Deallocate();
         }

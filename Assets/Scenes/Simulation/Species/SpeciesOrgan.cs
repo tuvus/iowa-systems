@@ -21,4 +21,7 @@ public abstract class SpeciesOrgan : MonoBehaviour, IOrganismListCapacityChange 
     public Species GetSpecies() {
         return species;
     }
+
+    public virtual void Deallocate() {
+    }
 }

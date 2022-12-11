@@ -81,7 +81,7 @@ public class Earth : MonoBehaviour {
     /// Then updates the simulation a number of times based on input and preformance capabilities of the computer.
     /// </summary>
     private void Update() {
-        if (!Simulation.Instance.simulationInitialised)
+        if (!Simulation.Instance.simulationInitialised || Earth.earth != this)
             return;
         frameManager.UpdateFrameStartTime();
         if (simulationUpdateStatus != SimulationUpdateStatus.Intializing && simulationUpdateStatus != SimulationUpdateStatus.SettingUp) {
@@ -357,7 +357,11 @@ public class Earth : MonoBehaviour {
     }
     #endregion
 
-    public void OnDestroy() {
+    public void Deallocate() {
+        earth = null;
         CompleteJobs();
+        foreach (var species in GetAllSpecies()) {
+            species.Deallocate();
+        }
     }
 }

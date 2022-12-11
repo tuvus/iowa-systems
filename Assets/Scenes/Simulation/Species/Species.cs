@@ -267,10 +267,10 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
     /// <summary>
     /// Called both when species prefabs are destroyed in the intro and the simulation
     /// </summary>
-    public virtual void OnDestroy() {
-        if (earth != null) {
-            //Only deallocate during the simulation
-            organismList.Deallocate();
+    public virtual void Deallocate() {
+        organismList.Deallocate();
+        foreach (var organ in organs) {
+            organ.Deallocate();
         }
     }
 }

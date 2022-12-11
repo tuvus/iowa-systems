@@ -163,10 +163,10 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
     /// Deallocates all native collectiona and tells any OrganismListExtenders to do the same
     /// </summary>
     public void Deallocate() {
-        organisms.Dispose();
-        organismStatuses.Dispose();
-        activeOrganisms.Dispose();
-        inactiveOrganisms.Dispose();
+            organisms.Dispose();
+            organismStatuses.Dispose();
+            activeOrganisms.Dispose();
+            inactiveOrganisms.Dispose();
         if (listExtender != null)
             listExtender.Deallocate();
     }

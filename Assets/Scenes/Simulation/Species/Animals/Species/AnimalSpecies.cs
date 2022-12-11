@@ -309,13 +309,10 @@ public class AnimalSpecies : Species {
     /// <summary>
     /// Called after a simulation has ended but also after the intro scene is unloaded.
     /// </summary>
-    public override void OnDestroy() {
-        base.OnDestroy();
-        if (GetEarth() != null) {
-            //Only deallocate during the simulation
-            deadAnimalList.Deallocate();
-            eddibleFoodTypes.Dispose();
-            predatorFoodTypes.Dispose();
-        }
+    public override void Deallocate() {
+        base.Deallocate();
+        deadAnimalList.Deallocate();
+        eddibleFoodTypes.Dispose();
+        predatorFoodTypes.Dispose();
     }
 }

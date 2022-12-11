@@ -28,8 +28,7 @@ public abstract class PlantSpeciesOrgan : SpeciesOrgan {
         return organFoodIndex;
     }
 
-    public virtual void OnDestroy() {
-        if (growthPriorities.IsCreated)
+    public override void Deallocate() {
             growthPriorities.Dispose();
     }
 
