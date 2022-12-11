@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class UserMotor : MonoBehaviour {
     private Transform cameraTransform;
@@ -141,17 +140,12 @@ public class UserMotor : MonoBehaviour {
     }
 
     void ManageEndSimulation() {
-        if (Input.GetKeyDown(KeyCode.Escape) && Earth.earth != null) {
-            EndSimulation();
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            Simulation.Instance.EndSimulation();
         }
     }
 
-    public void EndSimulation() {
-        SpeciesManager.Instance.GetSpeciesMotor().GetEarth().Deallocate();
-        SceneManager.LoadSceneAsync(0, LoadSceneMode.Single);
-    }
     private void OnApplicationQuit() {
-        if (Earth.earth != null)
-            EndSimulation();
+        Simulation.Instance.EndSimulation();
     }
 }

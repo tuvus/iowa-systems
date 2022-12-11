@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BottomLeftButtonPanelUI : MonoBehaviour {
     public void EndSimulation() {
-        User.Instance.GetUserMotor().EndSimulation();
+        Simulation.Instance.EndSimulation();
     }
 
     public void DisplayGraph() {

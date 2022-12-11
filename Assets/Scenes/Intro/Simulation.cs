@@ -21,6 +21,8 @@ public class Simulation : MonoBehaviour {
     Sun sun;
 
     public bool simulationInitialised = false;
+    public bool simulationRunning = false;
+
     public void Awake() {
         if (Instance == null) {
             Instance = this;
@@ -62,12 +64,22 @@ public class Simulation : MonoBehaviour {
         sun.SetupSun(earth);
         User.Instance.SetupSimulation();
         SpeciesManager.Instance.GetSpeciesMotor().StartSimulation();
-        simulationInitialised = true;
         earth.StartSimulation();
+        simulationInitialised = true;
+        simulationRunning = true;
     }
 
     public void SetFrameRate(int frameRate) {
         Application.targetFrameRate = frameRate;
+    }
+
+    public void EndSimulation() {
+        if (simulationRunning) {
+            simulationInitialised = false;
+            simulationRunning = false;
+            earth.Deallocate();
+            SceneManager.LoadSceneAsync(0, LoadSceneMode.Single);
+        }
     }
 
     public void QuitApplication() {
