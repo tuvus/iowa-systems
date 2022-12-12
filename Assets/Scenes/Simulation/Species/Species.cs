@@ -249,15 +249,6 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
 
     #region OrganismControls
     public abstract void OnSettingsChanged(bool renderOrganisms);
-
-    /// <summary>
-    /// Called right when an organism detects it should be dead.
-    /// </summary>
-    public void OrganismDeath() {
-        populationCount--;
-        if (populationCount == 0)
-            User.Instance.PrintState("Species has died out after " + (int)(earth.worldTime / 24) + " days.", speciesDisplayName, 3);
-    }
     #endregion
 
     public Earth GetEarth() {

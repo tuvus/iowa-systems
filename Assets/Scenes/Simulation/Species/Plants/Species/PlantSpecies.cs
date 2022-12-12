@@ -3,9 +3,6 @@ using UnityEngine;
 using Unity.Collections;
 using Unity.Mathematics;
 using System;
-using Unity.Collections.LowLevel.Unsafe;
-using System.Threading;
-using System.IO;
 
 public class PlantSpecies : Species {
     public GameObject plantPrefab;

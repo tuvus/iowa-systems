@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -125,6 +126,61 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
     }
 
     /// <summary>
+    /// Gets an inactive organism, activates it and returns it.
+    /// Will not change the capacity of the organism arrays
+    /// Can safely be used sycronously
+    /// </summary>
+    /// <returns>A new active organism or null if there is no free organism</returns>
+    public int? ActivateOrganismSyncronous() {
+        //Make sure that there are free inactive organisms to get
+        if (inactiveOrganismCount <= 0)
+            return null;
+        //Get the first inactive organism and remove it from the inactiveOrganisms list
+        int newOrganismIndex;
+        int activeOrganismIndex;
+        lock (this) {
+            newOrganismIndex = inactiveOrganisms[Interlocked.Decrement(ref inactiveOrganismCount)];
+            activeOrganismIndex = Interlocked.Increment(ref activeOrganismCount) - 1;
+        }
+        //newOrganismIndex could still be negative, if it is, leave it be and return null
+        if (newOrganismIndex < 0)
+            return null;
+        //Add the organism to the activeOrganismsList
+        activeOrganisms[activeOrganismIndex] = newOrganismIndex;
+        organismStatuses[newOrganismIndex] = new OrganismStatus(true, newOrganismIndex, activeOrganismIndex);
+        return newOrganismIndex;
+    }
+
+    /// <summary>
+    /// Removes the organism from the active list and adds it to the inactive list.
+    /// Resets the organism's data and sets it to not spawned.
+    /// If the organism's index does not match the value of activeOrganisms at the organim's activeOrganismIndex
+    /// then the deactivation has already occured and nothing will be done.
+    /// </summary>
+    /// <param name="organismIndex">The index of the organism</param>
+    public void DeactivateActiveOrganismSyncronous(int organismIndex) {
+        //Check if the organism is still active
+        if (!organismStatuses[organismIndex].spawned)
+            return;
+        //Finds the activeOrganismIndex starting at maxActiveOrganismIndex and works it's way to the begining.
+        //Because of the way activeOrganisms are removed the index must be equal to or less than maxActiveOrganismIndex.
+        int activeOrganismIndex = organismStatuses[organismIndex].maxActiveOrganismIndex;
+        for (; activeOrganismIndex >= -1; activeOrganismIndex--) {
+            if (activeOrganisms[activeOrganismIndex] == organismIndex)
+                break;
+        }
+        //Remove the organism from the active list
+        for (int i = activeOrganismIndex; i < activeOrganismCount - 1; i++) {
+            activeOrganisms[i] = activeOrganisms[i + 1];
+        }
+        activeOrganismCount--;
+        //Add the organism to the inactive list
+        inactiveOrganisms[inactiveOrganismCount] = organismIndex;
+        inactiveOrganismCount++;
+        organismStatuses[organismIndex] = new OrganismStatus(false, organismIndex, -2);
+    }
+
+    /// <summary>
     /// Increases the capacity of the organism arrays, active and inactive arrays.
     /// Also increases the capacity for all of the organs, plants and animals liked with it.
     /// </summary>
@@ -163,10 +219,10 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
     /// Deallocates all native collectiona and tells any OrganismListExtenders to do the same
     /// </summary>
     public void Deallocate() {
-            organisms.Dispose();
-            organismStatuses.Dispose();
-            activeOrganisms.Dispose();
-            inactiveOrganisms.Dispose();
+        organisms.Dispose();
+        organismStatuses.Dispose();
+        activeOrganisms.Dispose();
+        inactiveOrganisms.Dispose();
         if (listExtender != null)
             listExtender.Deallocate();
     }
