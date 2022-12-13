@@ -210,7 +210,32 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
         }
     }
 
-    //TODO: Create removeActiveOrganismQueue handler
+    /// <summary>
+    /// Deques the removeActiveOrganismQueue one by one.
+    /// Removes all activeOrganisms that are no longer being used on the end.
+    /// If the activeOrgnismIndex from the removeActiveOrganismQueue was not removed,
+    /// replaces the value at activeOrganismIndex with the value at the end of the list.
+    /// Otherwise it has already been removed from the end.
+    /// </summary>
+    public void CleanActiveOrganismList() {
+        while (!removeActiveOrganismQueue.Empty()) {
+            int activeOrganismIndex = removeActiveOrganismQueue.Dequeue();
+            //Check if the activeOrganism was removed when previously removing an activeOrganism
+            if (activeOrganismIndex >= activeOrganismCount)
+                return;
+            //Remove activeOrganisms until there is a valid one to move in the middle of the array.
+            while (!organismStatuses[activeOrganisms[activeOrganismCount - 1]].spawned) {
+                organismStatuses[activeOrganisms[activeOrganismCount - 1]] = new OrganismStatus(false, organismStatuses[activeOrganisms[activeOrganismCount - 1]].arrayIndex,-1);
+                activeOrganismCount--;
+            }
+            //Check if the activeOrganism was removed when removing the unused activeOrganisms
+            if (activeOrganismIndex >= activeOrganismCount)
+                return;
+            //Replace this activeOrganism index with the one at the end
+            activeOrganisms[activeOrganismIndex] = activeOrganisms[activeOrganismCount - 1];
+            activeOrganismCount--;
+        }
+    }
 
     /// <summary>
     /// Increases the capacity of the organism arrays, active and inactive arrays.
