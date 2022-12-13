@@ -133,18 +133,18 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
     /// <summary>
     /// Gets an inactive organism, activates it and returns it.
     /// Will not change the capacity of the organism arrays
-    /// Can safely be used sycronously
+    /// Can safely be used parallel
     /// </summary>
     /// <returns>A new active organism or null if there is no free organism</returns>
-    public int? ActivateOrganismSyncronous() {
+    public int? ActivateOrganismParallel() {
         //Make sure that there are free inactive organisms to get
-        //I left this in here as a duplicate check because it occures in a non synchronized method
+        //I left this in here as a duplicate check because it occures in a non parallel method
         if (inactiveOrganismCount <= 0)
             return null;
         //Get the first inactive organism and remove it from the inactiveOrganisms list
         int newOrganismIndex = 0;
         int? activeOrganismIndex = ManageActivateOrDeactivate(true, ref newOrganismIndex);
-        //The inactiveOrganismCount may still be null, it must be checked in the synchronized method as 
+        //The inactiveOrganismCount may still be null, it must be checked in the parallel method as 
         if (!activeOrganismIndex.HasValue)
             return null;
         //newOrganismIndex could still be negative, if it is, leave it be and return null
@@ -161,7 +161,7 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
     /// The organism can be reactivated 
     /// </summary>
     /// <param name="organismIndex">The index of the organism</param>
-    public void DeactivateActiveOrganismSyncronous(int organismIndex) {
+    public void DeactivateActiveOrganismParallel(int organismIndex) {
         //Check if the organism is still active
         if (!organismStatuses[organismIndex].spawned)
             return;
@@ -175,7 +175,7 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
 
     /// <summary>
     /// This method has two functions depending on the value of activateOrDeactivate.
-    /// The method has to manage two functions in order to apply the Syncronized property correctly.
+    /// The method manages two functions in order to apply the Syncronized property correctly.
     /// 
     /// If activateOrDeactivate is true, this method removes the last inactiveOrganism from the inactiveOrganismIndex
     /// returns the new organism index. This method does NOT add the organism to the activeOrganism, 

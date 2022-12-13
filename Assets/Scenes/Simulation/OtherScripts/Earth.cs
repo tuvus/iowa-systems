@@ -249,8 +249,7 @@ public class Earth : MonoBehaviour {
         }
     }
 
-    //TODO: Change Species to handle organism actions asynchronously before relying on syncronous handling
-    //TODO: Rename syncronous to asynchronous (I got it mixed up)
+    //TODO: Change Species to handle organism actions parallel before relying on syncronous handling
     //TODO: Add recursive asynchronous organismAction handling
     //TODO: Add linear CleanActiveOrganismList handling
 
