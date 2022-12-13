@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -18,20 +19,23 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
         public bool spawned;
         [Tooltip("The index of the organism in the array")]
         public int arrayIndex;
-        [Tooltip("The max index of the organism in the activeSpeciesArray")]
-        public int maxActiveOrganismIndex;
+        [Tooltip("The index of the organism in the activeSpeciesArray")]
+        public int activeOrganismIndex;
 
-        public OrganismStatus(bool spawned, int arrayIndex, int maxActiveOrganismIndex) {
+        public OrganismStatus(bool spawned, int arrayIndex, int activeOrganismIndex) {
             this.spawned = spawned;
             this.arrayIndex = arrayIndex;
-            this.maxActiveOrganismIndex = maxActiveOrganismIndex;
+            this.activeOrganismIndex = activeOrganismIndex;
         }
     }
 
     [NativeDisableContainerSafetyRestriction] public NativeArray<T> organisms;
     [NativeDisableContainerSafetyRestriction] public NativeArray<OrganismStatus> organismStatuses;
     public NativeArray<int> activeOrganisms;
+    //During update newly deactivated organisms may still have an activeOrganismIndex value
+    //because they may be reactivated again in the same update.
     public int activeOrganismCount;
+    private OrganismActionQueue<int> removeActiveOrganismQueue;
     public NativeArray<int> inactiveOrganisms;
     public int inactiveOrganismCount;
     //An extention of values for the organism without having to add new active and inactive organism holders
@@ -53,6 +57,7 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
         for (int i = 0; i < organisms.Length; i++) {
             inactiveOrganisms[i] = i;
         }
+        removeActiveOrganismQueue = new OrganismActionQueue<int>(this);
     }
 
     /// <summary>
@@ -109,7 +114,7 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
             return;
         //Finds the activeOrganismIndex starting at maxActiveOrganismIndex and works it's way to the begining.
         //Because of the way activeOrganisms are removed the index must be equal to or less than maxActiveOrganismIndex.
-        int activeOrganismIndex = organismStatuses[organismIndex].maxActiveOrganismIndex;
+        int activeOrganismIndex = organismStatuses[organismIndex].activeOrganismIndex;
         for (; activeOrganismIndex >= -1; activeOrganismIndex--) {
             if (activeOrganisms[activeOrganismIndex] == organismIndex)
                 break;
@@ -133,52 +138,79 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
     /// <returns>A new active organism or null if there is no free organism</returns>
     public int? ActivateOrganismSyncronous() {
         //Make sure that there are free inactive organisms to get
+        //I left this in here as a duplicate check because it occures in a non synchronized method
         if (inactiveOrganismCount <= 0)
             return null;
         //Get the first inactive organism and remove it from the inactiveOrganisms list
-        int newOrganismIndex;
-        int activeOrganismIndex;
-        lock (this) {
-            newOrganismIndex = inactiveOrganisms[Interlocked.Decrement(ref inactiveOrganismCount)];
-            activeOrganismIndex = Interlocked.Increment(ref activeOrganismCount) - 1;
-        }
+        int newOrganismIndex = 0;
+        int? activeOrganismIndex = ManageActivateOrDeactivate(true, ref newOrganismIndex);
+        //The inactiveOrganismCount may still be null, it must be checked in the synchronized method as 
+        if (!activeOrganismIndex.HasValue)
+            return null;
         //newOrganismIndex could still be negative, if it is, leave it be and return null
         if (newOrganismIndex < 0)
             return null;
         //Add the organism to the activeOrganismsList
-        activeOrganisms[activeOrganismIndex] = newOrganismIndex;
-        organismStatuses[newOrganismIndex] = new OrganismStatus(true, newOrganismIndex, activeOrganismIndex);
+        activeOrganisms[activeOrganismIndex.Value] = newOrganismIndex;
+        organismStatuses[newOrganismIndex] = new OrganismStatus(true, newOrganismIndex, activeOrganismIndex.Value);
         return newOrganismIndex;
     }
 
     /// <summary>
-    /// Removes the organism from the active list and adds it to the inactive list.
-    /// Resets the organism's data and sets it to not spawned.
-    /// If the organism's index does not match the value of activeOrganisms at the organim's activeOrganismIndex
-    /// then the deactivation has already occured and nothing will be done.
+    /// Adds the organism to the inactive list and schedules it to be removed from the active list.
+    /// The organism can be reactivated 
     /// </summary>
     /// <param name="organismIndex">The index of the organism</param>
     public void DeactivateActiveOrganismSyncronous(int organismIndex) {
         //Check if the organism is still active
         if (!organismStatuses[organismIndex].spawned)
             return;
-        //Finds the activeOrganismIndex starting at maxActiveOrganismIndex and works it's way to the begining.
-        //Because of the way activeOrganisms are removed the index must be equal to or less than maxActiveOrganismIndex.
-        int activeOrganismIndex = organismStatuses[organismIndex].maxActiveOrganismIndex;
-        for (; activeOrganismIndex >= -1; activeOrganismIndex--) {
-            if (activeOrganisms[activeOrganismIndex] == organismIndex)
-                break;
-        }
-        //Remove the organism from the active list
-        for (int i = activeOrganismIndex; i < activeOrganismCount - 1; i++) {
-            activeOrganisms[i] = activeOrganisms[i + 1];
-        }
-        activeOrganismCount--;
-        //Add the organism to the inactive list
-        inactiveOrganisms[inactiveOrganismCount] = organismIndex;
-        inactiveOrganismCount++;
-        organismStatuses[organismIndex] = new OrganismStatus(false, organismIndex, -2);
+        int activeOrganismIndex = organismStatuses[organismIndex].activeOrganismIndex;
+        //Despawn the organism but maintain the activeOrganismIndex
+        organismStatuses[organismIndex] = new OrganismStatus(false, organismIndex, activeOrganismIndex);
+        ManageActivateOrDeactivate(false, ref organismIndex);
+        //Schedule removeal the organism from the active list
+        removeActiveOrganismQueue.Enqueue(activeOrganismIndex);
     }
+
+    /// <summary>
+    /// This method has two functions depending on the value of activateOrDeactivate.
+    /// The method has to manage two functions in order to apply the Syncronized property correctly.
+    /// 
+    /// If activateOrDeactivate is true, this method removes the last inactiveOrganism from the inactiveOrganismIndex
+    /// returns the new organism index. This method does NOT add the organism to the activeOrganism, 
+    /// it only reserves a spot for it.
+    /// 
+    /// If activateOrDeactivate is false, this method adds the organism to the inactiveOrganism list.
+    /// This method does Not remove it from the activeOrganism list or change any other values
+    /// </summary>
+    /// <param name="activateOrDeactivate"></param>
+    /// <param name="activeOrDeactiveOrganismIndex"></param>
+    /// <returns>
+    ///  </returns>
+    [MethodImpl(MethodImplOptions.Synchronized)]
+    private int? ManageActivateOrDeactivate(bool activateOrDeactivate, ref int activeOrganismIndexOrOrganismIndex) {
+        if (activateOrDeactivate) {
+            //There may be no inactiveOrganisms to use, if so return null
+            if (inactiveOrganismCount <= 0)
+                return null;
+            int organismIndex = inactiveOrganisms[Interlocked.Decrement(ref inactiveOrganismCount)];
+            //If the organism has not yet been removed from the activeOrganism index, use the previous activeOrganism index.
+            int tempActiveOrganismIndex = organismStatuses[organismIndex].activeOrganismIndex;
+            if (tempActiveOrganismIndex == -1) {
+                activeOrganismIndexOrOrganismIndex = Interlocked.Increment(ref activeOrganismCount) - 1;
+            } else {
+                activeOrganismIndexOrOrganismIndex = tempActiveOrganismIndex;
+            }
+            return organismIndex;
+        } else {
+            int inactiveOrganismIndex = Interlocked.Increment(ref inactiveOrganismCount);
+            inactiveOrganisms[inactiveOrganismIndex] = activeOrganismIndexOrOrganismIndex;
+            return 0;
+        }
+    }
+
+    //TODO: Create removeActiveOrganismQueue handler
 
     /// <summary>
     /// Increases the capacity of the organism arrays, active and inactive arrays.
