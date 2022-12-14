@@ -7,6 +7,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using static PlantSpecies;
+using static PlantSpeciesSeed;
 using static Species;
 
 public class PlantSpeciesAwns : PlantSpeciesOrgan {
@@ -37,6 +38,10 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
         awnList = new OrganismAtribute<Awn>(listExtender);
         awns = awnList.organismAttributes;
         speciesSeed.SetupSpeciesOrganArrays(listExtender);
+    }
+
+    public override void StartJob(List<JobHandle> jobList) {
+        speciesSeed.StartJob(jobList);
     }
 
     public override void OnListUpdate() {

@@ -14,8 +14,7 @@ public abstract class SpeciesOrgan : MonoBehaviour, IOrganismListCapacityChange 
 
     public virtual void OnListUpdate() { }
 
-    public virtual JobHandle? StartJob() {
-        return null;
+    public virtual void StartJob(List<JobHandle> jobList) {
     }
 
     public Species GetSpecies() {

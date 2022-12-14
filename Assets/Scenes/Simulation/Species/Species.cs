@@ -189,15 +189,11 @@ public abstract class Species : MonoBehaviour, IOrganismSpecies, IOrganismListCa
         }
     }
 
-    public List<JobHandle> StartJobs() {
-        List<JobHandle> jobs = new List<JobHandle>(2);
-        jobs.Add(speciesUpdateJob.BeginJob());
+    public virtual void StartJobs(List<JobHandle> jobList) {
+        jobList.Add(speciesUpdateJob.BeginJob());
         for (int i = 0; i < organs.Count; i++) {
-            JobHandle? jobHandle = organs[i].StartJob();
-            if (jobHandle.HasValue)
-                jobs.Add(jobHandle.Value);
+            organs[i].StartJob(jobList);
         }
-        return jobs;
     }
 
     protected virtual void UpdateOrganism(int organism) {

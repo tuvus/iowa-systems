@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Unity.Collections.LowLevel.Unsafe;
 using System.Threading;
+using Unity.Jobs;
 
 public class AnimalSpecies : Species {
     public GameObject basicOrganism;
@@ -139,6 +140,11 @@ public class AnimalSpecies : Species {
         animals[animal] = new Animal();
         //TODO: Add position and rotation
         return animal;
+    }
+
+    public override void StartJobs(List<JobHandle> jobList) {
+        base.StartJobs(jobList);
+        speciesCarcass.StartJob(jobList);
     }
 
     public override void OnListUpdate() {

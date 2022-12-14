@@ -226,9 +226,7 @@ public class Earth : MonoBehaviour {
     void StartOrganismJobs() {
         List<Species> allSpecies = SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
         for (int i = 0; i < allSpecies.Count; i++) {
-            foreach (var jobhandle in allSpecies[i].StartJobs()) {
-                activeJobs.Add(jobhandle);
-            }
+            allSpecies[i].StartJobs(activeJobs);
         }
     }
 

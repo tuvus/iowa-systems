@@ -77,8 +77,8 @@ public class PlantSpeciesSeed : PlantSpeciesOrgan, IOrganismSpecies {
         }
     }
 
-    public override JobHandle? StartJob() {
-        return speciesSeedsUpdateJob.BeginJob();
+    public override void StartJob(List<JobHandle> jobList) {
+        speciesSeedsUpdateJob.BeginJob();
     }
 
     public void UpdateSeed(int seed) {
