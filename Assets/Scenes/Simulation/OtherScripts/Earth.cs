@@ -252,6 +252,7 @@ public class Earth : MonoBehaviour {
     //TODO: Change Species to handle organism actions parallel before relying on syncronous handling
     //TODO: Add recursive asynchronous organismAction handling
     //TODO: Add linear CleanActiveOrganismList handling
+    //TODO: Change speciesOrgan to attribute and make an organ that inherits from it.
 
     void UpdatOrganismActions() {
         List<Species> allSpecies = GetAllSpecies();

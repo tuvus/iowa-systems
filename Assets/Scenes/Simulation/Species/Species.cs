@@ -9,7 +9,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
+public abstract class Species : MonoBehaviour, IOrganismSpecies, IOrganismListCapacityChange {
     private Earth earth;
     public string speciesName;
     public string speciesDisplayName;
@@ -100,6 +100,17 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
             this.amount = amount;
             this.floatValue = dispertionRange;
         }
+
+        //For readding the reproduce action back to the action queue with the same or less ammount of offspring
+        public OrganismAction(OrganismAction oldAction, int newAmount) {
+            this.action = oldAction.action;
+            this.organism = oldAction.organism;
+            this.target = int2.zero;
+            this.position = oldAction.position;
+            this.zone = oldAction.zone;
+            this.amount = newAmount;
+            this.floatValue = oldAction.floatValue;
+        }
     }
 
     public OrganismList<Organism> organismList;
@@ -134,28 +145,20 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
     #endregion
 
     #region SpawnOrganisms
-    /// <summary>
-    /// Spawns a new Organism.
-    /// </summary>
-    /// <returns>The index of the new organism</returns>
+
     public virtual int SpawnOrganism() {
         int organismIndex = organismList.ActivateOrganism();
         //TODO: Need to add position and rotation here
         return organismIndex;
     }
 
-    /// <summary>
-    /// Spawns a new organism within distance degrees of position.
-    /// </summary>
-    /// <param name="position">The position to be randomised around</param>
-    /// <param name="zone">The zone that the position is in</param>
-    /// <param name="distance">The distance in degrees from the position</param>
-    /// <returns>The index of the new organism</returns>
     public virtual int SpawnOrganism(float3 position, int zone, float distance) {
-        int organism = organismList.ActivateOrganism();
-        organisms[organism] = new Organism(0, zone, position, 0);
+        int? organism = organismList.ActivateOrganismParallel();
+        if (!organism.HasValue)
+            return -1;
+        organisms[organism.Value] = new Organism(0, zone, position, 0);
         //TODO: Need to add position and rotation here
-        return organism;
+        return organism.Value;
     }
 
     /// <summary>
@@ -214,17 +217,28 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
                 case OrganismAction.Action.Eat:
                     break;
                 case OrganismAction.Action.Reproduce:
-                    ReproduceOrganism(organismActions.Peek());
+                    ReproduceOrganismParallel(organismActions.Peek());
                     break;
             }
             organismActions.Dequeue();
         }
     }
 
-    public virtual void ReproduceOrganism(OrganismAction action) {
-        for (int i = 0; i < action.amount; i++) {
-            SpawnOrganism(action.position, action.amount, action.floatValue);
+    public virtual void ReproduceOrganismParallel(OrganismAction action) {
+        int organismsToReproduce = action.amount;
+        for (; organismsToReproduce > 0; organismsToReproduce--) {
+            if (SpawnOrganism(action.position, action.amount, action.floatValue) == -1) {
+                organismsToReproduce--;
+                break;
+            }
         }
+        if (organismsToReproduce > 0) {
+            organismActions.Enqueue(new OrganismAction(action, organismsToReproduce));
+        }
+    }
+
+    public virtual void KillOrganismParallel(OrganismAction action) {
+        organismList.DeactivateActiveOrganismParallel(action.organism);
     }
 
     public void AddToFindZone(int organism, int zone = -1, float range = 0) {
@@ -264,4 +278,5 @@ public abstract class Species : MonoBehaviour, IOrganismListCapacityChange {
             organ.Deallocate();
         }
     }
+
 }

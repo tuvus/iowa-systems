@@ -10,7 +10,7 @@ using static Earth;
 using static PlantSpecies;
 using static Species;
 
-public class PlantSpeciesAwns : PlantSpeciesOrgan {
+public class PlantSpeciesAwns : PlantSpeciesOrgan, IOrganismSpecies {
     public int startingSeedCount;
     public float humidityRequirement;
     public float tempetureRequirement;
@@ -64,18 +64,18 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
 
     public void Populate() {
         for (int i = 0; i < startingSeedCount; i++) {
-            SpawnSeed();
+            SpawnOrganism();
         }
     }
 
-    public int SpawnSeed() {
+    public int SpawnOrganism() {
         int seed = seedList.ActivateOrganism();
         seeds[seed] = new Organism(Simulation.randomGenerator.NextFloat(0, timeRequirement), 0, float3.zero, 0);
         //TODO: Need to add position and rotation here
         return seed;
     }
 
-    public int SpawnSeed(float3 position, int zone, float distance) {
+    public int SpawnOrganism(float3 position, int zone, float distance) {
         int seed = seedList.ActivateOrganism();
         seeds[seed] = new Organism(0, zone, position, 0);
         //TODO: Need to add position and rotation here
@@ -172,6 +172,24 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
             seedActions.Dequeue();
         }
     }
+
+    public virtual void ReproduceOrganismParallel(OrganismAction action) {
+        int organismsToReproduce = action.amount;
+        for (; organismsToReproduce > 0; organismsToReproduce--) {
+            if (SpawnOrganism(action.position, action.amount, action.floatValue) == -1) {
+                organismsToReproduce--;
+                break;
+            }
+        }
+        if (organismsToReproduce > 0) {
+            seedActions.Enqueue(new OrganismAction(action, organismsToReproduce));
+        }
+    }
+
+    public virtual void KillOrganismParallel(OrganismAction action) {
+        seedList.DeactivateActiveOrganismParallel(action.organism);
+    }
+
 
     public void GrowSeed(OrganismAction organismAction) {
         GetPlantSpecies().SpawnOrganism(organismAction.position, organismAction.zone, organismAction.floatValue);

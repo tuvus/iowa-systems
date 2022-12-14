@@ -138,6 +138,8 @@ public class PlantSpecies : Species {
 
     public override int SpawnOrganism() {
         int plant = base.SpawnOrganism();
+        if (plant == -1)
+            return -1;
         GrowthStage stage = (GrowthStage)Simulation.randomGenerator.NextInt(1, 6);
         organisms[plant] = new Organism(GetGrowthStageData(stage).daysAfterGermination, -1, Vector3.zero, 0);
         plants[plant] = new Plant(stage, GetGrowthStageData(stage));
@@ -147,6 +149,8 @@ public class PlantSpecies : Species {
 
     public override int SpawnOrganism(float3 position, int zone, float distance) {
         int plant = base.SpawnOrganism();
+        if (plant == -1)
+            return -1;
         organisms[plant] = new Organism(0, zone, position, 0);
         plants[plant] = new Plant(GrowthStage.Germinating, 10, 10, 10);
         return plant;
@@ -199,11 +203,11 @@ public class PlantSpecies : Species {
             plantSpeciesSeeds.UpdateSeedActions();
     }
 
-    public override void ReproduceOrganism(OrganismAction action) {
+    public override void ReproduceOrganismParallel(OrganismAction action) {
         if (plantSpeciesSeeds != null) {
-            plantSpeciesSeeds.SpawnSeed(action.position, action.zone, action.floatValue);
+            plantSpeciesSeeds.SpawnOrganism(action.position, action.zone, action.floatValue);
         } else {
-            base.ReproduceOrganism(action);
+            base.ReproduceOrganismParallel(action);
         }
     }
 

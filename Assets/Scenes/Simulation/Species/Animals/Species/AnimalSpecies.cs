@@ -69,8 +69,7 @@ public class AnimalSpecies : Species {
     public OrganismAtribute<Animal> animalList;
     public NativeArray<Animal> animals;
 
-    public OrganismList<Organism> deadAnimalList;
-    public NativeArray<Organism> deadAnimals;
+    private AnimalSpeciesCarcass speciesCarcass;
 
     public NativeArray<int> eddibleFoodTypes;
     public NativeArray<int> predatorFoodTypes;
@@ -83,8 +82,7 @@ public class AnimalSpecies : Species {
         fullFood = maxFood * .7f;
         animalList = new OrganismAtribute<Animal>(organismList);
         animals = animalList.organismAttributes;
-        deadAnimalList = new OrganismList<Organism>(organismList.GetListCapacity(), this);
-        deadAnimals = deadAnimalList.organisms;
+        speciesCarcass = new AnimalSpeciesCarcass(organismList.GetListCapacity());
     }
 
     public override void SetupSpeciesFoodType() {
@@ -148,14 +146,7 @@ public class AnimalSpecies : Species {
     public override void OnListUpdate() {
         base.OnListUpdate();
         animals = animalList.organismAttributes;
-        deadAnimals = deadAnimalList.organisms;
-    }
-
-    public int SpawnDeadAnimal() {
-        int deadAnimal = deadAnimalList.ActivateOrganism();
-        deadAnimals[deadAnimal] = new Organism(0, 0, float3.zero, 0);
-        //TODO: Add position and rotation
-        return deadAnimal;
+        speciesCarcass.OnListUpdate();
     }
 
     protected override void UpdateOrganism(int organism) {
@@ -311,8 +302,8 @@ public class AnimalSpecies : Species {
     /// </summary>
     public override void Deallocate() {
         base.Deallocate();
-        deadAnimalList.Deallocate();
         eddibleFoodTypes.Dispose();
         predatorFoodTypes.Dispose();
+        speciesCarcass.Deallocate();
     }
 }
