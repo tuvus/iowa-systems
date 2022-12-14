@@ -12,8 +12,12 @@ public class AnimalSpeciesCarcass : AnimalSpeciesOrgan, IOrganismSpecies {
     public OrganismList<Organism> carcassList;
     public NativeArray<Organism> carcasses;
 
-    public AnimalSpeciesCarcass(int capacity) {
-        carcassList = new OrganismList<Organism>(capacity, this);
+    public AnimalSpeciesCarcass() {
+
+    }
+
+    public override void SetupSpeciesOrganArrays(IOrganismListExtender listExtender) {
+        carcassList = new OrganismList<Organism>(listExtender.GetListCapacity(), this);
         carcasses = carcassList.organisms;
     }
 
@@ -48,12 +52,18 @@ public class AnimalSpeciesCarcass : AnimalSpeciesOrgan, IOrganismSpecies {
             }
         }
         if (organismsToReproduce > 0) {
+            //Doesen't have to deal with spawning more than the capacity
             //organismActions.Enqueue(new OrganismAction(action, organismsToReproduce));
+            Debug.LogError("There where leftover organisms to reproduce. This should not have occured");
         }
     }
 
 
     public virtual void KillOrganismParallel(OrganismAction action) {
         carcassList.DeactivateActiveOrganismParallel(action.organism);
+    }
+
+    public override void Deallocate() {
+        carcassList.Deallocate();
     }
 }

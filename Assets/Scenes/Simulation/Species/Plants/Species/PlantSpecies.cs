@@ -6,7 +6,7 @@ using System;
 
 public class PlantSpecies : Species {
     public GameObject plantPrefab;
-    PlantSpeciesAwns plantSpeciesSeeds;
+    PlantSpeciesAwns plantSpeciesAwns;
 
     public enum GrowthStage {
         Dead = -1,
@@ -74,7 +74,7 @@ public class PlantSpecies : Species {
         base.SetupSimulation(earth);
         plantList = new OrganismAtribute<Plant>(organismList);
         plants = plantList.organismAttributes;
-        plantSpeciesSeeds = GetComponent<PlantSpeciesAwns>();
+        plantSpeciesAwns = GetComponent<PlantSpeciesAwns>();
         growthStages = new NativeArray<GrowthStageData>(growthStagesInput.Count, Allocator.Persistent);
 
         for (int i = 0; i < growthStagesInput.Count; i++) {
@@ -128,8 +128,8 @@ public class PlantSpecies : Species {
         for (int i = 0; i < startingPopulation; i++) {
             SpawnOrganism();
         }
-        if (plantSpeciesSeeds != null) {
-            plantSpeciesSeeds.Populate();
+        if (plantSpeciesAwns != null) {
+            plantSpeciesAwns.Populate();
         }
         GetEarth().StartFindZoneJobs();
         GetEarth().CompleteFindZoneJobs();
@@ -143,7 +143,7 @@ public class PlantSpecies : Species {
         GrowthStage stage = (GrowthStage)Simulation.randomGenerator.NextInt(1, 6);
         organisms[plant] = new Organism(GetGrowthStageData(stage).daysAfterGermination, -1, Vector3.zero, 0);
         plants[plant] = new Plant(stage, GetGrowthStageData(stage));
-        plantSpeciesSeeds.SpawnAwns(plant);
+        plantSpeciesAwns.SpawnAwns(plant);
         return plant;
     }
 
@@ -199,13 +199,13 @@ public class PlantSpecies : Species {
 
     public override void UpdateOrganismActions() {
         base.UpdateOrganismActions();
-        if (plantSpeciesSeeds != null)
-            plantSpeciesSeeds.UpdateSeedActions();
+        if (plantSpeciesAwns != null)
+            plantSpeciesAwns.speciesSeed.UpdateSeedActions();
     }
 
     public override void ReproduceOrganismParallel(OrganismAction action) {
-        if (plantSpeciesSeeds != null) {
-            plantSpeciesSeeds.SpawnOrganism(action.position, action.zone, action.floatValue);
+        if (plantSpeciesAwns != null) {
+            plantSpeciesAwns.speciesSeed.SpawnOrganism(action.position, action.zone, action.floatValue);
         } else {
             base.ReproduceOrganismParallel(action);
         }
@@ -219,7 +219,7 @@ public class PlantSpecies : Species {
     }
 
     public PlantSpeciesAwns GetSpeciesSeeds() {
-        return plantSpeciesSeeds;
+        return plantSpeciesAwns;
     }
 
     /// <summary>

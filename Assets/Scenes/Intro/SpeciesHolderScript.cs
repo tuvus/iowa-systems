@@ -21,7 +21,7 @@ public class SpeciesHolderScript : MonoBehaviour {
 		Species speciesScript = GetComponent<Species>();
 		GetColorImage().color = speciesScript.speciesColor;
 		if (GetComponent<PlantSpeciesAwns>() != null) {
-			GetNameText().text = speciesScript.speciesDisplayName + " Pop(" + speciesScript.startingPopulation + ")(" + GetComponent<PlantSpeciesAwns>().startingSeedCount + ")";
+			GetNameText().text = speciesScript.speciesDisplayName + " Pop(" + speciesScript.startingPopulation + ")(" + GetComponent<PlantSpeciesAwns>().speciesSeed.startingSeedCount + ")";
 			return;
         }
 		GetNameText().text = speciesScript.speciesDisplayName + " Pop(" + speciesScript.startingPopulation + ")";

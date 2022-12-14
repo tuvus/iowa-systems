@@ -44,7 +44,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 				GetSpeciesPopulationCountSlider().value = targetSpecies.startingPopulation;
 				RefreshOrganismCount();
 				if (targetSpecies.GetComponent<PlantSpeciesAwns>() != null) {
-					GetSpeciesSeedCountSlider().value = targetSpecies.GetComponent<PlantSpeciesAwns>().startingSeedCount;
+					GetSpeciesSeedCountSlider().value = targetSpecies.GetComponent<PlantSpeciesAwns>().speciesSeed.startingSeedCount;
 					DisplaySeedSpeceis(true);
 				} else {
 					DisplaySeedSpeceis(false);
@@ -70,7 +70,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 		GetSpeciesPopulationCountSlider().value = species.startingPopulation;
 		RefreshOrganismCount();
 		if (species.GetComponent<PlantSpeciesAwns>() != null) {
-			GetSpeciesSeedCountSlider().value = species.GetComponent<PlantSpeciesAwns>().startingSeedCount;
+			GetSpeciesSeedCountSlider().value = species.GetComponent<PlantSpeciesAwns>().speciesSeed.startingSeedCount;
 			DisplaySeedSpeceis(true);
         } else {
 			DisplaySeedSpeceis(false);
@@ -87,7 +87,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 			speciesScript.startingPopulation = Mathf.RoundToInt(GetSpeciesPopulationCountSlider().value);
 			speciesScript.speciesColor = color;
 			if (speciesScript.GetComponent<PlantSpeciesAwns>() != null)
-				speciesScript.GetComponent<PlantSpeciesAwns>().startingSeedCount = (int)GetSpeciesSeedCountSlider().value;
+				speciesScript.GetComponent<PlantSpeciesAwns>().speciesSeed.startingSeedCount = (int)GetSpeciesSeedCountSlider().value;
 
 			selectedSpecies.GetComponent<SpeciesHolderScript>().Refresh();
 		} else {
@@ -98,7 +98,7 @@ public class SpeciesMakerPanel : MonoBehaviour {
 			speciesScript.startingPopulation = Mathf.RoundToInt(GetSpeciesPopulationCountSlider().value);
 			speciesScript.speciesColor = color;
 			if (speciesScript.GetComponent<PlantSpeciesAwns>() != null)
-				speciesScript.GetComponent<PlantSpeciesAwns>().startingSeedCount = (int)GetSpeciesSeedCountSlider().value;
+				speciesScript.GetComponent<PlantSpeciesAwns>().speciesSeed.startingSeedCount = (int)GetSpeciesSeedCountSlider().value;
 
 			selectedSpecies.GetComponent<SpeciesHolderScript>().Refresh();
 		}

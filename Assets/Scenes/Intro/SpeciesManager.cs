@@ -60,7 +60,7 @@ public class SpeciesManager : MonoBehaviour {
 				count += plantSpecies.startingPopulation;
 				PlantSpeciesAwns speciesSeeds = plantSpecies.GetComponent<PlantSpeciesAwns>();
 				if (speciesSeeds != null) {
-					count += speciesSeeds.startingSeedCount;
+					count += speciesSeeds.speciesSeed.startingSeedCount;
                 }
             }
         }

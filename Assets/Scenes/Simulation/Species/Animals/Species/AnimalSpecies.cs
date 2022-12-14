@@ -24,9 +24,6 @@ public class AnimalSpecies : Species {
     [Tooltip("The age at which the animal will die at in days")]
     public int maxAge;
 
-    [Tooltip("The time it takes a corpse to deteriorate in days")]
-    public float deteriationTime;
-
     int foodIndex;
     [SerializeField] List<string> eddibleFoodTypesInput = new List<string>();
     public enum GrowthStage {
@@ -69,7 +66,7 @@ public class AnimalSpecies : Species {
     public OrganismAtribute<Animal> animalList;
     public NativeArray<Animal> animals;
 
-    private AnimalSpeciesCarcass speciesCarcass;
+    public AnimalSpeciesCarcass speciesCarcass;
 
     public NativeArray<int> eddibleFoodTypes;
     public NativeArray<int> predatorFoodTypes;
@@ -82,7 +79,8 @@ public class AnimalSpecies : Species {
         fullFood = maxFood * .7f;
         animalList = new OrganismAtribute<Animal>(organismList);
         animals = animalList.organismAttributes;
-        speciesCarcass = new AnimalSpeciesCarcass(organismList.GetListCapacity());
+        speciesCarcass.SetSpeciesScript(this);
+        speciesCarcass.SetupSpeciesOrganArrays(animalList);
     }
 
     public override void SetupSpeciesFoodType() {

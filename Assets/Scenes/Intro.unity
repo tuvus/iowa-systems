@@ -2382,8 +2382,8 @@ MonoBehaviour:
   fullFood: 0
   maxFood: 22
   maxAge: 26
-  deteriationTime: 0
   eddibleFoodTypesInput: []
+  speciesCarcass: {fileID: 0}
 --- !u!114 &446744801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2520,20 +2520,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350de5468c2b46f1821fb5cb6d36ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  organType: Seed
+  organType: Awn
   organFoodIndex: 0
   growthModifier: 0.1
-  startingSeedCount: 20
-  humidityRequirement: 64
-  tempetureRequirement: 50
-  seedDispertionRange: 40
-  timeRequirement: 240
-  timeMaximum: 730
   awnMaxGrowth: 24
   awnMaxSeedAmount: 6
   awnSeedDispertionTime: 45
   awnSeedDispersalSuccessChance: 30
-  seedEnergyAmount: 0.01
+  seedDispertionRange: 40
+  speciesSeed: {fileID: 456575648}
 --- !u!114 &456575643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2549,6 +2544,28 @@ MonoBehaviour:
   organType: Blade
   organFoodIndex: 0
   growthModifier: 0.2
+--- !u!114 &456575648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 456575634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e25ca675481fc5647956694375ee6d93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  organType: Seed
+  organFoodIndex: 0
+  growthModifier: 0
+  startingSeedCount: 20
+  humidityRequirement: 64
+  tempetureRequirement: 50
+  seedDispertionRange: 40
+  timeRequirement: 240
+  timeMaximum: 730
+  seedEnergyAmount: 0.01
 --- !u!1 &496184813
 GameObject:
   m_ObjectHideFlags: 0
@@ -4119,8 +4136,8 @@ MonoBehaviour:
   fullFood: 0
   maxFood: 21.5
   maxAge: 0
-  deteriationTime: 0
   eddibleFoodTypesInput: []
+  speciesCarcass: {fileID: 0}
 --- !u!1 &676291395
 GameObject:
   m_ObjectHideFlags: 0
@@ -5495,19 +5512,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d350de5468c2b46f1821fb5cb6d36ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  organType: Seed
+  organType: Awn
   organFoodIndex: 0
   growthModifier: 0.1
+  awnMaxGrowth: 18
+  awnMaxSeedAmount: 6
+  awnSeedDispertionTime: 30
+  awnSeedDispersalSuccessChance: 30
+  seedDispertionRange: 30
+  speciesSeed: {fileID: 809522565}
+--- !u!114 &809522565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 809522552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e25ca675481fc5647956694375ee6d93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  organType: Seed
+  organFoodIndex: 0
+  growthModifier: 0
   startingSeedCount: 500
   humidityRequirement: 52
   tempetureRequirement: 45
   seedDispertionRange: 30
   timeRequirement: 240
   timeMaximum: 730
-  awnMaxGrowth: 18
-  awnMaxSeedAmount: 6
-  awnSeedDispertionTime: 30
-  awnSeedDispersalSuccessChance: 30
   seedEnergyAmount: 0.2
 --- !u!1 &835355319
 GameObject:
@@ -10558,9 +10592,9 @@ MonoBehaviour:
   fullFood: 0
   maxFood: 12
   maxAge: 2555
-  deteriationTime: 14
   eddibleFoodTypesInput:
   - CottontailRabbit
+  speciesCarcass: {fileID: 1600016803}
 --- !u!114 &1600016799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10575,6 +10609,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nose: {fileID: 3750231290935706298, guid: 2835814a3c92b3240844edeb53097a14, type: 3}
   smellRange: 80
+--- !u!114 &1600016803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1600016790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172b666ab5bb2a040ae5a258875cefcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deteriationTime: 14
 --- !u!1 &1627060932 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1225496576153444, guid: 4d4a09e89fadd41e19ce31891e00a6e9,
@@ -10683,10 +10730,10 @@ MonoBehaviour:
   fullFood: 0
   maxFood: 7
   maxAge: 2190
-  deteriationTime: 14
   eddibleFoodTypesInput:
   - Stem
   - Blade
+  speciesCarcass: {fileID: 1627060945}
 --- !u!114 &1627060940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10713,6 +10760,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4f7cbf78b1b143c982cf2267b3bbdd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1627060945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1627060932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172b666ab5bb2a040ae5a258875cefcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deteriationTime: 14
 --- !u!1 &1629009799
 GameObject:
   m_ObjectHideFlags: 0
@@ -11198,8 +11258,8 @@ MonoBehaviour:
   fullFood: 0
   maxFood: 27
   maxAge: 14
-  deteriationTime: 0
   eddibleFoodTypesInput: []
+  speciesCarcass: {fileID: 0}
 --- !u!114 &1754343643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11999,8 +12059,8 @@ MonoBehaviour:
   fullFood: 0
   maxFood: 14
   maxAge: 16
-  deteriationTime: 0
   eddibleFoodTypesInput: []
+  speciesCarcass: {fileID: 0}
 --- !u!114 &1924411864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13100,9 +13160,9 @@ MonoBehaviour:
   fullFood: 0
   maxFood: 30
   maxAge: 25
-  deteriationTime: 0
   eddibleFoodTypesInput:
   - Grass
+  speciesCarcass: {fileID: 0}
 --- !u!114 &2143928222
 MonoBehaviour:
   m_ObjectHideFlags: 0
