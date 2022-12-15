@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ using UnityEngine;
 /// </summary>
 /// <typeparam name="T">The action data in struct form</typeparam>
 public class OrganismActionQueue<T> : IOrganismListExtender where T : struct {
-    private NativeArray<T> actionArray;
+    [NativeDisableContainerSafetyRestriction] public NativeArray<T> actionArray;
     private int queueStartIndex;
     private int queueLength;
 

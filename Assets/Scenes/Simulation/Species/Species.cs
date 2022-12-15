@@ -129,7 +129,7 @@ public abstract class Species : MonoBehaviour, IOrganismSpecies, IOrganismListCa
         organismList = new OrganismList<Organism>(math.max(startingPopulation * 2, 100), this);
         organisms = organismList.organisms;
         organismActions = new OrganismActionQueue<OrganismAction>(organismList);
-        speciesUpdateJob = new SpeciesUpdateJob(speciesIndex);
+        speciesUpdateJob = new SpeciesUpdateJob(this);
         for (int i = 0; i < organs.Count; i++) {
             organs[i].SetupSpeciesOrganArrays(organismList);
         }
@@ -174,18 +174,18 @@ public abstract class Species : MonoBehaviour, IOrganismSpecies, IOrganismListCa
     #endregion
 
     public struct SpeciesUpdateJob : IJobParallelFor {
-        private int species;
+        [NativeDisableUnsafePtrRestriction] private Species species;
 
-        public SpeciesUpdateJob(int species) {
+        public SpeciesUpdateJob(Species species) {
             this.species = species;
         }
 
         public JobHandle BeginJob() {
-            return IJobParallelForExtensions.Schedule(this, SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].organismList.activeOrganismCount, 10);
+            return IJobParallelForExtensions.Schedule(this, species.organismList.activeOrganismCount, 10);
         }
 
         public void Execute(int index) {
-            SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].UpdateOrganism(SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].organismList.activeOrganisms[index]);
+            species.UpdateOrganism(species.organismList.activeOrganisms[index]);
         }
     }
 
@@ -198,6 +198,22 @@ public abstract class Species : MonoBehaviour, IOrganismSpecies, IOrganismListCa
 
     protected virtual void UpdateOrganism(int organism) {
         organisms[organism] = new Organism(organisms[organism], organisms[organism].age + earth.simulationDeltaTime / 24);
+    }
+
+    public struct OrganismActionJob : IJobParallelFor {
+        private int species;
+
+        public OrganismActionJob(int species) {
+            this.species = species;
+        }
+
+        public JobHandle BeginJob() {
+            return IJobParallelForExtensions.Schedule(this, SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species].organismActions.actionArray.Length, 10);
+        }
+
+        public void Execute(int index) {
+        }
+
     }
 
     public virtual void UpdateOrganismActions() {
