@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-public abstract class Species : MonoBehaviour, IOrganismSpecies {
+public abstract class Species : MonoBehaviour {
     private Earth earth;
     public string speciesName;
     public string speciesDisplayName;
@@ -15,7 +15,7 @@ public abstract class Species : MonoBehaviour, IOrganismSpecies {
     internal List<int> populationOverTime = new List<int>();
     public int populationCount { internal set; get; }
 
-    public struct Organism {
+    public class Organism {
 
         [Tooltip("The age of the organism in days")]
         public float age;
@@ -25,6 +25,8 @@ public abstract class Species : MonoBehaviour, IOrganismSpecies {
         public float3 position;
         [Tooltip("The rotation tangent to the world")]
         public float rotation;
+
+        public Organism() { }
 
         public Organism(float age, int zone, float3 position, float rotation) {
             this.age = age;
@@ -67,15 +69,16 @@ public abstract class Species : MonoBehaviour, IOrganismSpecies {
     }
 
     public HashSet<Organism> organisms;
-    public OrganismActionQueue<OrganismAction> organismActions;
+    public List<OrganismAction> organismActions;
 
     
     #region SimulationStart
     public virtual void SetupSimulation(Earth earth) {
         this.earth = earth;
         gameObject.name = speciesName;
-        for (int i = 0; i < organs.Count; i++) {
-            organs[i].SetSpeciesScript(this);
+        foreach (var speciesOrgan in organs) {
+            speciesOrgan.SetSpeciesScript(this);
+            speciesOrgan.SetupSpeciesOrgan();
         }
         organisms = new HashSet<Organism>();
     }

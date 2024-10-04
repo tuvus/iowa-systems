@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using static Species;
 
-public class AnimalSpeciesCarcass : AnimalSpeciesOrgan, IOrganismSpecies {
+public class AnimalSpeciesCarcass : AnimalSpeciesOrgan {
     [Tooltip("The time it takes a corpse to deteriorate in days")]
     public float deteriationTime;
 

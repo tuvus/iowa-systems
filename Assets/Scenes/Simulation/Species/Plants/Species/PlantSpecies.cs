@@ -79,7 +79,7 @@ public class PlantSpecies : Species {
             growthStages[i] = growthStagesInput[i];
         }
         for (int i = 0; i < organs.Count; i++) {
-            ((PlantSpeciesOrgan)organs[i]).growthPriorities = new NativeArray<float>(growthStages.Length, Allocator.Persistent);
+            ((PlantSpeciesOrgan)organs[i]).growthPriorities = new float[growthStages.Length];
         }
         for (int i = 0; i < growthStages.Length; i++) {
             float totalGrowthRequired = 0;

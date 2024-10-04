@@ -36,6 +36,10 @@ public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
         }
     }
 
+    public override void SetupSpeciesOrgan() {
+        reproductiveSystems = new Dictionary<Organism, ReproductiveSystem>();
+    }
+
     public GrowthStage SpawnReproductive(Organism organism) {
         reproductiveSystems.Add(organism, new ReproductiveSystem(Simulation.randomGenerator.NextBool(),0, reproductionDelay * Simulation.randomGenerator.NextFloat(0f, 1.2f)));
         if (organism.age >= reproductionAge)

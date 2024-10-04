@@ -9,7 +9,7 @@ public abstract class PlantSpeciesOrgan : SpeciesOrgan {
     [Tooltip("The relationship between how much growth input is require to grow this organ")]
     public float growthModifier;
 
-    public NativeArray<float> growthPriorities;
+    public float[] growthPriorities;
 
     public abstract float GetGrowthRequirementForStage(PlantSpecies.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues);
 

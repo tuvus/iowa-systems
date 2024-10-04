@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -12,7 +13,6 @@ public class ZoneController : MonoBehaviour {
     }
 
     Earth earth;
-    public FindZoneController FindZoneController { private set; get; }
     public ZoneData[] zones;
     public Dictionary<ZoneData, HashSet<ZoneData>> neighboringZones;
     public Dictionary<ZoneData, int2> organismsByFoodTypeInZones;
@@ -38,6 +38,7 @@ public class ZoneController : MonoBehaviour {
     #region SetupAndWrapup
     public void SetupZoneController(Earth earth) {
         this.earth = earth;
+        neighboringZones = new Dictionary<ZoneData, HashSet<ZoneData>>();
     }
 
     public void SpawnZones(float radius, int numberOfZones, int maxNeiboringZones, int numberOfPlants, int numberOfAnimals, ZoneSetupType zoneSetup) {
@@ -54,20 +55,21 @@ public class ZoneController : MonoBehaviour {
             zones[i] = new ZoneData(newZonePosition);
         }
         double distance = 4 * math.PI * math.pow(radius, 2) / (2600 * math.log10(.00051 * numberOfZones + .49) + 1000) / (radius / 16);
-        NativeArray<float> maxZoneSize = new NativeArray<float>(zones.Length, Allocator.TempJob);
+        float[] maxZoneSize = new float[zones.Length];
         if (zoneSetup == ZoneSetupType.Distance) {
             foreach (var zone in zones) {
+                neighboringZones.Add(zone, new HashSet<ZoneData>());
                 SetupZoneByDistance(zone, distance, neighboringZones[zone]);
             }
         } else if (zoneSetup == ZoneSetupType.Closest) {
             foreach (var zone in zones) {
+                neighboringZones.Add(zone, new HashSet<ZoneData>());
                 SetupZoneByClosest(zone, distance, maxNeiboringZones, neighboringZones[zone]);
             }
         }
         for (int i = 0; i < maxZoneSize.Length; i++) {
             zones[i] = new ZoneData(zones[i].position, maxZoneSize[i]);
         }
-        maxZoneSize.Dispose();
     }
 
     void Allocate(int numberOfZones, int maxNeibroingZones, int numberOfPlants, int numberOfAnimals) {
@@ -84,9 +86,12 @@ public class ZoneController : MonoBehaviour {
         foreach (var zoneToCheck in zones) {
             if (zoneToCheck == zone) continue;
             float distanceToZone = Vector3.Distance(zone.position, zoneToCheck.position);
+            if (distanceToZone >= distance) continue;
 
             int i = tempNeiboringZones.Length - 1;
-            for (; i >= 0; i--) {
+            for (; i > 0;) {
+                i--;
+                if (tempNeiboringZones[i] == null) continue;
                 if (tempNeiboringZones[i].Item2 <= distanceToZone) {
                     break;
                 }
@@ -94,12 +99,13 @@ public class ZoneController : MonoBehaviour {
             if (i >= tempNeiboringZones.Length) continue;
             for (int f = tempNeiboringZones.Length - 2; f >= 0; f--) {
                 if (f <= i) break;
+                if (tempNeiboringZones[f] == null) continue;
                 tempNeiboringZones[f + 1] = tempNeiboringZones[f];
             }
 
             tempNeiboringZones[i] = new Tuple<ZoneData, float>(zoneToCheck, distanceToZone);
         }
-        foreach (var neighbor in tempNeiboringZones) {
+        foreach (var neighbor in tempNeiboringZones.Where(n => n != null)) {
             nearbyZone.Add(neighbor.Item1);
         }
     }

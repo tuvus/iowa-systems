@@ -75,10 +75,15 @@ public class AnimalSpecies : Species {
         base.SetupSimulation(earth);
         fullFood = maxFood * .7f;
         speciesCarcass.SetSpeciesScript(this);
+        animals = new Dictionary<Organism, Animal>();
+        eddibleFoodTypes = new HashSet<string>();
+        predatorSpecies = new HashSet<Species>();
     }
 
     public override void SetupSpeciesFoodType() {
-        eddibleFoodTypes = new HashSet<string>(eddibleFoodTypesInput.Where(t => GetEarth().footTypesUsed.Contains(t)));
+        foreach (var foodType in eddibleFoodTypesInput.Where(t => GetEarth().footTypesUsed.Contains(t))) {
+            eddibleFoodTypes.Add(foodType);
+        }
     }
 
     public void SetupAnimalPredatorSpeciesFoodType() {

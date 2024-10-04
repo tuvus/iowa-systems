@@ -32,6 +32,10 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
 
     public Dictionary<Organism, Awn> awns;
 
+    public override void SetupSpeciesOrgan() {
+        awns = new Dictionary<Organism, Awn>();
+    }
+
     public void Populate() {
         speciesSeed.Populate();
     }

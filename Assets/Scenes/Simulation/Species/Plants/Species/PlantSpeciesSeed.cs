@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -10,7 +8,7 @@ using static Earth;
 using static PlantSpeciesAwns;
 using static Species;
 
-public class PlantSpeciesSeed : PlantSpeciesOrgan, IOrganismSpecies {
+public class PlantSpeciesSeed : PlantSpeciesOrgan {
     public int startingSeedCount;
     public float humidityRequirement;
     public float tempetureRequirement;
@@ -22,13 +20,10 @@ public class PlantSpeciesSeed : PlantSpeciesOrgan, IOrganismSpecies {
 
     public float seedEnergyAmount;
 
-    public OrganismList<Organism> seedList;
-    public NativeArray<Organism> seeds;
+    public HashSet<Organism> seedList;
+    public Organism[] seeds;
 
-    OrganismActionQueue<OrganismAction> seedActions;
-
-    SpeciesSeedsUpdateJob speciesSeedsUpdateJob;
-    
+    List<OrganismAction> seedActions;
 
     public void Populate() {
         for (int i = 0; i < startingSeedCount; i++) {
@@ -47,23 +42,6 @@ public class PlantSpeciesSeed : PlantSpeciesOrgan, IOrganismSpecies {
         Organism organism = new Organism(0, zone, position, 0);
         //TODO: Need to add position and rotation here
         return organism;
-    }
-
-    public struct SpeciesSeedsUpdateJob : IJobParallelFor {
-        private int species;
-
-        public SpeciesSeedsUpdateJob(int species) {
-            this.species = species;
-        }
-
-        public JobHandle BeginJob() {
-            return IJobParallelForExtensions.Schedule(this, ((PlantSpecies)SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species]).GetSpeciesSeeds().speciesSeed.seedList.activeOrganismCount, 10);
-        }
-
-        public void Execute(int index) {
-            ((PlantSpecies)SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species]).GetSpeciesSeeds().speciesSeed.UpdateSeed(
-                ((PlantSpecies)SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[species]).GetSpeciesSeeds().speciesSeed.seedList.activeOrganisms[index]);
-        }
     }
     
     public void UpdateSeed(int seed) {
