@@ -13,7 +13,7 @@ using UnityEngine;
 /// Can be extended by adding an OrganismListExtender, which will also be managed by the OrganismList.
 /// </summary>
 /// <typeparam name="T">Value to be stored in the list extension</typeparam>
-public class OrganismList<T> : IOrganismListExtender where T : struct {
+public class OrganismList<T> where T : struct {
     public struct OrganismStatus {
         [Tooltip("Is the organism spawned or not")]
         public bool spawned;
@@ -57,23 +57,7 @@ public class OrganismList<T> : IOrganismListExtender where T : struct {
         for (int i = 0; i < organisms.Length; i++) {
             inactiveOrganisms[i] = i;
         }
-        removeActiveOrganismQueue = new OrganismActionQueue<int>(this);
-    }
-
-    /// <summary>
-    /// Creates the OrganismList with a capacity of listExtenders capacity.
-    /// Links listExtender to this OrganismList.
-    /// </summary>
-    /// <param name="listExtender">The parent list that should govern the size of this list</param>
-    public OrganismList(IOrganismListExtender listExtender) : this(listExtender.GetListCapacity(), null) {
-        listExtender.AddListExtender(this);
-    }
-
-    public void AddListExtender(IOrganismListExtender listExtender) {
-        if (this.listExtender == null)
-            this.listExtender = listExtender;
-        else
-            this.listExtender.AddListExtender(listExtender);
+        // removeActiveOrganismQueue = new OrganismActionQueue<int>(this);
     }
 
     public int GetListCapacity() {

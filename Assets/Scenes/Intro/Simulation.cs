@@ -77,7 +77,6 @@ public class Simulation : MonoBehaviour {
         if (simulationRunning) {
             simulationInitialised = false;
             simulationRunning = false;
-            earth.Deallocate();
             SceneManager.LoadSceneAsync(0, LoadSceneMode.Single);
         }
     }

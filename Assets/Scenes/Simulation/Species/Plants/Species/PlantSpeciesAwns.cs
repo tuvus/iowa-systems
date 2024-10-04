@@ -30,31 +30,14 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
         }
     }
 
-    public OrganismAtribute<Awn> awnList;
-    public NativeArray<Awn> awns;
-
-    public override void SetupSpeciesOrganArrays(IOrganismListExtender listExtender) {
-        speciesSeed.SetSpeciesScript(GetSpecies());
-        awnList = new OrganismAtribute<Awn>(listExtender);
-        awns = awnList.organismAttributes;
-        speciesSeed.SetupSpeciesOrganArrays(listExtender);
-    }
-
-    public override void StartJob(List<JobHandle> jobList) {
-        speciesSeed.StartJob(jobList);
-    }
-
-    public override void OnListUpdate() {
-        awns = awnList.organismAttributes;
-        speciesSeed.OnListUpdate();
-    }
+    public Dictionary<Organism, Awn> awns;
 
     public void Populate() {
         speciesSeed.Populate();
     }
 
-    public void SpawnAwns(int organism) {
-        if (GetPlantSpecies().plants[organism].stage == GrowthStage.Adult) {
+    public void SpawnAwns(Organism organism, Plant plant) {
+        if (plant.stage == GrowthStage.Adult) {
             if (Simulation.randomGenerator.NextBool()) {
                 awns[organism] = new Awn(awnMaxGrowth, Simulation.randomGenerator.NextFloat(0, awnSeedDispertionTime));
             } else {
@@ -65,7 +48,7 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
         }
     }
 
-    public override void GrowOrgan(int organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
+    public override void GrowOrgan(Organism organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
         if (awns[organism].timeUntilDispersion > 0) {
             awns[organism] = new Awn(0, math.max(0, awns[organism].timeUntilDispersion - GetPlantSpecies().GetEarth().simulationDeltaTime / 24));
             if (awns[organism].timeUntilDispersion <= 0) {
@@ -75,7 +58,7 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
                         disperseSeeds++;
                     }
                 }
-                GetPlantSpecies().organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Reproduce, organism, GetPlantSpecies(), disperseSeeds, seedDispertionRange));
+                // GetPlantSpecies().organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Reproduce, organism, GetPlantSpecies(), disperseSeeds, seedDispertionRange));
             }
             return;
         }
@@ -94,10 +77,5 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
             return awnMaxGrowth / growthModifier;
         }
         return 0;
-    }
-
-    public override void Deallocate() {
-        base.Deallocate();
-        speciesSeed.Deallocate();
     }
 }

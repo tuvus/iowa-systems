@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.Collections;
+using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
-using Unity.Collections.LowLevel.Unsafe;
-using System.Threading;
-using Unity.Jobs;
 
 public class AnimalSpecies : Species {
     public GameObject basicOrganism;
@@ -64,13 +61,12 @@ public class AnimalSpecies : Species {
         }
     }
 
-    public OrganismAtribute<Animal> animalList;
-    public NativeArray<Animal> animals;
+    public Dictionary<Organism, Animal> animals;
 
     public AnimalSpeciesCarcass speciesCarcass;
 
-    public NativeArray<int> eddibleFoodTypes;
-    public NativeArray<int> predatorFoodTypes;
+    public HashSet<string> eddibleFoodTypes;
+    public HashSet<Species> predatorSpecies;
     private AnimalSpeciesReproductiveSystem reproductiveSystem;
 
     #region StartSimulation
@@ -78,40 +74,20 @@ public class AnimalSpecies : Species {
         reproductiveSystem = gameObject.GetComponent<AnimalSpeciesReproductiveSystem>();
         base.SetupSimulation(earth);
         fullFood = maxFood * .7f;
-        animalList = new OrganismAtribute<Animal>(organismList);
-        animals = animalList.organismAttributes;
         speciesCarcass.SetSpeciesScript(this);
-        speciesCarcass.SetupSpeciesOrganArrays(animalList);
     }
 
     public override void SetupSpeciesFoodType() {
-        foodIndex = GetEarth().GetIndexOfFoodType(speciesName);
-        List<int> tempEddibleFoodTypes = new List<int>();
-        for (int i = 0; i < eddibleFoodTypesInput.Count; i++) {
-            if (GetEarth().GetIndexOfFoodType(eddibleFoodTypesInput[i]) != -1) {
-                tempEddibleFoodTypes.Add(GetEarth().GetIndexOfFoodType(eddibleFoodTypesInput[i]));
-            }
-        }
-        eddibleFoodTypes = new NativeArray<int>(tempEddibleFoodTypes.Count, Allocator.Persistent);
-        for (int i = 0; i < tempEddibleFoodTypes.Count; i++) {
-            eddibleFoodTypes[i] = tempEddibleFoodTypes[i];
-        }
+        eddibleFoodTypes = new HashSet<string>(eddibleFoodTypesInput.Where(t => GetEarth().footTypesUsed.Contains(t)));
     }
 
     public void SetupAnimalPredatorSpeciesFoodType() {
-        List<int> tempPredatorFoodTypes = new List<int>();
-        for (int i = 0; i < SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies().Count; i++) {
-            if (i == speciesIndex || SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[i].GetType() != typeof(Animal))
-                continue;
-            AnimalSpecies animalSpecies = (AnimalSpecies)SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()[i];
-            if (animalSpecies != null && animalSpecies.eddibleFoodTypes.Contains(GetFoodIndex())) {
-                if (!tempPredatorFoodTypes.Contains(animalSpecies.GetFoodIndex()))
-                    tempPredatorFoodTypes.Add(animalSpecies.GetFoodIndex());
+        foreach (var species in SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies()) {
+            if (species == this || species.GetType() != typeof(Animal)) continue;
+            AnimalSpecies animalSpecies = (AnimalSpecies)species;
+            if (animalSpecies.eddibleFoodTypes.Contains(speciesName)) {
+                predatorSpecies.Add(animalSpecies);
             }
-        }
-        predatorFoodTypes = new NativeArray<int>(tempPredatorFoodTypes.Count, Allocator.Persistent);
-        for (int i = 0; i < tempPredatorFoodTypes.Count; i++) {
-            predatorFoodTypes[i] = tempPredatorFoodTypes[i];
         }
     }
 
@@ -126,40 +102,30 @@ public class AnimalSpecies : Species {
     }
     #endregion
 
-    public override int SpawnOrganism() {
-        int animal = base.SpawnOrganism();
-        organisms[animal] = new Organism(Simulation.randomGenerator.NextFloat(reproductiveSystem.reproductionAge / 2, maxAge / 1.2f), -1, Vector3.zero, 0);
-        animals[animal] = new Animal(reproductiveSystem.SpawnReproductive(animal), bodyWeight, maxHealth, Simulation.randomGenerator.NextFloat(fullFood, maxFood));
+    public override Organism SpawnOrganism() {
+        Organism organism = base.SpawnOrganism();
+        Animal animal = new Animal(reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
+            Simulation.randomGenerator.NextFloat(fullFood, maxFood));
+        animals.Add(organism, animal);
         //TODO: Add position and rotation
-        return animal;
+        return organism;
     }
 
-    public override int SpawnOrganism(float3 position, int zone, float distance) {
-        int animal = base.SpawnOrganism();
-        organisms[animal] = new Organism(0, -1, Vector3.zero, 0);
-        animals[animal] = new Animal();
+    public override Organism SpawnOrganism(float3 position, int zone, float distance) {
+        Organism organism = base.SpawnOrganism();
+        Animal animal = new Animal(reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
+            Simulation.randomGenerator.NextFloat(fullFood, maxFood));
         //TODO: Add position and rotation
-        return animal;
+        return organism;
     }
 
-    public override void StartJobs(List<JobHandle> jobList) {
-        base.StartJobs(jobList);
-        speciesCarcass.StartJob(jobList);
-    }
-
-    public override void OnListUpdate() {
-        base.OnListUpdate();
-        animals = animalList.organismAttributes;
-        speciesCarcass.OnListUpdate();
-    }
-
-    protected override void UpdateOrganism(int organism) {
+    protected override void UpdateOrganism(Organism organism) {
         base.UpdateOrganism(organism);
-        if (organisms[organism].age > maxAge) {
-            organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
+        if (organism.age > maxAge) {
+            // organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
             return;
         }
-        if (animals[organism].stage != GrowthStage.Adult && organisms[organism].age > reproductiveSystem.reproductionAge)
+        if (animals[organism].stage != GrowthStage.Adult && organism.age > reproductiveSystem.reproductionAge)
             animals[organism] = new Animal(animals[organism], GrowthStage.Adult);
         if (animals[organism].food > 0) {
             float restingFoodReduction = 1f;
@@ -212,13 +178,13 @@ public class AnimalSpecies : Species {
         //}
     }
 
-    bool IsAnimalFull(int organism) {
+    bool IsAnimalFull(Organism organism) {
         if (animals[organism].food >= maxFood * .9f)
             return true;
         return false;
     }
 
-    bool IsAnimalHungry(int organism) {
+    bool IsAnimalHungry(Organism organism) {
         if (animals[organism].food < fullFood)
             return true;
         return false;
@@ -260,7 +226,7 @@ public class AnimalSpecies : Species {
         throw new NotImplementedException();
     }
 
-    public float GetMovementSpeed(int organism) {
+    public float GetMovementSpeed(Organism organism) {
         return speed * (((animals[organism].health / maxHealth) / 2) + 0.5f);
     }
     #endregion
@@ -300,14 +266,4 @@ public class AnimalSpecies : Species {
         return corpseColor;
     }
     #endregion
-
-    /// <summary>
-    /// Called after a simulation has ended but also after the intro scene is unloaded.
-    /// </summary>
-    public override void Deallocate() {
-        base.Deallocate();
-        eddibleFoodTypes.Dispose();
-        predatorFoodTypes.Dispose();
-        speciesCarcass.Deallocate();
-    }
 }

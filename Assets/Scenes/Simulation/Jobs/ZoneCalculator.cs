@@ -1,33 +1,67 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Unity.Mathematics;
 using Unity.Collections;
+using ZoneData = ZoneController.ZoneData;
 
 public static class ZoneCalculator {
-    public static List<int> GetNeiboringZones(int zone, NativeParallelMultiHashMap<int, int> neiboringZones) {
-        List<int> neiboringZonesList = new List<int>(15);
-        if (neiboringZones.TryGetFirstValue(zone, out int value, out var iterator)) {
-            do {
-                neiboringZonesList.Add(value);
-            } while (neiboringZones.TryGetNextValue(out value, ref iterator));
+
+    /// <summary>
+    /// Searches for the closest zone not using any information of neighboring zones  
+    /// </summary>
+    public static ZoneData FindZone(List<ZoneData> zones, Species.Organism organism) {
+        float distance = -1;
+        ZoneData closestZone = null;
+        foreach (var zone in zones) {
+            float newDistance = GetDistanceBetweenPoints(organism.position, zone.position);
+            if (newDistance < distance || distance < 0) {
+                distance = newDistance;
+                closestZone = zone;
+            }
         }
-        return neiboringZonesList;
+
+        return closestZone;
     }
 
-    public static List<int> GetNearbyZones(NativeArray<ZoneController.ZoneData> zones, NativeParallelMultiHashMap<int, int> neiboringZones, int zone, float3 position, float range) {
-        List<int> nearbyZones = new List<int>(zones.Length / 5);
-        List<int> tempNeiboringZones = new List<int>(50);
-        nearbyZones.Add(zone);
-        tempNeiboringZones.AddRange(GetNeiboringZones(zone, neiboringZones));
-        for (int i = 0; i < tempNeiboringZones.Count; i++) {
-            //Debug.Log(range + zones[tempNeiboringZones[i]].maxSize + " >= " + Vector3.Distance(position, zones[tempNeiboringZones[i]].position));
-            if (range + zones[tempNeiboringZones[i]].maxSize >= Vector3.Distance(position, zones[tempNeiboringZones[i]].position)) {
-                nearbyZones.Add(tempNeiboringZones[i]);
-                List<int> newNeiboringZones = GetNeiboringZones(tempNeiboringZones[i], neiboringZones);
-                for (int f = 0; f < newNeiboringZones.Count; f++) {
-                    if (!tempNeiboringZones.Contains(newNeiboringZones[f])) {
-                        tempNeiboringZones.Add(newNeiboringZones[f]);
+    /// <summary>
+    /// Returns the closest zone using neighboring zone data.
+    /// </summary>
+    static ZoneData GetNearestZone(Dictionary<ZoneData, HashSet<ZoneData>> neiboringZones, Vector3 position, ZoneData currentZone) {
+        List<ZoneData> zonesToCheck = new List<ZoneData> { currentZone };
+        zonesToCheck.AddRange(neiboringZones[currentZone]);
+
+        float distance = -1;
+        ZoneData closestZone = currentZone;
+        foreach (var zone in zonesToCheck) {
+            float newDistance = GetDistanceBetweenPoints(position, zone.position);
+            if (newDistance < distance || distance < 0) {
+                distance = newDistance;
+                closestZone = zone;
+            }
+        }
+
+        return closestZone;
+    }
+
+    /// <summary>
+    /// Returns all nearby zones within a certain radius using neighboring zone data.
+    /// </summary>
+    public static List<ZoneData> GetNearbyZones(Dictionary<ZoneData, HashSet<ZoneData>> neiboringZones, ZoneData currentZone, float3 position, float range) {
+        List<ZoneData> zonesToCheck = new List<ZoneData> { currentZone };
+        HashSet<ZoneData> zonesChecked = new HashSet<ZoneData>(zonesToCheck);
+        List<ZoneData> nearbyZones = new List<ZoneData>();
+        
+        while (zonesToCheck.Count != 0) {
+            ZoneData zone = zonesToCheck.First();
+            zonesToCheck.RemoveAt(0);
+            if (range + zone.maxSize <= Vector3.Distance(position, zone.position)) {
+                nearbyZones.Add(zone);
+                foreach (var newZone in neiboringZones[zone]) {
+                    if (!zonesChecked.Contains(newZone)) {
+                        zonesToCheck.Add(newZone);
+                        zonesChecked.Add(newZone);
                     }
                 }
             }
@@ -35,52 +69,7 @@ public static class ZoneCalculator {
         return nearbyZones;
     }
 
-    public static List<int> GetNearbyZonesFromTwoPositions(NativeArray<ZoneController.ZoneData> zones, NativeParallelMultiHashMap<int, int> neiboringZones, int zone, float3x2 positions, float range) {
-        List<int> nearbyZones = new List<int>(zones.Length / 5);
-        List<int> tempNeiboringZones = new List<int>(50);
-        nearbyZones.Add(zone);
-        tempNeiboringZones.AddRange(GetNeiboringZones(zone, neiboringZones));
-        for (int i = 0; i < tempNeiboringZones.Count; i++) {
-            if (range + zones[tempNeiboringZones[i]].maxSize >= Vector3.Distance(positions.c0, zones[tempNeiboringZones[i]].position) || range + zones[tempNeiboringZones[i]].maxSize >= Vector3.Distance(positions.c1, zones[tempNeiboringZones[i]].position)) {
-                nearbyZones.Add(tempNeiboringZones[i]);
-                List<int> newNeiboringZones = GetNeiboringZones(tempNeiboringZones[i], neiboringZones);
-                for (int f = 0; f < newNeiboringZones.Count; f++) {
-                    if (!tempNeiboringZones.Contains(newNeiboringZones[f])) {
-                        tempNeiboringZones.Add(newNeiboringZones[f]);
-                    }
-                }
-            }
-        }
-        return nearbyZones;
-    }
-
-    public static List<int> GetPlantsInZone(NativeParallelMultiHashMap<int, int> plantsInZones, int zoneNumber) {
-        List<int> plants = new List<int>(50);
-        if (plantsInZones.TryGetFirstValue(zoneNumber, out int value, out var iterator)) {
-            do {
-                plants.Add(value);
-            } while (plantsInZones.TryGetNextValue(out value, ref iterator));
-        }
-        return plants;
-    }
-
-    public static List<int> GetAnimalsInZone(NativeParallelMultiHashMap<int, int> animalsInZones, int zoneNumber) {
-        List<int> animals = new List<int>(50);
-        if (animalsInZones.TryGetFirstValue(zoneNumber, out int value, out var iterator)) {
-            do {
-                animals.Add(value);
-            } while (animalsInZones.TryGetNextValue(out value, ref iterator));
-        }
-        return animals;
-    }
-
-    public static List<int2> GetOrganismsInZoneByFoodType(NativeParallelMultiHashMap<int2, int2> organismsByFoodTypeInZones, int zone, int foodTypeIndex) {
-        List<int2> organisms = new List<int2>(50);
-        if (organismsByFoodTypeInZones.TryGetFirstValue(new int2(zone, foodTypeIndex), out int2 value, out var iterator)) {
-            do {
-                organisms.Add(value);
-            } while (organismsByFoodTypeInZones.TryGetNextValue(out value, ref iterator));
-        }
-        return organisms;
+    static float GetDistanceBetweenPoints(float3 pos1, float3 pos2) {
+        return math.distance(pos1, pos2);
     }
 }

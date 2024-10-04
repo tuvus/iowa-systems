@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using UnityEngine;
-using Unity.Jobs;
 using UnityEngine.Profiling;
 
 public class Earth : MonoBehaviour {
@@ -37,9 +38,9 @@ public class Earth : MonoBehaviour {
 
     public event EventHandler<EventArgs> OnEndFrame;
 
-    List<JobHandle> activeJobs = new List<JobHandle>();
+    HashSet<Thread> activeThreads = new HashSet<Thread>();
     SimulationUpdateStatus simulationUpdateStatus;
-    List<string> typeIndex;
+    public readonly HashSet<string> footTypesUsed = new HashSet<string>();
 
     public struct EarthState {
         public Vector3 sunPostion;
@@ -60,7 +61,7 @@ public class Earth : MonoBehaviour {
         this.simulationDeltaTime = simulationSpeed;
         this.size = size;
         transform.localScale = new Vector3(size, size, size);
-        SetupFoodTypeIndex();
+        SetupFoodTypes();
         SetupSpeciesFoodType();
         frameManager = GetComponent<FrameManager>();
         zoneController = GetComponent<ZoneController>();
@@ -114,12 +115,10 @@ public class Earth : MonoBehaviour {
     void UpdateSimualtionWithDelay() {
         if (simulationUpdateStatus == SimulationUpdateStatus.SettingUp) {
             Profiler.BeginSample("Setup");
-            StartFindZoneJobs();
             UpdateWorldTime();
             UpdateHumidity();
             Simulation.Instance.GetSun().UpdateSun();
             UpdateEarthState();
-            CompleteFindZoneJobs();
             Profiler.EndSample();
             Profiler.BeginSample("JobsSetup");
             StartOrganismJobs();
@@ -130,7 +129,7 @@ public class Earth : MonoBehaviour {
         }
         if (simulationUpdateStatus == SimulationUpdateStatus.Calculating) {
             UpdateJobList();
-            if (activeJobs.Count == 0) {
+            if (activeThreads.Count == 0) {
                 simulationUpdateStatus = SimulationUpdateStatus.Updating;
             }
             if (!frameManager.IsInIterationTimePeriod())
@@ -140,7 +139,7 @@ public class Earth : MonoBehaviour {
             Profiler.BeginSample("UpdateBehaviour");
             Profiler.EndSample();
             Profiler.BeginSample("Update");
-            UpdatOrganismActions();
+            UpdateOrganismActions();
             Profiler.EndSample();
             simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
             if (!frameManager.IsInIterationTimePeriod())
@@ -159,12 +158,10 @@ public class Earth : MonoBehaviour {
     /// </summary>
     void UpdateSimulationWithoutDelay() {
         Profiler.BeginSample("Setup");
-        StartFindZoneJobs();
         UpdateWorldTime();
         UpdateHumidity();
         Simulation.Instance.GetSun().UpdateSun();
         UpdateEarthState();
-        CompleteFindZoneJobs();
         Profiler.EndSample();
         Profiler.BeginSample("Jobs");
         StartOrganismJobs();
@@ -175,7 +172,7 @@ public class Earth : MonoBehaviour {
         simulationUpdateStatus = SimulationUpdateStatus.Updating;
         Profiler.EndSample();
         Profiler.BeginSample("Update");
-        UpdatOrganismActions();
+        UpdateOrganismActions();
         Profiler.EndSample();
         Profiler.BeginSample("CleaningUp");
         simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
@@ -183,10 +180,6 @@ public class Earth : MonoBehaviour {
         UpdateSpeciesMotorGraphData();
         Profiler.EndSample();
         simulationUpdateStatus = SimulationUpdateStatus.SettingUp;
-    }
-
-    public void StartFindZoneJobs() {
-        activeJobs.Add(zoneController.FindZoneController.StartUpdateJob());
     }
 
     void UpdateWorldTime() {
@@ -218,44 +211,33 @@ public class Earth : MonoBehaviour {
         earthState = earthState.SetEarthState(this);
     }
 
-    public void CompleteFindZoneJobs() {
-        CompleteJobs();
-        zoneController.FindZoneController.CompleteZoneJob();
-    }
-
     void StartOrganismJobs() {
         List<Species> allSpecies = SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
         for (int i = 0; i < allSpecies.Count; i++) {
-            allSpecies[i].StartJobs(activeJobs);
+            // allSpecies[i].StartJobs(activeThreads);
         }
     }
 
     void UpdateJobList() {
-        for (int i = 0; i < activeJobs.Count; i++) {
-            if (activeJobs[i].IsCompleted) {
-                activeJobs[i].Complete();
-                activeJobs.RemoveAt(i);
-                i--;
-            }
-        }
+        activeThreads.RemoveWhere(t => !t.IsAlive);
     }
 
     void CompleteJobs() {
-        for (int i = activeJobs.Count - 1; i >= 0; i--) {
-            activeJobs[i].Complete();
-            activeJobs.RemoveAt(i);
+        while (activeThreads.Count != 0) {
+            activeThreads.First().Join();
         }
+        activeThreads.RemoveWhere(t => !t.IsAlive);
     }
 
     //TODO: Add recursive asynchronous organismAction handling
     //TODO: Add linear CleanActiveOrganismList handling
     //TODO: Change speciesOrgan to attribute and make an organ that inherits from it.
 
-    void UpdatOrganismActions() {
+    void UpdateOrganismActions() {
         List<Species> allSpecies = GetAllSpecies();
         for (int i = 0; i < allSpecies.Count; i++) {
             Profiler.BeginSample("UpdateOrganismActions" + allSpecies[i].speciesName);
-            allSpecies[i].UpdateOrganismActions();
+            // allSpecies[i].UpdateOrganismActions();
             Profiler.EndSample();
         }
     }
@@ -279,17 +261,11 @@ public class Earth : MonoBehaviour {
     }
 
     #region FoodTypeManagment
-    void SetupFoodTypeIndex() {
-        typeIndex = new List<string>();
-        for (int i = 0; i < GetAllSpecies().Count; i++) {
-            for (int f = 0; f < GetAllSpecies()[i].GetOrganismFoodTypes().Count; f++) {
-                AddFoodTypeToList(GetAllSpecies()[i].GetOrganismFoodTypes()[f]);
+    void SetupFoodTypes() {
+        foreach (var species in GetAllSpecies()) {
+            foreach (var footType in species.GetOrganismFoodTypes()) {
+                footTypesUsed.Add(footType);
             }
-        }
-    }
-    void AddFoodTypeToList(string foodType) {
-        if (!typeIndex.Contains(foodType)) {
-            typeIndex.Add(foodType);
         }
     }
 
@@ -300,16 +276,6 @@ public class Earth : MonoBehaviour {
         for (int i = 0; i < GetAllAnimalSpecies().Count; i++) {
             GetAllAnimalSpecies()[i].SetupAnimalPredatorSpeciesFoodType();
         }
-    }
-
-
-    public int GetIndexOfFoodType(string foodType) {
-        for (int i = 0; i < typeIndex.Count; i++) {
-            if (typeIndex[i] == foodType) {
-                return i;
-            }
-        }
-        return -1;
     }
     #endregion
 
@@ -358,12 +324,4 @@ public class Earth : MonoBehaviour {
         return sunTransform.position;
     }
     #endregion
-
-    public void Deallocate() {
-        earth = null;
-        CompleteJobs();
-        foreach (var species in GetAllSpecies()) {
-            species.Deallocate();
-        }
-    }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using static AnimalSpecies;
+using Organism = Species.Organism;
 
 public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
     public GameObject reproductiveSystemPrefab;
@@ -18,8 +19,7 @@ public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
     [Tooltip("The chance that each new offspring is successfully birthed")]
     public int birthSuccessPercent;
 
-    public OrganismAtribute<ReproductiveSystem> reproductiveSystemsList;
-    public NativeArray<ReproductiveSystem> reproductiveSystems;
+    public Dictionary<Organism, ReproductiveSystem> reproductiveSystems;
 
     public struct ReproductiveSystem {
         [Tooltip("The sex of the animal, false = female, true = male")]
@@ -36,25 +36,10 @@ public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
         }
     }
 
-    public override void SetupSpeciesOrganArrays(IOrganismListExtender listExtender) {
-        reproductiveSystemsList = new OrganismAtribute<ReproductiveSystem>(listExtender);
-        reproductiveSystems = reproductiveSystemsList.organismAttributes;
-    }
-
-    public override void OnListUpdate() {
-        NativeArray<ReproductiveSystem> oldReproductiveSystems = reproductiveSystems;
-        reproductiveSystems = new NativeArray<ReproductiveSystem>(GetSpecies().organismList.GetListCapacity(), Allocator.Persistent);
-        for (int i = 0; i < oldReproductiveSystems.Length; i++) {
-            reproductiveSystems[i] = oldReproductiveSystems[i];
-        }
-        oldReproductiveSystems.Dispose();
-    }
-
-    public GrowthStage SpawnReproductive(int organism) {
-        reproductiveSystems[organism] = new ReproductiveSystem(Simulation.randomGenerator.NextBool(),0, reproductionDelay * Simulation.randomGenerator.NextFloat(0f, 1.2f));
-        if (GetAnimalSpecies().organisms[organism].age >= reproductionAge) {
+    public GrowthStage SpawnReproductive(Organism organism) {
+        reproductiveSystems.Add(organism, new ReproductiveSystem(Simulation.randomGenerator.NextBool(),0, reproductionDelay * Simulation.randomGenerator.NextFloat(0f, 1.2f)));
+        if (organism.age >= reproductionAge)
             return GrowthStage.Adult;
-        }
         return GrowthStage.Juvinile;
     }
 }

@@ -1,7 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
 
@@ -13,13 +13,11 @@ public class ZoneController : MonoBehaviour {
 
     Earth earth;
     public FindZoneController FindZoneController { private set; get; }
-    public NativeArray<ZoneData> zones;
-    public NativeParallelMultiHashMap<int, int> neiboringZones;
-    public NativeParallelMultiHashMap<int2, int2> organismsByFoodTypeInZones;
+    public ZoneData[] zones;
+    public Dictionary<ZoneData, HashSet<ZoneData>> neighboringZones;
+    public Dictionary<ZoneData, int2> organismsByFoodTypeInZones;
 
-    internal JobHandle job;
-
-    public struct ZoneData {
+    public class ZoneData {
         public float3 position;
         public float maxSize;
         public float waterDepth;
@@ -40,8 +38,6 @@ public class ZoneController : MonoBehaviour {
     #region SetupAndWrapup
     public void SetupZoneController(Earth earth) {
         this.earth = earth;
-        FindZoneController = GetComponent<FindZoneController>();
-        FindZoneController.SetUpJobController(null);
     }
 
     public void SpawnZones(float radius, int numberOfZones, int maxNeiboringZones, int numberOfPlants, int numberOfAnimals, ZoneSetupType zoneSetup) {
@@ -60,11 +56,13 @@ public class ZoneController : MonoBehaviour {
         double distance = 4 * math.PI * math.pow(radius, 2) / (2600 * math.log10(.00051 * numberOfZones + .49) + 1000) / (radius / 16);
         NativeArray<float> maxZoneSize = new NativeArray<float>(zones.Length, Allocator.TempJob);
         if (zoneSetup == ZoneSetupType.Distance) {
-            JobHandle zoneDistanceJob = FindDistanceNeiboringZones(distance, maxNeiboringZones, maxZoneSize);
-            zoneDistanceJob.Complete();
+            foreach (var zone in zones) {
+                SetupZoneByDistance(zone, distance, neighboringZones[zone]);
+            }
         } else if (zoneSetup == ZoneSetupType.Closest) {
-            JobHandle zoneClosestJob = FindClosestNeiboringZones(maxNeiboringZones, maxZoneSize);
-            zoneClosestJob.Complete();
+            foreach (var zone in zones) {
+                SetupZoneByClosest(zone, distance, maxNeiboringZones, neighboringZones[zone]);
+            }
         }
         for (int i = 0; i < maxZoneSize.Length; i++) {
             zones[i] = new ZoneData(zones[i].position, maxZoneSize[i]);
@@ -73,46 +71,51 @@ public class ZoneController : MonoBehaviour {
     }
 
     void Allocate(int numberOfZones, int maxNeibroingZones, int numberOfPlants, int numberOfAnimals) {
-        zones = new NativeArray<ZoneData>(numberOfZones, Allocator.Persistent);
-        neiboringZones = new NativeParallelMultiHashMap<int, int>(numberOfZones * maxNeibroingZones, Allocator.Persistent);
-        organismsByFoodTypeInZones = new NativeParallelMultiHashMap<int2, int2>(numberOfPlants * 3, Allocator.Persistent);
+        zones = new ZoneData[numberOfZones];
+        neighboringZones = new Dictionary<ZoneData, HashSet<ZoneData>>(numberOfZones * maxNeibroingZones);
     }
 
-    JobHandle FindDistanceNeiboringZones(double distance, int maxNeibroingZones, NativeArray<float> maxZoneSize) {
-        job = ZoneSetupJobByDistance.BeginJob(zones, neiboringZones.AsParallelWriter(), maxNeibroingZones, distance, maxZoneSize);
-        return job;
+    /// <summary>
+    /// Sets up this zone's neighboring zones based on the maxNeighboringZones closest zones to this zone.
+    /// Writes the output to neighboringZones which is isolated from other operations.
+    /// </summary>
+    void SetupZoneByClosest(ZoneData zone, double distance, int maxNeighboringZones, HashSet<ZoneData> nearbyZone) {
+        Tuple<ZoneData, float>[] tempNeiboringZones = new Tuple<ZoneData, float>[maxNeighboringZones];
+        foreach (var zoneToCheck in zones) {
+            if (zoneToCheck == zone) continue;
+            float distanceToZone = Vector3.Distance(zone.position, zoneToCheck.position);
+
+            int i = tempNeiboringZones.Length - 1;
+            for (; i >= 0; i--) {
+                if (tempNeiboringZones[i].Item2 <= distanceToZone) {
+                    break;
+                }
+            }
+            if (i >= tempNeiboringZones.Length) continue;
+            for (int f = tempNeiboringZones.Length - 2; f >= 0; f--) {
+                if (f <= i) break;
+                tempNeiboringZones[f + 1] = tempNeiboringZones[f];
+            }
+
+            tempNeiboringZones[i] = new Tuple<ZoneData, float>(zoneToCheck, distanceToZone);
+        }
+        foreach (var neighbor in tempNeiboringZones) {
+            nearbyZone.Add(neighbor.Item1);
+        }
     }
 
-    JobHandle FindClosestNeiboringZones(int maxNeibroingZones, NativeArray<float> maxZoneSize) {
-        job = ZoneSetupJobByClosest.BeginJob(zones, neiboringZones.AsParallelWriter(), maxNeibroingZones, maxZoneSize);
-        return job;
-    }
-
-    void OnDestroy() {
-        if (neiboringZones.IsCreated)
-            neiboringZones.Dispose();
-        if (zones.IsCreated)
-            zones.Dispose();
-        if (organismsByFoodTypeInZones.IsCreated)
-            organismsByFoodTypeInZones.Dispose();
+    /// <summary>
+    /// Sets up this zone's neighboring zones based on all zones within distance to this zone.
+    /// Writes the output to neighboringZones which is isolated from other operations.
+    /// </summary>
+    void SetupZoneByDistance(ZoneData zone, double distance, HashSet<ZoneData> nearbyZOnes) {
+        foreach (var newZone in zones) {
+            if (zone == newZone) continue;
+            float zoneDistance = Vector3.Distance(zone.position, newZone.position);
+            if (zoneDistance <= distance) {
+                nearbyZOnes.Add(newZone);
+            }
+        }
     }
     #endregion
-
-    public void AddFoodTypeToZone(int zone, int foodIndex, int2 location) {
-        if (zone == -1) {
-            Debug.LogError("Problems");
-        }
-        organismsByFoodTypeInZones.Add(new int2(zone, foodIndex), location);
-    }
-
-    public void RemoveFoodTypeFromZone(int zone, int foodIndex, int2 location) {
-        if (organismsByFoodTypeInZones.TryGetFirstValue(new int2(zone, foodIndex), out int2 value, out var iterator)) {
-            do {
-                if (value.x == location.x && value.y == location.y) {
-                    organismsByFoodTypeInZones.Remove(iterator);
-                    return;
-                }
-            } while (organismsByFoodTypeInZones.TryGetNextValue(out value, ref iterator));
-        }
-    }
 }

@@ -41,9 +41,8 @@ public class PlantSpecies : Species {
         }
     }
 
-    public NativeArray<GrowthStageData> growthStages;
-    public OrganismAtribute<Plant> plantList;
-    public NativeArray<Plant> plants;
+    public GrowthStageData[] growthStages;
+    public Dictionary<Organism, Plant> plants;
 
     public struct Plant {
         public GrowthStage stage;
@@ -72,10 +71,9 @@ public class PlantSpecies : Species {
     #region StartSimulation
     public override void SetupSimulation(Earth earth) {
         base.SetupSimulation(earth);
-        plantList = new OrganismAtribute<Plant>(organismList);
-        plants = plantList.organismAttributes;
+        plants = new Dictionary<Organism, Plant>();
         plantSpeciesAwns = GetComponent<PlantSpeciesAwns>();
-        growthStages = new NativeArray<GrowthStageData>(growthStagesInput.Count, Allocator.Persistent);
+        growthStages = new GrowthStageData[growthStagesInput.Count];
 
         for (int i = 0; i < growthStagesInput.Count; i++) {
             growthStages[i] = growthStagesInput[i];
@@ -115,9 +113,6 @@ public class PlantSpecies : Species {
     }
 
     public override void SetupSpeciesFoodType() {
-        for (int i = 0; i < organs.Count; i++) {
-            ((PlantSpeciesOrgan)organs[i]).SetupSpeciesOrganFoodType();
-        }
     }
 
     public override void StartSimulation() {
@@ -131,44 +126,33 @@ public class PlantSpecies : Species {
         if (plantSpeciesAwns != null) {
             plantSpeciesAwns.Populate();
         }
-        GetEarth().StartFindZoneJobs();
-        GetEarth().CompleteFindZoneJobs();
     }
     #endregion
 
-    public override int SpawnOrganism() {
-        int plant = base.SpawnOrganism();
-        if (plant == -1)
-            return -1;
+    public override Organism SpawnOrganism() {
+        Organism organism = base.SpawnOrganism();
         GrowthStage stage = (GrowthStage)Simulation.randomGenerator.NextInt(1, 6);
-        organisms[plant] = new Organism(GetGrowthStageData(stage).daysAfterGermination, -1, Vector3.zero, 0);
-        plants[plant] = new Plant(stage, GetGrowthStageData(stage));
-        plantSpeciesAwns.SpawnAwns(plant);
-        return plant;
+        organism.age = GetGrowthStageData(stage).daysAfterGermination;
+        Plant plant = new Plant(stage, GetGrowthStageData(stage));
+        plantSpeciesAwns.SpawnAwns(organism, plant);
+        return organism;
     }
 
-    public override int SpawnOrganism(float3 position, int zone, float distance) {
-        int plant = base.SpawnOrganism();
-        if (plant == -1)
-            return -1;
-        organisms[plant] = new Organism(0, zone, position, 0);
-        plants[plant] = new Plant(GrowthStage.Germinating, 10, 10, 10);
-        return plant;
-    }
-
-    public override void OnListUpdate() {
-        base.OnListUpdate();
-        plants = plantList.organismAttributes;
+    public override Organism SpawnOrganism(float3 position, int zone, float distance) {
+        Organism organism = base.SpawnOrganism(position, zone, distance);
+        Plant plant = new Plant(GrowthStage.Germinating, 10, 10, 10);
+        plantSpeciesAwns.SpawnAwns(organism, plant);
+        return organism;
     }
 
     public GrowthStageData GetGrowthStageData(GrowthStage stage) {
         return growthStages[(int)stage];
     }
 
-    protected override void UpdateOrganism(int organism) {
+    protected override void UpdateOrganism(Organism organism) {
         base.UpdateOrganism(organism);
-        if (organisms[organism].age > 100) {
-            organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
+        if (organism.age > 100) {
+            // organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
             return;
         }
         float bladeArea = plants[organism].bladeArea;
@@ -182,7 +166,7 @@ public class PlantSpecies : Species {
         }
         float sunValue = 0.5f;
         if (Simulation.Instance.sunRotationEffect) {
-            float objectDistanceFromSun = Vector3.Distance(organisms[organism].position, GetEarth().GetSunPosition());
+            float objectDistanceFromSun = Vector3.Distance(organism.position, GetEarth().GetSunPosition());
             float sunDistanceFromEarth = Vector3.Distance(new float3(0, 0, 0), GetEarth().GetSunPosition());
             sunValue = Mathf.Max((objectDistanceFromSun - sunDistanceFromEarth) / GetEarth().GetRadius() * 2, 0);
         }
@@ -197,20 +181,6 @@ public class PlantSpecies : Species {
         plants[organism] = new Plant(stage, bladeArea, stemHeight, rootGrowth);
     }
 
-    public override void UpdateOrganismActions() {
-        base.UpdateOrganismActions();
-        if (plantSpeciesAwns != null)
-            plantSpeciesAwns.speciesSeed.UpdateSeedActions();
-    }
-
-    public override void ReproduceOrganismParallel(OrganismAction action) {
-        if (plantSpeciesAwns != null) {
-            plantSpeciesAwns.speciesSeed.SpawnOrganism(action.position, action.zone, action.floatValue);
-        } else {
-            base.ReproduceOrganismParallel(action);
-        }
-    }
-
     public override void OnSettingsChanged(bool renderOrganisms) {
         //for (int i = 0; i < activePlants.Count; i++) {
         //    plants[activePlants[i]].CheckRendering();
@@ -220,13 +190,5 @@ public class PlantSpecies : Species {
 
     public PlantSpeciesAwns GetSpeciesSeeds() {
         return plantSpeciesAwns;
-    }
-
-    /// <summary>
-    /// Called after a simulation has ended but also after the intro scene is unloaded.
-    /// </summary>
-    public override void Deallocate() {
-        base.Deallocate();
-        growthStages.Dispose();
     }
 }
