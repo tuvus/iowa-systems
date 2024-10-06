@@ -61,6 +61,8 @@ public class SpeciesMotor : MonoBehaviour {
 		foreach (var species in GetAllSpecies()) {
 			species.StartSimulation();
 		}
+		// Make sure that the populated organisms are in the read sets
+		earth.EndUpdate();
 		AddNewData();
 		refreshTime = 0;
 	}

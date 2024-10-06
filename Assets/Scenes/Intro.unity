@@ -2501,6 +2501,7 @@ MonoBehaviour:
   - {fileID: 456575638}
   - {fileID: 456575643}
   - {fileID: 456575637}
+  - {fileID: 456575648}
   speciesIndex: 0
   plantPrefab: {fileID: 1992517119343582, guid: a3e7fae49ee31442aac03db2a66b47b5,
     type: 3}
@@ -2603,9 +2604,11 @@ MonoBehaviour:
   humidityRequirement: 64
   tempetureRequirement: 50
   seedDispertionRange: 40
+  seedGerminationChance: 1.5
   timeRequirement: 240
   timeMaximum: 730
   seedEnergyAmount: 0.01
+  seedPopulation: 0
 --- !u!1 &496184813
 GameObject:
   m_ObjectHideFlags: 0
@@ -5510,6 +5513,7 @@ MonoBehaviour:
   - {fileID: 809522557}
   - {fileID: 809522554}
   - {fileID: 809522555}
+  - {fileID: 809522565}
   speciesIndex: 0
   plantPrefab: {fileID: 1992517119343582, guid: a3e7fae49ee31442aac03db2a66b47b5,
     type: 3}
@@ -5597,9 +5601,11 @@ MonoBehaviour:
   humidityRequirement: 52
   tempetureRequirement: 45
   seedDispertionRange: 30
+  seedGerminationChance: 2
   timeRequirement: 240
   timeMaximum: 730
   seedEnergyAmount: 0.2
+  seedPopulation: 0
 --- !u!1 &835355319
 GameObject:
   m_ObjectHideFlags: 0

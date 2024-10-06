@@ -120,7 +120,7 @@ public abstract class Species : MonoBehaviour {
     }
     #endregion
 
-    public void StartJobs(HashSet<Thread> activeThreads) {
+    public virtual void StartJobs(HashSet<Thread> activeThreads) {
         foreach (var organism in organisms.readObjects) {
             UpdateOrganism(organism);
         }

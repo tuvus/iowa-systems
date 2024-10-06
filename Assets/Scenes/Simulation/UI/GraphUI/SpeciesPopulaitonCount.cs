@@ -31,10 +31,11 @@ public class SpeciesPopulaitonCount : MonoBehaviour {
     }
 
     void UpdateText() {
-        // if (speciesScript.GetComponent<PlantSpeciesAwns>() != null) {
-        //     transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation() + "(" + speciesScript.GetComponent<PlantSpeciesAwns>().speciesSeed.seedList.activeOrganismCount + ")");
-        //     return;
-        // }
+        if (speciesScript is PlantSpecies && ((PlantSpecies)speciesScript).GetPlantSpeciesSeeds() != null) {
+            transform.GetChild(1).GetComponent<Text>().text = speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation() + "(" +
+                                                               ((PlantSpecies)speciesScript).GetPlantSpeciesSeeds().seedPopulation + ")";
+            return;
+        }
         transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation());
     }
 }

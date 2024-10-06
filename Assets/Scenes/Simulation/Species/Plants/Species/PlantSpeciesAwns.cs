@@ -69,16 +69,18 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
                 return;
             }
             awnW.timeUntilDispersion = 0;
+            int seedsToDisperse = 0;
             for (int i = 0; i < awnMaxSeedAmount; i++) {
-                if (Simulation.randomGenerator.NextInt(0, 100) < awnSeedDispersalSuccessChance) {
-                    GetSpecies().SpawnOrganism(organismR.position, organismR.zone, seedDispertionRange);
-                }
+                if (Simulation.randomGenerator.NextInt(0, 100) < awnSeedDispersalSuccessChance) seedsToDisperse++;
             }
+            GetPlantSpecies().GetPlantSpeciesSeeds().SpawnOrganism(organismR.position, organismR.zone, seedDispertionRange, seedsToDisperse);
         } else {
-            awnW.awnsGrowth = awnR.awnsGrowth + growth / 100;
-            if (awnW.awnsGrowth >= awnMaxGrowth) {
+            float newGrowth = awnR.awnsGrowth + growth / 100;
+            if (newGrowth >= awnMaxGrowth) {
                 awnW.awnsGrowth = 0;
-                awnW.timeUntilDispersion = awnSeedDispertionTime;
+                awnW.timeUntilDispersion = awnSeedDispertionTime * Simulation.randomGenerator.NextFloat(.7f, 1.3f);
+            } else {
+                awnW.awnsGrowth = newGrowth;
             }
         }
     }

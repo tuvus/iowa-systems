@@ -3,6 +3,8 @@ using UnityEngine;
 using Unity.Collections;
 using Unity.Mathematics;
 using System;
+using System.Linq;
+using System.Threading;
 
 public class PlantSpecies : Species {
     public GameObject plantPrefab;
@@ -140,7 +142,11 @@ public class PlantSpecies : Species {
     public override Organism SpawnOrganism() {
         Organism organism = base.SpawnOrganism();
         GrowthStage stage = (GrowthStage)Simulation.randomGenerator.NextInt(1, 6);
-        organism.age = GetGrowthStageData(stage).daysAfterGermination;
+        if (stage != GrowthStage.Adult) {
+            organism.age = Simulation.randomGenerator.NextFloat(GetGrowthStageData(stage).daysAfterGermination, GetGrowthStageData(stage + 1).daysAfterGermination);
+        } else {
+            organism.age = GetGrowthStageData(stage).daysAfterGermination + Simulation.randomGenerator.NextFloat(0, 30);
+        }
         Plant plant = new Plant(organism, stage, GetGrowthStageData(stage));
         plants.Add(plant, new Plant(plant));
         plantSpeciesAwns.SpawnAwns(organism, plant);
@@ -159,11 +165,17 @@ public class PlantSpecies : Species {
         return growthStages[(int)stage];
     }
 
+    public override void StartJobs(HashSet<Thread> activeThreads) {
+        base.StartJobs(activeThreads);
+        if (GetPlantSpeciesSeeds() != null) {
+            GetPlantSpeciesSeeds().StartJobs(activeThreads);
+        }
+    }
+
     protected override void UpdateOrganism(Organism organism) {
         base.UpdateOrganism(organism);
         if (organism.age > 10000) {
             KillOrganism(organism);
-            // organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
             return;
         }
 
@@ -203,7 +215,7 @@ public class PlantSpecies : Species {
         throw new NotImplementedException();
     }
 
-    public PlantSpeciesAwns GetSpeciesSeeds() {
-        return plantSpeciesAwns;
+    public PlantSpeciesSeed GetPlantSpeciesSeeds() {
+        return (PlantSpeciesSeed)organs.FirstOrDefault(o => o is PlantSpeciesSeed);
     }
 }
