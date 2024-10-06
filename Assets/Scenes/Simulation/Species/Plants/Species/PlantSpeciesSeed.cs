@@ -92,7 +92,6 @@ public class PlantSpeciesSeed : PlantSpeciesOrgan {
         throw new NotImplementedException();
     }
 
-    public override void GrowOrgan(Organism organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
-        throw new NotImplementedException();
+    public override void GrowOrgan(PlantSpecies.Plant plant, float growth) {
     }
 }

@@ -14,7 +14,6 @@ public class PlantSpeciesVegetativePropagation : PlantSpeciesOrgan {
         throw new NotImplementedException();
     }
 
-    public override void GrowOrgan(Species.Organism organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
-        throw new NotImplementedException();
+    public override void GrowOrgan(PlantSpecies.Plant plant, float growth) {
     }
 }

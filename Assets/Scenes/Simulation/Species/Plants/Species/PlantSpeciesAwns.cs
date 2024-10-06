@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
-using Unity.Collections;
-using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using static PlantSpecies;
@@ -20,20 +17,25 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
 
     public PlantSpeciesSeed speciesSeed;
 
-    public struct Awn {
+    public class Awn : MapObject<Organism> {
         public float awnsGrowth;
         public float timeUntilDispersion;
 
-        public Awn(float awnsGrowth, float timeUntilDispersion) {
+        public Awn(Organism organism, float awnsGrowth, float timeUntilDispersion) : base(organism){
             this.awnsGrowth = awnsGrowth;
             this.timeUntilDispersion = timeUntilDispersion;
         }
+
+        public Awn(Awn awn) : base(awn.setObject) {
+            this.awnsGrowth = awn.awnsGrowth;
+            this.timeUntilDispersion = awn.timeUntilDispersion;
+        }
     }
 
-    public Dictionary<Organism, Awn> awns;
+    public ObjectMap<Organism, Awn> awns;
 
     public override void SetupSpeciesOrgan() {
-        awns = new Dictionary<Organism, Awn>();
+        awns = new ObjectMap<Organism, Awn>(GetPlantSpecies().organisms);
     }
 
     public void Populate() {
@@ -43,19 +45,24 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
     public void SpawnAwns(Organism organism, Plant plant) {
         if (plant.stage == GrowthStage.Adult) {
             if (Simulation.randomGenerator.NextBool()) {
-                awns[organism] = new Awn(awnMaxGrowth, Simulation.randomGenerator.NextFloat(0, awnSeedDispertionTime));
+                Awn awn = new Awn(organism, awnMaxGrowth, Simulation.randomGenerator.NextFloat(0, awnSeedDispertionTime));
+                awns.Add(awn, new Awn(awn));
             } else {
-                awns[organism] = new Awn(Simulation.randomGenerator.NextFloat(0, awnMaxGrowth), 0);
+                Awn awn = new Awn(organism, Simulation.randomGenerator.NextFloat(0, awnMaxGrowth), 0);
+                awns.Add(awn, new Awn(awn));
+
             }
         } else {
-            awns[organism] = new Awn(0, 0);
+            Awn awn = new Awn(organism, 0, 0);
+            awns.Add(awn, new Awn(awn));
         }
     }
 
-    public override void GrowOrgan(Organism organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
-        if (awns[organism].timeUntilDispersion > 0) {
-            awns[organism] = new Awn(0, math.max(0, awns[organism].timeUntilDispersion - GetPlantSpecies().GetEarth().simulationDeltaTime / 24));
-            if (awns[organism].timeUntilDispersion <= 0) {
+    public override void GrowOrgan(Plant plant, float growth) {
+        Awn awn = awns.Get(plant.setObject);
+        if (awn.timeUntilDispersion > 0) {
+            awn.timeUntilDispersion = math.max(0, awn.timeUntilDispersion - GetPlantSpecies().GetEarth().simulationDeltaTime / 24);
+            if (awn.timeUntilDispersion <= 0) {
                 int disperseSeeds = 0;
                 for (int i = 0; i < awnMaxSeedAmount; i++) {
                     if (Simulation.randomGenerator.NextInt(0, 100) < awnSeedDispersalSuccessChance) {
@@ -66,10 +73,17 @@ public class PlantSpeciesAwns : PlantSpeciesOrgan {
             }
             return;
         }
-        awns[organism] = new Awn(awns[organism].awnsGrowth + growth / 100, 0);
-        if (awns[organism].awnsGrowth >= awnMaxGrowth) {
-            awns[organism] = new Awn(0, awnSeedDispertionTime);
+
+        awn.awnsGrowth += growth / 100;
+        if (awn.awnsGrowth >= awnMaxGrowth) {
+            awn.awnsGrowth = 0;
+            awn.timeUntilDispersion = awnSeedDispertionTime;
         }
+    }
+
+    public override void EndUpdate() {
+        base.EndUpdate();
+        awns.SwitchObjectSets();
     }
 
     public override string GetOrganType() {

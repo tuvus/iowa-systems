@@ -31,7 +31,7 @@ public class AnimalSpecies : Species {
         Adult = 1,
     }
 
-    public struct Animal {
+    public class Animal : MapObject<Organism> {
         public GrowthStage stage;
         [Tooltip("Weight in kilograms")]
         public float bodyWeight;
@@ -39,29 +39,36 @@ public class AnimalSpecies : Species {
         [Tooltip("The food in kilograms stored in the animal")]
         public float food;
 
-        public Animal(GrowthStage stage, float bodyWeight, float health, float food) {
+        public Animal(Organism organism, GrowthStage stage, float bodyWeight, float health, float food): base(organism) {
             this.stage = stage;
             this.bodyWeight = bodyWeight;
             this.health = health;
             this.food = food;
         }
 
-        public Animal(Animal animal, float health, float food) {
+        public Animal(Organism organism, Animal animal, float health, float food) : base(organism) {
             this.stage = animal.stage;
             this.bodyWeight = animal.bodyWeight;
             this.health = health;
             this.food = food;
         }
 
-        public Animal(Animal animal, GrowthStage stage) {
+        public Animal(Organism organism, Animal animal, GrowthStage stage) : base(organism) {
             this.stage = stage;
+            this.bodyWeight = animal.bodyWeight;
+            this.health = animal.health;
+            this.food = animal.food;
+        }
+
+        public Animal(Animal animal) : base(animal.setObject) {
+            this.stage = animal.stage;
             this.bodyWeight = animal.bodyWeight;
             this.health = animal.health;
             this.food = animal.food;
         }
     }
 
-    public Dictionary<Organism, Animal> animals;
+    public ObjectMap<Organism, Animal> animals;
 
     public AnimalSpeciesCarcass speciesCarcass;
 
@@ -75,7 +82,7 @@ public class AnimalSpecies : Species {
         base.SetupSimulation(earth);
         fullFood = maxFood * .7f;
         speciesCarcass.SetSpeciesScript(this);
-        animals = new Dictionary<Organism, Animal>();
+        animals = new ObjectMap<Organism, Animal>(organisms);
         eddibleFoodTypes = new HashSet<string>();
         predatorSpecies = new HashSet<Species>();
     }
@@ -109,36 +116,41 @@ public class AnimalSpecies : Species {
 
     public override Organism SpawnOrganism() {
         Organism organism = base.SpawnOrganism();
-        Animal animal = new Animal(reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
+        Animal animal = new Animal(organism,  reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
             Simulation.randomGenerator.NextFloat(fullFood, maxFood));
-        animals.Add(organism, animal);
+        animals.Add(animal, new Animal(animal));
         //TODO: Add position and rotation
         return organism;
     }
 
     public override Organism SpawnOrganism(float3 position, int zone, float distance) {
         Organism organism = base.SpawnOrganism();
-        Animal animal = new Animal(reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
+        Animal animal = new Animal(organism, reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
             Simulation.randomGenerator.NextFloat(fullFood, maxFood));
+        animals.Add(animal, new Animal(animal));
         //TODO: Add position and rotation
         return organism;
     }
 
     protected override void UpdateOrganism(Organism organism) {
         base.UpdateOrganism(organism);
+        Animal animal = animals.Get(organism);
         if (organism.age > maxAge) {
+            KillOrganism(organism);
             // organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
             return;
         }
-        if (animals[organism].stage != GrowthStage.Adult && organism.age > reproductiveSystem.reproductionAge)
-            animals[organism] = new Animal(animals[organism], GrowthStage.Adult);
-        if (animals[organism].food > 0) {
+
+        if (animal.stage != GrowthStage.Adult && organism.age > reproductiveSystem.reproductionAge)
+            animal.stage = GrowthStage.Adult;
+        if (animal.food > 0) {
             float restingFoodReduction = 1f;
             //if (!hasMoved)
             //    restingFoodReduction = .6f;
-            animals[organism] = new Animal(animals[organism], math.max(maxHealth, animals[organism].health * GetEarth().simulationDeltaTime / 24), math.max(0, animals[organism].food - GetFoodConsumption() * GetEarth().simulationDeltaTime * restingFoodReduction));
+            animal.health = math.max(maxHealth, animal.health * GetEarth().simulationDeltaTime / 24);
+            animal.food = math.max(0, animal.food - GetFoodConsumption() * GetEarth().simulationDeltaTime * restingFoodReduction);
         } else {
-            animals[organism] = new Animal(animals[organism], math.max(0, animals[organism].health - GetFoodConsumption() * GetEarth().simulationDeltaTime), 0);
+            animal.health = math.max(0, animal.health - GetFoodConsumption() * GetEarth().simulationDeltaTime);
             //if (CheckIfDead("Starvation")) {
             //    return true;
             //}
@@ -183,14 +195,24 @@ public class AnimalSpecies : Species {
         //}
     }
 
+    protected override void KillOrganism(Organism organism) {
+        base.KillOrganism(organism);
+        animals.Remove(organism);
+    }
+
+    public override void EndUpdate() {
+        base.EndUpdate();
+        animals.SwitchObjectSets();
+    }
+
     bool IsAnimalFull(Organism organism) {
-        if (animals[organism].food >= maxFood * .9f)
+        if (animals.Get(organism).food >= maxFood * .9f)
             return true;
         return false;
     }
 
     bool IsAnimalHungry(Organism organism) {
-        if (animals[organism].food < fullFood)
+        if (animals.Get(organism).food < fullFood)
             return true;
         return false;
     }
@@ -232,7 +254,7 @@ public class AnimalSpecies : Species {
     }
 
     public float GetMovementSpeed(Organism organism) {
-        return speed * (((animals[organism].health / maxHealth) / 2) + 0.5f);
+        return speed * (((animals.Get(organism).health / maxHealth) / 2) + 0.5f);
     }
     #endregion
 

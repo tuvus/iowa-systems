@@ -19,9 +19,9 @@ public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
     [Tooltip("The chance that each new offspring is successfully birthed")]
     public int birthSuccessPercent;
 
-    public Dictionary<Organism, ReproductiveSystem> reproductiveSystems;
+    public ObjectMap<Organism, ReproductiveSystem> reproductiveSystems;
 
-    public struct ReproductiveSystem {
+    public class ReproductiveSystem : MapObject<Organism> {
         [Tooltip("The sex of the animal, false = female, true = male")]
         public bool sex;
         [Tooltip("The time to birth after conception in days")]
@@ -29,21 +29,39 @@ public class AnimalSpeciesReproductiveSystem : AnimalSpeciesOrgan {
         [Tooltip("The time after attempting reproduction in hours")]
         public float reproductionDelay;
 
-        public ReproductiveSystem(bool sex, float birthTime, float reproductionDelay) {
+        public ReproductiveSystem(Organism organism, bool sex, float birthTime, float reproductionDelay) : base(organism) {
             this.sex = sex;
             this.birthTime = birthTime;
             this.reproductionDelay = reproductionDelay;
         }
+
+        public ReproductiveSystem(ReproductiveSystem reproductiveSystem) : base(reproductiveSystem.setObject) {
+            this.sex = reproductiveSystem.sex;
+            this.birthTime = reproductiveSystem.birthTime;
+            this.reproductionDelay = reproductiveSystem.reproductionDelay;
+        }
     }
 
     public override void SetupSpeciesOrgan() {
-        reproductiveSystems = new Dictionary<Organism, ReproductiveSystem>();
+        reproductiveSystems = new ObjectMap<Organism, ReproductiveSystem>(GetSpecies().organisms);
     }
 
     public GrowthStage SpawnReproductive(Organism organism) {
-        reproductiveSystems.Add(organism, new ReproductiveSystem(Simulation.randomGenerator.NextBool(),0, reproductionDelay * Simulation.randomGenerator.NextFloat(0f, 1.2f)));
+        ReproductiveSystem reproductive = new ReproductiveSystem(organism, Simulation.randomGenerator.NextBool(), 0,
+            reproductionDelay * Simulation.randomGenerator.NextFloat(0f, 1.2f));
+        reproductiveSystems.Add(reproductive, new ReproductiveSystem(reproductive));
         if (organism.age >= reproductionAge)
             return GrowthStage.Adult;
         return GrowthStage.Juvinile;
+    }
+
+    public override void KillOrganism(Organism organism) {
+        base.KillOrganism(organism);
+        reproductiveSystems.Remove(organism);
+    }
+
+    public override void EndUpdate() {
+        base.EndUpdate();
+        reproductiveSystems.SwitchObjectSets();
     }
 }

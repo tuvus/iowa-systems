@@ -42,16 +42,16 @@ public class PlantSpecies : Species {
     }
 
     public GrowthStageData[] growthStages;
-    public Dictionary<Organism, Plant> plants;
+    public ObjectMap<Organism, Plant> plants;
 
-    public struct Plant {
+    public class Plant : MapObject<Organism> {
         public GrowthStage stage;
         public float bladeArea;
         public float stemHeight;
         public float2 rootGrowth;
         public float rootDensity;
 
-        public Plant(GrowthStage stage, float bladeArea, float stemHeight, float2 rootGrowth) {
+        public Plant(Organism organism, GrowthStage stage, float bladeArea, float stemHeight, float2 rootGrowth) : base(organism){
             this.stage = stage;
             this.bladeArea = bladeArea;
             this.stemHeight = stemHeight;
@@ -59,19 +59,27 @@ public class PlantSpecies : Species {
             this.rootDensity = 1;
         }
 
-        public Plant(GrowthStage stage, GrowthStageData growthStageData) {
+        public Plant(Organism organism, GrowthStage stage, GrowthStageData growthStageData) : base(organism){
             this.stage = stage;
             this.bladeArea = growthStageData.bladeArea;
             this.stemHeight = growthStageData.stemHeight;
             this.rootGrowth = growthStageData.rootGrowth;
             this.rootDensity = 1;
         }
+
+        public Plant(Plant plant) : base(plant.setObject) {
+            this.stage = plant.stage;
+            this.bladeArea = plant.bladeArea;
+            this.stemHeight = plant.stemHeight;
+            this.rootGrowth = plant.rootGrowth;
+            this.rootDensity = plant.rootDensity;
+        }
     }
 
     #region StartSimulation
     public override void SetupSimulation(Earth earth) {
         base.SetupSimulation(earth);
-        plants = new Dictionary<Organism, Plant>();
+        plants = new ObjectMap<Organism, Plant>(organisms);
         plantSpeciesAwns = GetComponent<PlantSpeciesAwns>();
         growthStages = new GrowthStageData[growthStagesInput.Count];
 
@@ -133,15 +141,17 @@ public class PlantSpecies : Species {
         Organism organism = base.SpawnOrganism();
         GrowthStage stage = (GrowthStage)Simulation.randomGenerator.NextInt(1, 6);
         organism.age = GetGrowthStageData(stage).daysAfterGermination;
-        Plant plant = new Plant(stage, GetGrowthStageData(stage));
+        Plant plant = new Plant(organism, stage, GetGrowthStageData(stage));
+        plants.Add(plant, new Plant(plant));
         plantSpeciesAwns.SpawnAwns(organism, plant);
         return organism;
     }
 
     public override Organism SpawnOrganism(float3 position, int zone, float distance) {
         Organism organism = base.SpawnOrganism(position, zone, distance);
-        Plant plant = new Plant(GrowthStage.Germinating, 10, 10, 10);
+        Plant plant = new Plant(organism, GrowthStage.Germinating, 10, 10, 10);
         plantSpeciesAwns.SpawnAwns(organism, plant);
+        plants.Add(plant, new Plant(plant));
         return organism;
     }
 
@@ -152,17 +162,16 @@ public class PlantSpecies : Species {
     protected override void UpdateOrganism(Organism organism) {
         base.UpdateOrganism(organism);
         if (organism.age > 100) {
+            KillOrganism(organism);
             // organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
             return;
         }
-        float bladeArea = plants[organism].bladeArea;
-        float stemHeight = plants[organism].stemHeight;
-        float2 rootGrowth = plants[organism].rootGrowth;
-        int stageIndex = (int)plants[organism].stage;
-        GrowthStage stage = plants[organism].stage;
-        if (stageIndex != growthStages.Length - 1 && bladeArea >= growthStages[stageIndex].bladeArea
-            && stemHeight >= growthStages[stageIndex].stemHeight && rootGrowth.y >= growthStages[stageIndex].rootGrowth.y) {
-            stage = growthStages[stageIndex + 1].stage;
+
+        Plant plant = plants.Get(organism);
+        int stageIndex = (int)plant.stage;
+        if (stageIndex != growthStages.Length - 1 && plant.bladeArea >= growthStages[stageIndex].bladeArea
+            && plant.stemHeight >= growthStages[stageIndex].stemHeight && plant.rootGrowth.y >= growthStages[stageIndex].rootGrowth.y) {
+            plant.stage = growthStages[stageIndex + 1].stage;
         }
         float sunValue = 0.5f;
         if (Simulation.Instance.sunRotationEffect) {
@@ -170,15 +179,19 @@ public class PlantSpecies : Species {
             float sunDistanceFromEarth = Vector3.Distance(new float3(0, 0, 0), GetEarth().GetSunPosition());
             sunValue = Mathf.Max((objectDistanceFromSun - sunDistanceFromEarth) / GetEarth().GetRadius() * 2, 0);
         }
-        float sunGain = bladeArea * sunValue;
-        float rootArea = (math.PI * rootGrowth.x * rootGrowth.y) + (math.pow(rootGrowth.x / 2, 2) * 2);
+        float sunGain = plant.bladeArea * sunValue;
+        float rootArea = (math.PI * plant.rootGrowth.x * plant.rootGrowth.y) + (math.pow(plant.rootGrowth.x / 2, 2) * 2);
         float rootUnderWaterPercent = 1;
         //float rootUnderWaterPercent = 1 - (GetEarth().GetZoneController().zones[organisms[organism].zone].waterDepth / rootGrowth.y);
         float waterGain = rootArea * rootUnderWaterPercent * 1;
         for (int i = 0; i < organs.Count; i++) {
-            ((PlantSpeciesOrgan)organs[i]).GrowOrgan(organism, GetEarth().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain), ref bladeArea, ref stemHeight, ref rootGrowth);
+            ((PlantSpeciesOrgan)organs[i]).GrowOrgan(plants.writeObjects[organism], GetEarth().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain));
         }
-        plants[organism] = new Plant(stage, bladeArea, stemHeight, rootGrowth);
+    }
+
+    public override void EndUpdate() {
+        base.EndUpdate();
+        plants.SwitchObjectSets();
     }
 
     public override void OnSettingsChanged(bool renderOrganisms) {

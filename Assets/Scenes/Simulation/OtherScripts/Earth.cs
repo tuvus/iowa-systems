@@ -148,6 +148,7 @@ public class Earth : MonoBehaviour {
         if (simulationUpdateStatus == SimulationUpdateStatus.CleaningUp) {
             Profiler.BeginSample("CleaningUp");
             OnEndFrame?.Invoke(this, new EventArgs { });
+            EndUpdate();
             Profiler.EndSample();
             simulationUpdateStatus = SimulationUpdateStatus.SettingUp;
         }
@@ -177,6 +178,7 @@ public class Earth : MonoBehaviour {
         Profiler.BeginSample("CleaningUp");
         simulationUpdateStatus = SimulationUpdateStatus.CleaningUp;
         OnEndFrame?.Invoke(this, new EventArgs { });
+        EndUpdate();
         UpdateSpeciesMotorGraphData();
         Profiler.EndSample();
         simulationUpdateStatus = SimulationUpdateStatus.SettingUp;
@@ -213,8 +215,8 @@ public class Earth : MonoBehaviour {
 
     void StartOrganismJobs() {
         List<Species> allSpecies = SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
-        for (int i = 0; i < allSpecies.Count; i++) {
-            // allSpecies[i].StartJobs(activeThreads);
+        foreach (var species in allSpecies) {
+            species.StartJobs(activeThreads);
         }
     }
 
@@ -240,6 +242,10 @@ public class Earth : MonoBehaviour {
             // allSpecies[i].UpdateOrganismActions();
             Profiler.EndSample();
         }
+    }
+
+    public void EndUpdate() {
+        GetAllSpecies().ForEach(s => s.EndUpdate());
     }
 
     void UpdateSpeciesMotorGraphData() {

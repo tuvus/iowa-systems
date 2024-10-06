@@ -10,8 +10,8 @@ public class PlantSpeciesRoots : PlantSpeciesOrgan {
         return organType;
     }
 
-    public override void GrowOrgan(Species.Organism organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
-        rootGrowth = new float2(rootGrowth.x, rootGrowth.y + (growth * growthModifier));
+    public override void GrowOrgan(PlantSpecies.Plant plant, float growth) {
+        plant.rootGrowth.y += growth * growthModifier;
     }
 
     public override float GetGrowthRequirementForStage(PlantSpecies.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {

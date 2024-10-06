@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class PlantSpeciesStem : EddiblePlantSpeciesOrgan {
 
-    public override void GrowOrgan(Species.Organism organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth) {
-        stemHeight = stemHeight + (growth * growthModifier);
+    public override void GrowOrgan(PlantSpecies.Plant plant, float growth) {
+        plant.stemHeight += growth * growthModifier;
     }
 
     public override float GetGrowthRequirementForStage(PlantSpecies.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {

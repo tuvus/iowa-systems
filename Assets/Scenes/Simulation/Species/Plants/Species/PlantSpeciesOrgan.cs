@@ -17,7 +17,7 @@ public abstract class PlantSpeciesOrgan : SpeciesOrgan {
         return null;
     }
 
-    public abstract void GrowOrgan(Species.Organism organism, float growth, ref float bladeArea, ref float stemHeight, ref float2 rootGrowth);
+    public abstract void GrowOrgan(PlantSpecies.Plant plant, float growth);
     
 
     public PlantSpecies GetPlantSpecies() {
