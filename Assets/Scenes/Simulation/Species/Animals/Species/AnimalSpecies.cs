@@ -134,7 +134,7 @@ public class AnimalSpecies : Species {
 
     protected override void UpdateOrganism(Organism organism) {
         base.UpdateOrganism(organism);
-        Animal animal = animals.Get(organism);
+        Animal animal = animals.GetReadable(organism);
         if (organism.age > maxAge) {
             KillOrganism(organism);
             // organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
@@ -206,13 +206,13 @@ public class AnimalSpecies : Species {
     }
 
     bool IsAnimalFull(Organism organism) {
-        if (animals.Get(organism).food >= maxFood * .9f)
+        if (animals.GetReadable(organism).food >= maxFood * .9f)
             return true;
         return false;
     }
 
     bool IsAnimalHungry(Organism organism) {
-        if (animals.Get(organism).food < fullFood)
+        if (animals.GetReadable(organism).food < fullFood)
             return true;
         return false;
     }
@@ -254,7 +254,7 @@ public class AnimalSpecies : Species {
     }
 
     public float GetMovementSpeed(Organism organism) {
-        return speed * (((animals.Get(organism).health / maxHealth) / 2) + 0.5f);
+        return speed * (((animals.GetReadable(organism).health / maxHealth) / 2) + 0.5f);
     }
     #endregion
 

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
-using UnityEngine;
+using Plant = PlantSpecies.Plant;
 
 public class PlantSpeciesVegetativePropagation : PlantSpeciesOrgan {
 
@@ -14,6 +11,5 @@ public class PlantSpeciesVegetativePropagation : PlantSpeciesOrgan {
         throw new NotImplementedException();
     }
 
-    public override void GrowOrgan(PlantSpecies.Plant plant, float growth) {
-    }
+    public override void GrowOrgan(Species.Organism organismR, Plant plantR, Plant plantW, float growth) {    }
 }

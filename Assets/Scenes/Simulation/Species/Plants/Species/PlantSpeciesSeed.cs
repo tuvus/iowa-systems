@@ -1,20 +1,20 @@
 using System;
 using System.Collections.Generic;
-using Unity.Collections;
-using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using static Earth;
-using static PlantSpeciesAwns;
 using static Species;
+using Plant = PlantSpecies.Plant;
 
 public class PlantSpeciesSeed : PlantSpeciesOrgan {
     public int startingSeedCount;
     public float humidityRequirement;
     public float tempetureRequirement;
     public float seedDispertionRange;
+
     [Tooltip("The time in days required before germination can begin")]
     public float timeRequirement;
+
     [Tooltip("The maximum time in days the seed can wait to germinate before it dies off")]
     public float timeMaximum;
 
@@ -33,7 +33,7 @@ public class PlantSpeciesSeed : PlantSpeciesOrgan {
 
     public Organism SpawnOrganism() {
         Organism organism = new Organism(Simulation.randomGenerator.NextFloat(0, timeRequirement), 0, float3.zero, 0);
-        
+
         //TODO: Need to add position and rotation here
         return organism;
     }
@@ -43,15 +43,15 @@ public class PlantSpeciesSeed : PlantSpeciesOrgan {
         //TODO: Need to add position and rotation here
         return organism;
     }
-    
+
     public void UpdateSeed(int seed) {
         seeds[seed] = new Organism(seeds[seed], seeds[seed].age + GetPlantSpecies().GetEarth().simulationDeltaTime);
         if (seeds[seed].age > timeMaximum) {
             // seedActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, seed));
             return;
         } else if (seeds[seed].age >= timeRequirement
-            && earth.earthState.humidity > humidityRequirement
-            && earth.earthState.temperature > tempetureRequirement) {
+                   && earth.earthState.humidity > humidityRequirement
+                   && earth.earthState.temperature > tempetureRequirement) {
             // seedActions.Enqueue(new OrganismAction(OrganismAction.Action.Reproduce, seed));
         }
     }
@@ -86,12 +86,12 @@ public class PlantSpeciesSeed : PlantSpeciesOrgan {
         // KillOrganismParallel(new OrganismAction(OrganismAction.Action.Die, organismAction.organism));
         GetPlantSpecies().SpawnOrganism(organismAction.position, organismAction.zone, organismAction.floatValue);
     }
-    
 
-    public override float GetGrowthRequirementForStage(PlantSpecies.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {
+
+    public override float GetGrowthRequirementForStage(PlantSpecies.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues,
+        PlantSpecies.GrowthStageData previousStageValues) {
         throw new NotImplementedException();
     }
 
-    public override void GrowOrgan(PlantSpecies.Plant plant, float growth) {
-    }
+    public override void GrowOrgan(Organism organismR, Plant plantR, Plant plantW, float growth) { }
 }

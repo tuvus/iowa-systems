@@ -63,7 +63,6 @@ public class Simulation : MonoBehaviour {
         earth.SetUpEarth(earthSize, simulationSpeed);
         sun.SetupSun(earth);
         User.Instance.SetupSimulation();
-        earth.EndUpdate();
         SpeciesManager.Instance.GetSpeciesMotor().StartSimulation();
         earth.StartSimulation();
         simulationInitialised = true;

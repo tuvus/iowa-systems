@@ -35,7 +35,7 @@ public class ObjectMap<O,T> where O : SetObject where T : MapObject<O> {
         if (!Equals(obj, GetWritable(obj.setObject))) throw new Exception("asfasjfdsaf");
     }
 
-    public T Get(O obj) {
+    public T GetReadable(O obj) {
         if (obj == null) return null;
         return readObjects[obj];
     }

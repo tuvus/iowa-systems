@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
-using UnityEngine;
+using Plant = PlantSpecies.Plant;
 
 public class PlantSpeciesRoots : PlantSpeciesOrgan {
     public float rootDensity;
@@ -10,8 +7,8 @@ public class PlantSpeciesRoots : PlantSpeciesOrgan {
         return organType;
     }
 
-    public override void GrowOrgan(PlantSpecies.Plant plant, float growth) {
-        plant.rootGrowth.y += growth * growthModifier;
+    public override void GrowOrgan(Species.Organism organismR, Plant plantR, Plant plantW, float growth) {
+        plantW.rootGrowth.y = plantR.rootGrowth.y + growth * growthModifier;
     }
 
     public override float GetGrowthRequirementForStage(PlantSpecies.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {

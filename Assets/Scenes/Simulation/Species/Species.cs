@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Unity.Mathematics;
 using UnityEngine;
@@ -102,13 +103,15 @@ public abstract class Species : MonoBehaviour {
 
     #region SpawnOrganisms
 
-    public virtual Organism SpawnOrganism() {
+    [MethodImpl(MethodImplOptions.Synchronized)]
+    public  virtual Organism SpawnOrganism() {
         Organism organism = new Organism();
         organisms.Add(organism, new Organism(organism));
         //TODO: Need to add position and rotation here
         return organism;
     }
 
+    [MethodImpl(MethodImplOptions.Synchronized)]
     public virtual Organism SpawnOrganism(float3 position, int zone, float distance) {
         Organism organism = new Organism(0, zone, position, 0);
         organisms.Add(organism, new Organism(organism));

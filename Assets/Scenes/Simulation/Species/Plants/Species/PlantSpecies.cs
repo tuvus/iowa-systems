@@ -161,17 +161,17 @@ public class PlantSpecies : Species {
 
     protected override void UpdateOrganism(Organism organism) {
         base.UpdateOrganism(organism);
-        if (organism.age > 100) {
+        if (organism.age > 10000) {
             KillOrganism(organism);
             // organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
             return;
         }
 
-        Plant plant = plants.Get(organism);
-        int stageIndex = (int)plant.stage;
-        if (stageIndex != growthStages.Length - 1 && plant.bladeArea >= growthStages[stageIndex].bladeArea
-            && plant.stemHeight >= growthStages[stageIndex].stemHeight && plant.rootGrowth.y >= growthStages[stageIndex].rootGrowth.y) {
-            plant.stage = growthStages[stageIndex + 1].stage;
+        Plant plantR = plants.GetReadable(organism);
+        int stageIndex = (int)plantR.stage;
+        if (stageIndex != growthStages.Length - 1 && plantR.bladeArea >= growthStages[stageIndex].bladeArea
+            && plantR.stemHeight >= growthStages[stageIndex].stemHeight && plantR.rootGrowth.y >= growthStages[stageIndex].rootGrowth.y) {
+            plantR.stage = growthStages[stageIndex + 1].stage;
         }
         float sunValue = 0.5f;
         if (Simulation.Instance.sunRotationEffect) {
@@ -179,13 +179,15 @@ public class PlantSpecies : Species {
             float sunDistanceFromEarth = Vector3.Distance(new float3(0, 0, 0), GetEarth().GetSunPosition());
             sunValue = Mathf.Max((objectDistanceFromSun - sunDistanceFromEarth) / GetEarth().GetRadius() * 2, 0);
         }
-        float sunGain = plant.bladeArea * sunValue;
-        float rootArea = (math.PI * plant.rootGrowth.x * plant.rootGrowth.y) + (math.pow(plant.rootGrowth.x / 2, 2) * 2);
+        float sunGain = plantR.bladeArea * sunValue;
+        float rootArea = (math.PI * plantR.rootGrowth.x * plantR.rootGrowth.y) + (math.pow(plantR.rootGrowth.x / 2, 2) * 2);
         float rootUnderWaterPercent = 1;
         //float rootUnderWaterPercent = 1 - (GetEarth().GetZoneController().zones[organisms[organism].zone].waterDepth / rootGrowth.y);
         float waterGain = rootArea * rootUnderWaterPercent * 1;
-        for (int i = 0; i < organs.Count; i++) {
-            ((PlantSpeciesOrgan)organs[i]).GrowOrgan(plants.writeObjects[organism], GetEarth().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain));
+
+        Plant plantW = plants.GetWritable(organism);
+        foreach (var speciesOrgan in organs) {
+            ((PlantSpeciesOrgan)speciesOrgan).GrowOrgan(organism, plantR, plantW, GetEarth().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain));
         }
     }
 

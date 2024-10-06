@@ -70,6 +70,7 @@ public class Earth : MonoBehaviour {
         earthState = new EarthState();
         humidity = 50;
         temperature = 100;
+        EndUpdate();
     }
 
     public void StartSimulation() {
@@ -244,7 +245,7 @@ public class Earth : MonoBehaviour {
         }
     }
 
-    public void EndUpdate() {
+    void EndUpdate() {
         GetAllSpecies().ForEach(s => s.EndUpdate());
     }
 

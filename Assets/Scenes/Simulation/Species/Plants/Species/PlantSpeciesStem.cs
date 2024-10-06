@@ -1,12 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
-using UnityEngine;
-
+using Plant = PlantSpecies.Plant;
 public class PlantSpeciesStem : EddiblePlantSpeciesOrgan {
 
-    public override void GrowOrgan(PlantSpecies.Plant plant, float growth) {
-        plant.stemHeight += growth * growthModifier;
+    public override void GrowOrgan(Species.Organism organismR, Plant plantR, Plant plantW, float growth) {
+        plantW.stemHeight = plantR.stemHeight + growth * growthModifier;
     }
 
     public override float GetGrowthRequirementForStage(PlantSpecies.GrowthStage stage, PlantSpecies.GrowthStageData thisStageValues, PlantSpecies.GrowthStageData previousStageValues) {
