@@ -1,16 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ZoomMovementUI : MonoBehaviour {
-
     public void SetScroll(float value) {
         GetSlider().SetValueWithoutNotify(value);
     }
 
     public void OnSliderChanged() {
-        User.Instance.GetUserMotor().SetScroll(GetSlider().value);
+        User.Instance.GetUserMotor().SetScroll(math.pow(GetSlider().value, 2f));
     }
 
     Slider GetSlider() {

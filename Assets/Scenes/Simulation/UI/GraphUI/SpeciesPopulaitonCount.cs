@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class SpeciesPopulaitonCount : MonoBehaviour {
-
     private Species speciesScript;
     private int index;
 
@@ -23,19 +22,22 @@ public class SpeciesPopulaitonCount : MonoBehaviour {
 
     void UpdateInitialText() {
         if (speciesScript.GetComponent<PlantSpeciesAwns>() != null) {
-            transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.startingPopulation + "(" + speciesScript.GetComponent<PlantSpeciesAwns>().speciesSeed.startingSeedCount + ")");
+            transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName
+                + "Pop:" + NumberFormatter.ConvertNumber(speciesScript.startingPopulation) + "(" +
+                NumberFormatter.ConvertNumber(speciesScript.GetComponent<PlantSpeciesAwns>().speciesSeed.startingSeedCount) + ")");
             return;
         }
-        transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.startingPopulation);
 
+        transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + NumberFormatter.ConvertNumber(speciesScript.startingPopulation));
     }
 
     void UpdateText() {
         if (speciesScript is PlantSpecies && ((PlantSpecies)speciesScript).GetPlantSpeciesSeeds() != null) {
-            transform.GetChild(1).GetComponent<Text>().text = speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation() + "(" +
-                                                               ((PlantSpecies)speciesScript).GetPlantSpeciesSeeds().seedPopulation + ")";
+            transform.GetChild(1).GetComponent<Text>().text = speciesScript.speciesDisplayName + "Pop:" + NumberFormatter.ConvertNumber(speciesScript.GetCurrentPopulation()) + "(" +
+                NumberFormatter.ConvertNumber(((PlantSpecies)speciesScript).GetPlantSpeciesSeeds().seedPopulation) + ")";
             return;
         }
-        transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + speciesScript.GetCurrentPopulation());
+
+        transform.GetChild(1).GetComponent<Text>().text = (speciesScript.speciesDisplayName + "Pop:" + NumberFormatter.ConvertNumber(speciesScript.GetCurrentPopulation()));
     }
 }

@@ -43,10 +43,10 @@ public class GraphWindow : MonoBehaviour {
         GetColumnTransform().localPosition = new Vector2(0, distanceFromBottomLeft + GetColumnTransform().localPosition.y);
         rows = new List<RectTransform>(rowCount);
         columns = new List<Column>(20);
-        GetYAxisSlider().minValue = (int)(GetGraphWidth() / defaultColumnWidth);
+        GetYAxisSlider().minValue = (int)(GetGraphWidth() / (defaultColumnWidth * 2));
         columnDisplayCount = (int)GetYAxisSlider().minValue * 5;
         GetYAxisSlider().value = columnDisplayCount;
-        GetYAxisSlider().maxValue = columnDisplayCount * 10;
+        GetYAxisSlider().maxValue = columnDisplayCount * 6;
     }
 
     /// <summary>
@@ -350,8 +350,8 @@ public class GraphWindow : MonoBehaviour {
             float rowPosition = distanceFromBottomLeft;
             if (i != 0)
                 rowPosition += FindGraphPosition(rowValue);
-            GetRow(i).localPosition = new Vector2(10, rowPosition);
-            GetRow(i).GetChild(0).GetComponent<Text>().text = rowValue.ToString();
+            GetRow(i).localPosition = new Vector2(15, rowPosition);
+            GetRow(i).GetChild(0).GetComponent<Text>().text = NumberFormatter.ConvertNumber(rowValue);
             GetRow(i).gameObject.SetActive(true);
         }
         for (int i = rowCount + 1; i < rows.Count; i++) {
@@ -366,7 +366,7 @@ public class GraphWindow : MonoBehaviour {
         for (int i = 0; i < rows.Count; i++) {
             RectTransform lineRect = rows[i].GetChild(1).GetComponent<RectTransform>();
             lineRect.sizeDelta = new Vector2(GetColumnTransform().sizeDelta.x, lineRect.rect.height);
-            lineRect.localPosition = new Vector2(lineRect.sizeDelta.x / 2 + 15, 0);
+            lineRect.localPosition = new Vector2(lineRect.sizeDelta.x / 2 + 20, 0);
         }
     }
 
@@ -397,7 +397,7 @@ public class GraphWindow : MonoBehaviour {
     /// </summary>
     /// <param name="max"></param>
     public void SetYAxisLabel(int max) {
-        GetYAxisText().text = "Population(Max:" + max + ")";
+        GetYAxisText().text = "Population(Max:" + NumberFormatter.ConvertNumber(max) + ")";
     }
     #endregion
     #endregion

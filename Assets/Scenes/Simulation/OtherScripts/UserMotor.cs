@@ -58,7 +58,7 @@ public class UserMotor : MonoBehaviour {
         } else if (cameraTransform.localPosition.y > GetMaxSize()) {
             cameraTransform.localPosition = new Vector3(0, GetMaxSize(), 0);
         }
-        RefreshSlider();
+        if (Input.mouseScrollDelta.y != 0) RefreshSlider();
     }
 
     void RefreshSlider() {
