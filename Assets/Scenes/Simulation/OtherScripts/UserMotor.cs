@@ -133,6 +133,24 @@ public class UserMotor : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Slash)) {
             timeUI.Pause();
         }
+
+        // For easier testing
+        if (Input.GetKeyDown(KeyCode.M)) {
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+            timeUI.IncreaceTimeStep();
+        }
     }
 
     public void DebugPause() {

@@ -2608,7 +2608,6 @@ MonoBehaviour:
   timeRequirement: 240
   timeMaximum: 730
   seedEnergyAmount: 0.01
-  seedPopulation: 0
 --- !u!1 &496184813
 GameObject:
   m_ObjectHideFlags: 0
@@ -5605,7 +5604,6 @@ MonoBehaviour:
   timeRequirement: 240
   timeMaximum: 730
   seedEnergyAmount: 0.2
-  seedPopulation: 0
 --- !u!1 &835355319
 GameObject:
   m_ObjectHideFlags: 0

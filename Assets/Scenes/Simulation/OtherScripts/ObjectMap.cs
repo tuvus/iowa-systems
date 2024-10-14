@@ -19,6 +19,7 @@ public class ObjectMap<O,T> where O : SetObject where T : MapObject<O> {
     /// </summary>
     public void SwitchObjectSets() {
         var temp = readObjects;
+        toAdd.ForEach(a => writeObjects.Add(a.obj.setObject, a.obj));
         readObjects = writeObjects;
         writeObjects = temp;
         toRemove.ForEach(r => writeObjects.Remove(r));
@@ -30,18 +31,16 @@ public class ObjectMap<O,T> where O : SetObject where T : MapObject<O> {
     public void Add(T obj, T obj2) {
         if (obj == null || obj2 == null) throw new NullReferenceException("Trying to add a null object!"); 
         obj2.LinkObject(obj);
-        writeObjects.Add(obj.setObject, obj);
         toAdd.Add((obj, obj2));
-        if (!Equals(obj, GetWritable(obj.setObject))) throw new Exception("asfasjfdsaf");
     }
 
     public T GetReadable(O obj) {
-        if (obj == null) return null;
+        if (obj == null) throw new NullReferenceException("Trying to get a null object!");
         return readObjects[obj];
     }
 
     public T GetWritable(O obj) {
-        if (obj == null) return null;
+        if (obj == null) throw new NullReferenceException("Trying to get a null object!");
         return writeObjects[obj];
     }
 

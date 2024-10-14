@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -216,7 +217,7 @@ public class Earth : MonoBehaviour {
     void StartOrganismJobs() {
         List<Species> allSpecies = SpeciesManager.Instance.GetSpeciesMotor().GetAllSpecies();
         foreach (var species in allSpecies) {
-            species.StartJobs(activeThreads);
+            species.StartJobs(activeThreads, true);
         }
     }
 

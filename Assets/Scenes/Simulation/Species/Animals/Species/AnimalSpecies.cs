@@ -68,8 +68,6 @@ public class AnimalSpecies : Species {
         }
     }
 
-    public ObjectMap<Organism, Animal> animals;
-
     public AnimalSpeciesCarcass speciesCarcass;
 
     public HashSet<string> eddibleFoodTypes;
@@ -82,7 +80,6 @@ public class AnimalSpecies : Species {
         base.SetupSimulation(earth);
         fullFood = maxFood * .7f;
         speciesCarcass.SetSpeciesScript(this);
-        animals = new ObjectMap<Organism, Animal>(organisms);
         eddibleFoodTypes = new HashSet<string>();
         predatorSpecies = new HashSet<Species>();
     }
@@ -116,41 +113,40 @@ public class AnimalSpecies : Species {
 
     public override Organism SpawnOrganism() {
         Organism organism = base.SpawnOrganism();
-        Animal animal = new Animal(organism,  reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
-            Simulation.randomGenerator.NextFloat(fullFood, maxFood));
-        animals.Add(animal, new Animal(animal));
+        organism.AddOrgan(new Animal(organism,  reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
+            Simulation.randomGenerator.NextFloat(fullFood, maxFood)));
         //TODO: Add position and rotation
         return organism;
     }
 
     public override Organism SpawnOrganism(float3 position, int zone, float distance) {
         Organism organism = base.SpawnOrganism();
-        Animal animal = new Animal(organism, reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
-            Simulation.randomGenerator.NextFloat(fullFood, maxFood));
-        animals.Add(animal, new Animal(animal));
+        organism.AddOrgan(new Animal(organism, reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
+            Simulation.randomGenerator.NextFloat(fullFood, maxFood)));
         //TODO: Add position and rotation
         return organism;
     }
 
-    protected override void UpdateOrganism(Organism organism) {
-        base.UpdateOrganism(organism);
-        Animal animal = animals.GetReadable(organism);
-        if (organism.age > maxAge) {
-            KillOrganism(organism);
+    protected override void UpdateOrganism(Organism organismR) {
+        base.UpdateOrganism(organismR);
+        Animal animalR = organismR.GetOrgan<Animal>();
+        Animal animalW = organismR.GetWritable().GetOrgan<Animal>();
+        if (organismR.age > maxAge) {
+            KillOrganism(organismR);
             // organismActions.Enqueue(new OrganismAction(OrganismAction.Action.Die, organism));
             return;
         }
 
-        if (animal.stage != GrowthStage.Adult && organism.age > reproductiveSystem.reproductionAge)
-            animal.stage = GrowthStage.Adult;
-        if (animal.food > 0) {
+        if (animalR.stage != GrowthStage.Adult && organismR.age > reproductiveSystem.reproductionAge)
+            animalW.stage = GrowthStage.Adult;
+        if (animalR.food > 0) {
             float restingFoodReduction = 1f;
             //if (!hasMoved)
             //    restingFoodReduction = .6f;
-            animal.health = math.max(maxHealth, animal.health * GetEarth().simulationDeltaTime / 24);
-            animal.food = math.max(0, animal.food - GetFoodConsumption() * GetEarth().simulationDeltaTime * restingFoodReduction);
+            animalW.health = math.max(maxHealth, animalR.health * GetEarth().simulationDeltaTime / 24);
+            animalW.food = math.max(0, animalR.food - GetFoodConsumption() * GetEarth().simulationDeltaTime * restingFoodReduction);
         } else {
-            animal.health = math.max(0, animal.health - GetFoodConsumption() * GetEarth().simulationDeltaTime);
+            animalW.health = math.max(0, animalR.health - GetFoodConsumption() * GetEarth().simulationDeltaTime);
             //if (CheckIfDead("Starvation")) {
             //    return true;
             //}
@@ -195,24 +191,14 @@ public class AnimalSpecies : Species {
         //}
     }
 
-    protected override void KillOrganism(Organism organism) {
-        base.KillOrganism(organism);
-        animals.Remove(organism);
-    }
-
-    public override void EndUpdate() {
-        base.EndUpdate();
-        animals.SwitchObjectSets();
-    }
-
-    bool IsAnimalFull(Organism organism) {
-        if (animals.GetReadable(organism).food >= maxFood * .9f)
+    bool IsAnimalFull(Organism organismR) {
+        if (organismR.GetOrgan<Animal>().food >= maxFood * .9f)
             return true;
         return false;
     }
 
-    bool IsAnimalHungry(Organism organism) {
-        if (animals.GetReadable(organism).food < fullFood)
+    bool IsAnimalHungry(Organism organismR) {
+        if (organismR.GetOrgan<Animal>().food < fullFood)
             return true;
         return false;
     }
@@ -253,8 +239,8 @@ public class AnimalSpecies : Species {
         throw new NotImplementedException();
     }
 
-    public float GetMovementSpeed(Organism organism) {
-        return speed * (((animals.GetReadable(organism).health / maxHealth) / 2) + 0.5f);
+    public float GetMovementSpeed(Organism organismR) {
+        return speed * (((organismR.GetOrgan<Animal>().health / maxHealth) / 2) + 0.5f);
     }
     #endregion
 

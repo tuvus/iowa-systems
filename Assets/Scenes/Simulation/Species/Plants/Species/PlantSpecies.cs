@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using Unity.Collections;
 using Unity.Mathematics;
 using System;
 using System.Linq;
@@ -44,16 +43,15 @@ public class PlantSpecies : Species {
     }
 
     public GrowthStageData[] growthStages;
-    public ObjectMap<Organism, Plant> plants;
 
-    public class Plant : MapObject<Organism> {
+    public class Plant : ICloneable {
         public GrowthStage stage;
         public float bladeArea;
         public float stemHeight;
         public float2 rootGrowth;
         public float rootDensity;
 
-        public Plant(Organism organism, GrowthStage stage, float bladeArea, float stemHeight, float2 rootGrowth) : base(organism){
+        public Plant(GrowthStage stage, float bladeArea, float stemHeight, float2 rootGrowth) {
             this.stage = stage;
             this.bladeArea = bladeArea;
             this.stemHeight = stemHeight;
@@ -61,7 +59,7 @@ public class PlantSpecies : Species {
             this.rootDensity = 1;
         }
 
-        public Plant(Organism organism, GrowthStage stage, GrowthStageData growthStageData) : base(organism){
+        public Plant(GrowthStage stage, GrowthStageData growthStageData) {
             this.stage = stage;
             this.bladeArea = growthStageData.bladeArea;
             this.stemHeight = growthStageData.stemHeight;
@@ -69,19 +67,22 @@ public class PlantSpecies : Species {
             this.rootDensity = 1;
         }
 
-        public Plant(Plant plant) : base(plant.setObject) {
+        public Plant(Plant plant){
             this.stage = plant.stage;
             this.bladeArea = plant.bladeArea;
             this.stemHeight = plant.stemHeight;
             this.rootGrowth = plant.rootGrowth;
             this.rootDensity = plant.rootDensity;
         }
+
+        public object Clone() {
+            return MemberwiseClone();
+        }
     }
 
     #region StartSimulation
     public override void SetupSimulation(Earth earth) {
         base.SetupSimulation(earth);
-        plants = new ObjectMap<Organism, Plant>(organisms);
         plantSpeciesAwns = GetComponent<PlantSpeciesAwns>();
         growthStages = new GrowthStageData[growthStagesInput.Count];
 
@@ -147,17 +148,15 @@ public class PlantSpecies : Species {
         } else {
             organism.age = GetGrowthStageData(stage).daysAfterGermination + Simulation.randomGenerator.NextFloat(0, 30);
         }
-        Plant plant = new Plant(organism, stage, GetGrowthStageData(stage));
-        plants.Add(plant, new Plant(plant));
-        plantSpeciesAwns.SpawnAwns(organism, plant);
+        organism.AddOrgan(new Plant(stage, GetGrowthStageData(stage)));
+        organs.ForEach(o => o.SpawnOrgan(organism));
         return organism;
     }
 
     public override Organism SpawnOrganism(float3 position, int zone, float distance) {
         Organism organism = base.SpawnOrganism(position, zone, distance);
-        Plant plant = new Plant(organism, GrowthStage.Germinating, 10, 10, 10);
-        plantSpeciesAwns.SpawnAwns(organism, plant);
-        plants.Add(plant, new Plant(plant));
+        organism.AddOrgan(new Plant(GrowthStage.Germinating, 10, 10, 10));
+        organs.ForEach(o => o.SpawnOrgan(organism));
         return organism;
     }
 
@@ -165,21 +164,21 @@ public class PlantSpecies : Species {
         return growthStages[(int)stage];
     }
 
-    public override void StartJobs(HashSet<Thread> activeThreads) {
-        base.StartJobs(activeThreads);
+    public override void StartJobs(HashSet<Thread> activeThreads, bool threaded) {
+        base.StartJobs(activeThreads, threaded);
         if (GetPlantSpeciesSeeds() != null) {
-            GetPlantSpeciesSeeds().StartJobs(activeThreads);
+            GetPlantSpeciesSeeds().StartJobs(activeThreads, threaded);
         }
     }
 
-    protected override void UpdateOrganism(Organism organism) {
-        base.UpdateOrganism(organism);
-        if (organism.age > 10000) {
-            KillOrganism(organism);
+    protected override void UpdateOrganism(Organism organismR) {
+        base.UpdateOrganism(organismR);
+        if (organismR.age > 10000) {
+            KillOrganism(organismR);
             return;
         }
 
-        Plant plantR = plants.GetReadable(organism);
+        Plant plantR = organismR.GetReadable().GetOrgan<Plant>();
         int stageIndex = (int)plantR.stage;
         if (stageIndex != growthStages.Length - 1 && plantR.bladeArea >= growthStages[stageIndex].bladeArea
             && plantR.stemHeight >= growthStages[stageIndex].stemHeight && plantR.rootGrowth.y >= growthStages[stageIndex].rootGrowth.y) {
@@ -187,7 +186,7 @@ public class PlantSpecies : Species {
         }
         float sunValue = 0.5f;
         if (Simulation.Instance.sunRotationEffect) {
-            float objectDistanceFromSun = Vector3.Distance(organism.position, GetEarth().GetSunPosition());
+            float objectDistanceFromSun = Vector3.Distance(organismR.position, GetEarth().GetSunPosition());
             float sunDistanceFromEarth = Vector3.Distance(new float3(0, 0, 0), GetEarth().GetSunPosition());
             sunValue = Mathf.Max((objectDistanceFromSun - sunDistanceFromEarth) / GetEarth().GetRadius() * 2, 0);
         }
@@ -197,15 +196,10 @@ public class PlantSpecies : Species {
         //float rootUnderWaterPercent = 1 - (GetEarth().GetZoneController().zones[organisms[organism].zone].waterDepth / rootGrowth.y);
         float waterGain = rootArea * rootUnderWaterPercent * 1;
 
-        Plant plantW = plants.GetWritable(organism);
+        Plant plantW = organismR.GetWritable().GetOrgan<Plant>();
         foreach (var speciesOrgan in organs) {
-            ((PlantSpeciesOrgan)speciesOrgan).GrowOrgan(organism, plantR, plantW, GetEarth().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain));
+            ((PlantSpeciesOrgan)speciesOrgan).GrowOrgan(organismR, plantR, plantW, GetEarth().simulationDeltaTime * Mathf.Sqrt(sunGain * waterGain));
         }
-    }
-
-    public override void EndUpdate() {
-        base.EndUpdate();
-        plants.SwitchObjectSets();
     }
 
     public override void OnSettingsChanged(bool renderOrganisms) {

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
 using static Earth;
@@ -26,8 +29,11 @@ public class PlantSpeciesSeed : PlantSpeciesOrgan {
         public int seedCount;
         public SeedGroup() { }
 
-        public SeedGroup(float age, int zone, float3 position, float rotation, int seedCount)
-            : base(age, zone, position, rotation) {
+        public SeedGroup(int seedCount) : base() {
+            this.seedCount = seedCount;
+        }
+
+        public SeedGroup(float age, int zone, float3 position, float rotation, int seedCount) : base(age, zone, position, rotation) {
             this.seedCount = seedCount;
         }
 
@@ -38,7 +44,10 @@ public class PlantSpeciesSeed : PlantSpeciesOrgan {
 
     public ObjectSet<SeedGroup> seedGroups;
 
-    public int seedPopulation;
+    public int seedPopulation {
+        [MethodImpl(MethodImplOptions.Synchronized)] get;
+        [MethodImpl(MethodImplOptions.Synchronized)] set; 
+    }
 
     public override void SetupSpeciesOrgan() {
         seedGroups = new ObjectSet<SeedGroup>();
@@ -53,29 +62,37 @@ public class PlantSpeciesSeed : PlantSpeciesOrgan {
         }
     }
 
+    [MethodImpl(MethodImplOptions.Synchronized)]
     public Organism SpawnOrganism(int seedCount) {
-        SeedGroup seedGroup = new SeedGroup(Simulation.randomGenerator.NextFloat(0, timeRequirement), 0, float3.zero, 0, seedCount);
-        seedGroups.Add(seedGroup, new SeedGroup());
+        SeedGroup seedGroup = new SeedGroup(seedCount);
+        seedGroups.Add(seedGroup);
+        seedGroup.age = Simulation.randomGenerator.NextFloat(0, timeRequirement);
         seedPopulation += seedGroup.seedCount;
         return seedGroup;
     }
 
+    [MethodImpl(MethodImplOptions.Synchronized)]
     public Organism SpawnOrganism(float3 position, int zone, float distance, int seedCount) {
         SeedGroup seedGroup = new SeedGroup(Simulation.randomGenerator.NextFloat(0, timeRequirement), 0, float3.zero, 0, seedCount);
-        seedGroups.Add(seedGroup, new SeedGroup());
+        seedGroups.Add(seedGroup);
         seedPopulation += seedGroup.seedCount;
         return seedGroup;
     }
 
-    public void StartJobs(HashSet<Thread> activeThreads) {
-        foreach (var organism in seedGroups.readObjects) {
-            UpdateSeed(organism);
+    public void StartJobs(HashSet<Thread> activeThreads, bool threaded) {
+        var organismList = seedGroups.readObjects.Where(o => o != null).ToList();
+        if (threaded) {
+            ParallelLoopResult jobs = Parallel.ForEach<Organism>(organismList, UpdateSeed);
+            while (!jobs.IsCompleted) { }
+        } else {
+            organismList.ForEach(UpdateSeed);
         }
     }
 
     public void UpdateSeed(Organism organismR) {
         SeedGroup seedGroupR = (SeedGroup)organismR;
-        SeedGroup seedGroupW = seedGroups.GetWritable(seedGroupR);
+        if (seedGroupR == null && organismR == null) throw new Exception("afljaslkjfjsaldf");
+        SeedGroup seedGroupW = (SeedGroup)organismR.GetWritable();
         float newAge = organismR.age + GetPlantSpecies().GetEarth().simulationDeltaTime;
         if (newAge > timeMaximum) {
             seedGroups.Remove(seedGroupW);
