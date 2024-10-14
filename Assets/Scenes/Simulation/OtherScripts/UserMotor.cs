@@ -136,20 +136,9 @@ public class UserMotor : MonoBehaviour {
 
         // For easier testing
         if (Input.GetKeyDown(KeyCode.M)) {
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
-            timeUI.IncreaceTimeStep();
+            for (int i = 0; i < 20; i++) {
+                timeUI.IncreaceTimeStep();
+            }
         }
     }
 

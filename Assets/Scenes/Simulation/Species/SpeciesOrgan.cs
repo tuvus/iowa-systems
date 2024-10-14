@@ -14,8 +14,6 @@ public abstract class SpeciesOrgan : MonoBehaviour {
 
     public virtual void SpawnOrgan(Species.Organism organism) { }
 
-    public virtual void KillOrganism(Species.Organism organism) { }
-    
     public virtual void EndUpdate() { }
     
     public Species GetSpecies() {

@@ -8,22 +8,27 @@ public class AnimalSpecies : Species {
     public GameObject basicOrganism;
 
     public Color corpseColor;
+
     //AnimalStats
-    [Tooltip("Weight in kilograms")]
-    public float bodyWeight;
+    [Tooltip("Weight in kilograms")] public float bodyWeight;
     public float maxHealth;
     public float speed;
+
     [Tooltip("Daily food used by the organism in kilograms")]
     public float foodConsumption;
+
     [Tooltip("The food in kilograms at which the animal is hungry")]
     public float fullFood;
-    [Tooltip("Maximum ammount of food stored in kilograms")]
+
+    [Tooltip("Maximum amount of food stored in kilograms")]
     public float maxFood;
+
     [Tooltip("The age at which the animal will die at in days")]
     public int maxAge;
 
     int foodIndex;
     [SerializeField] List<string> eddibleFoodTypesInput = new List<string>();
+
     public enum GrowthStage {
         Dead = -2,
         Corpse = -1,
@@ -31,40 +36,37 @@ public class AnimalSpecies : Species {
         Adult = 1,
     }
 
-    public class Animal : MapObject<Organism> {
+    public class Animal : ICloneable {
         public GrowthStage stage;
-        [Tooltip("Weight in kilograms")]
-        public float bodyWeight;
+        [Tooltip("Weight in kilograms")] public float bodyWeight;
         public float health;
+
         [Tooltip("The food in kilograms stored in the animal")]
         public float food;
 
-        public Animal(Organism organism, GrowthStage stage, float bodyWeight, float health, float food): base(organism) {
+        public Animal(GrowthStage stage, float bodyWeight, float health, float food) {
             this.stage = stage;
             this.bodyWeight = bodyWeight;
             this.health = health;
             this.food = food;
         }
 
-        public Animal(Organism organism, Animal animal, float health, float food) : base(organism) {
+        public Animal(Animal animal, float health, float food) {
             this.stage = animal.stage;
             this.bodyWeight = animal.bodyWeight;
             this.health = health;
             this.food = food;
         }
 
-        public Animal(Organism organism, Animal animal, GrowthStage stage) : base(organism) {
+        public Animal(Animal animal, GrowthStage stage) {
             this.stage = stage;
             this.bodyWeight = animal.bodyWeight;
             this.health = animal.health;
             this.food = animal.food;
         }
 
-        public Animal(Animal animal) : base(animal.setObject) {
-            this.stage = animal.stage;
-            this.bodyWeight = animal.bodyWeight;
-            this.health = animal.health;
-            this.food = animal.food;
+        public object Clone() {
+            return MemberwiseClone();
         }
     }
 
@@ -75,6 +77,7 @@ public class AnimalSpecies : Species {
     private AnimalSpeciesReproductiveSystem reproductiveSystem;
 
     #region StartSimulation
+
     public override void SetupSimulation(Earth earth) {
         reproductiveSystem = gameObject.GetComponent<AnimalSpeciesReproductiveSystem>();
         base.SetupSimulation(earth);
@@ -109,11 +112,12 @@ public class AnimalSpecies : Species {
             SpawnOrganism();
         }
     }
+
     #endregion
 
     public override Organism SpawnOrganism() {
         Organism organism = base.SpawnOrganism();
-        organism.AddOrgan(new Animal(organism,  reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
+        organism.AddOrgan(new Animal(reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
             Simulation.randomGenerator.NextFloat(fullFood, maxFood)));
         //TODO: Add position and rotation
         return organism;
@@ -121,7 +125,7 @@ public class AnimalSpecies : Species {
 
     public override Organism SpawnOrganism(float3 position, int zone, float distance) {
         Organism organism = base.SpawnOrganism();
-        organism.AddOrgan(new Animal(organism, reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
+        organism.AddOrgan(new Animal(reproductiveSystem.SpawnReproductive(organism), bodyWeight, maxHealth,
             Simulation.randomGenerator.NextFloat(fullFood, maxFood)));
         //TODO: Add position and rotation
         return organism;
@@ -225,6 +229,7 @@ public class AnimalSpecies : Species {
     }
 
     #region AnimalControls
+
     public float GetFoodConsumption() {
         return foodConsumption / 24;
     }
@@ -242,9 +247,11 @@ public class AnimalSpecies : Species {
     public float GetMovementSpeed(Organism organismR) {
         return speed * (((organismR.GetOrgan<Animal>().health / maxHealth) / 2) + 0.5f);
     }
+
     #endregion
 
     #region GetMethods
+
     public float GetSightRange() {
         return GetComponent<AnimalSpeciesEyes>().sightRange;
     }
@@ -278,5 +285,6 @@ public class AnimalSpecies : Species {
     public Color GetCorpseColor() {
         return corpseColor;
     }
+
     #endregion
 }
